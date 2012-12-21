@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- mode:python -*-
 '''
   cyg-apt - a Cygwin package manager.
   
@@ -351,13 +352,15 @@ def uri_get(dir, uri, verbose=True):
         url_base = os.path.basename(up.path)
         old_cwd = os.getcwd()
         os.chdir(dir)
+        err = None
         if verbose:
             print "\r%s: downloading: %s" % (scriptname, uri)
         try:
             result = opener.retrieve\
                 (uri, url_base + ".tmp", reporthook = opener.dlProgress)
-        except IOError:
+        except IOError,e:
             opener.errcode = 1
+            err = e
         if (opener.errcode == 200):
             rename(url_base + ".tmp", url_base)
             ret = 0
@@ -365,7 +368,7 @@ def uri_get(dir, uri, verbose=True):
             if os.path.exists(url_base + ".tmp"):
                 os.remove(url_base + ".tmp")
             os.chdir(old_cwd)
-            raise CygAptError("bad URL %s" % uri)
+            raise CygAptError("failed to download from %s: %s" % (uri, e))
         os.chdir(old_cwd)
     else:
         raise CygAptError("bad URL %s" % uri)
@@ -1633,3 +1636,4 @@ def main():
       
 if __name__ == '__main__':
     main()
+
