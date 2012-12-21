@@ -541,6 +541,7 @@ class CygApt:
         if (main_mirror):
             self.mirrors = {'main': main_mirror}
 
+        del self.mirror
         self.downloads = {}
         for mirror_id, mirror_url in self.mirrors.items():
             self.downloads[mirror_id] = self.cache + '/' + urllib.quote(mirror_url, '').lower()
@@ -741,7 +742,7 @@ class CygApt:
     def no_package(self):
         sys.stderr.write \
         ("%s:  %s is not on mirror %s in [%s]\n" % (self.sn, self.packagename,\
-            self.mirror, self.distname))
+            self.mirrors.keys(), self.distname))
     
     
     def get_requires(self):
