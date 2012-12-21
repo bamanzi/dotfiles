@@ -1001,9 +1001,11 @@ class CygApt:
             if self.dists[dist].has_key(self.packagename):
                 package = self.dists[dist][self.packagename]
                 print "[%s]" % dist
-                print "install: %s" % package['install']
-                print "local:   %s" % (self.downloads[package['mirror']] \
-                                           + '/' + package['install'])
+                print "install   : %s" % package.get('install', "(no 'install' info in setup.ini)")
+                print "mirror    : %s" % self.mirrors[package.get('mirror')]
+                if package.has_key('install'):
+                    print "local     : %s/%s" % (self.downloads[package.get('mirror')], \
+                                                  package['install'])                
 
     
     def get_missing(self):
