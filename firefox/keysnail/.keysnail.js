@@ -583,7 +583,12 @@ toggleToolbar = function(aEvent, toolbar_id, force) {
 		var toolbar = document.getElementById(toolbar_id);
 		try {
 			// Firefox 4, mainly the bookmark toolbar button
-	        setToolbarVisibility(toolbar, !toolbar.getcollapsed)
+	        var hidingAttribute = toolbar.getAttribute("type") == "menubar" ?
+        	    "autohide" : "collapsed";
+            var isVisble = toolbar.getAttribute(hidingAttribute);
+                
+			setToolbarVisibility(toolbar, !isVisble);
+            
 			if(force)
 				toolbar.collapsed = !toolbar.collapsed;
 		} catch(e) {
