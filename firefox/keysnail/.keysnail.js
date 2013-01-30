@@ -504,6 +504,10 @@ ext.add("wiktionary-lookup-selection", function() {
     gd12.select.lookupSelected();
 }, 'Show translation for selection (extension: Wiktionary & Google Translate).');
 
+ ext.add("dict", function () {
+    dictDefineSelection();
+}, 'Looks up the definition of selected words using Dict protocol (requires Dict extension).');
+
 ext.add("open-extension-dialog", function(ev, arg) {
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
 
@@ -582,7 +586,74 @@ ext.add("toggle-menu-bar", function(ev, arg) {
 
 ext.add("toggle-tgm-bar", function(ev, arg) {
     toggleToolbar(ev, "TabGroupsManagerToolbar");
-}, "Toggle TabGroups Manager toolbar.");  
+}, "Toggle TabGroups Manager toolbar.");
+
+ext.add("tab-send-to-tmt", function(ev, arg) {
+        var panoGroup = TabView._window.GroupItems.getActiveGroupItem();
+        var groupName = panoGroup.getTitle();
+        var tmtGroupId = -1;
+
+        var rows = Visibo.common.gTMTRowPanel.childNodes;
+        for (var i=0; i<rows.length; i++) {
+            var row = rows[i];
+            //alert("title: " + row.getAttribute("title") + "\n" +
+            //      "bmId:  " + row.getAttribute("bmId"));
+            if (row.getAttribute("title")==groupName) {
+                tmtGroupId = row.getAttribute("bmId");
+            }   
+        }
+        
+        if (tmtGroupId < 0) {
+            //create a new group
+            tmtGroupId = Visibo.TMT.API.addRow(groupName);
+        }
+        
+        var tab = gBrowser.selectedTab;
+        var tabdata = Visibo.TMT.Tab.extractTabData(tab);
+        if (tabdata) {
+            Visibo.TMT.API.addTabToRow(tabdata, tmtGroupId);
+            //gBrowser.removeTab(tab); 
+        }
+}, "Send current tab to TooManyTabs (the row of TabCandy group name) and then close it.");
+        
+ext.add("tabgroup-send-to-tmt", function(ev, arg) {
+        var panoGroup = TabView._window.GroupItems.getActiveGroupItem();
+        var groupName = panoGroup.getTitle();
+        var tmtGroupId = -1;
+
+        var rows = Visibo.common.gTMTRowPanel.childNodes;
+        for (var i=0; i<rows.length; i++) {
+            var row = rows[i];
+            //alert("title: " + row.getAttribute("title") + "\n" +
+            //      "bmId:  " + row.getAttribute("bmId"));
+            if (row.getAttribute("title")==groupName) {
+                tmtGroupId = row.getAttribute("bmId");
+            }   
+        }
+
+        if (tmtGroupId < 0) {
+            //create a new group
+            tmtGroupId = Visibo.TMT.API.addRow(groupName);
+        }
+
+        //print("tmtGroupId=" + tmtGroupId);
+        
+        var groupTabs = panoGroup._children;
+        for (var i=0; i<groupTabs.length; i++) {
+            var tab = groupTabs[i].tab;
+            var tabdata = Visibo.TMT.Tab.extractTabData(tab);
+            if (tabdata) {
+                Visibo.TMT.API.addTabToRow(tabdata, tmtGroupId);
+            }
+        }
+        
+        //FIXME: how to close a tab without activating neighbour?
+        //    or: how to close a whole group (just like pano extension)?
+        for (var i=groupTabs.length-1; i>=0; i--) {
+            gBrowser.removeTab(groupTabs[i]);
+        }
+}, "Send all tabs of current group (FF4+ TabCandy group) to TooManyTabs and then close them.");
+
 //}}%PRESERVE%
 // ========================================================================= //
 
@@ -1383,6 +1454,10 @@ key.setGlobalKey(['<f5>', 'b'], function(ev, arg) {
 key.setGlobalKey(['<f5>', 'B'], function(ev, arg) {
     ext.exec('bmany-list-toolbar-bookmarks', arg, ev);
 }, 'bmany - List toolbar bookmarks.');
+
+key.setGlobalKey(['<f5>', ':'], function(ev, arg) {
+    ext.exec('list-command', arg, ev);
+}, 'vimperator-like commands');
 
 key.setGlobalKey(['C-<f11>', 'm'], function(ev, arg) {
     SplitBrowser._browsers.forEach(function(aBrowser) {
