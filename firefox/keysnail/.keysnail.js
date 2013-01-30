@@ -295,6 +295,11 @@ ext.add("next-page", function () {
 
 // paste and go
 ext.add("paste-and-go", function() {
+    if (typeof(pastego) != "undefined") {
+        //pastego addon
+        pastego.onToolbarButtonCommand();
+        return;
+    }    
     var url = command.getClipboardText();
     if (url.indexOf("://") != -1)
     {
@@ -547,7 +552,37 @@ ext.add("tabundle-group", function(ev, arg) {
         gBrowser.selectedTab = gBrowser.addTab('file://' + path)
     }
 }, "Use tabundle extension to capture info of all tabs of current group."); 
-    
+
+toggleToolbar = function(aEvent, toolbar_id, force) {
+	if(toolbar_id != aEvent.originalTarget.parentNode.id) {
+		var toolbar = document.getElementById(toolbar_id);
+		try {
+			// Firefox 4, mainly the bookmark toolbar button
+	        setToolbarVisibility(toolbar, !toolbar.getcollapsed)
+			if(force)
+				toolbar.collapsed = !toolbar.collapsed;
+		} catch(e) {
+			toolbar.collapsed = !toolbar.collapsed;
+			document.persist(toolbar_id, "collapsed");
+		}
+	}
+};
+
+ext.add("toggle-nav-bar", function(ev, argv) {
+    toggleToolbar(ev, "nav-bar");
+}, "Toggle bookmark bar");
+
+ext.add("toggle-bookmark-bar", function(ev, argv) {
+    toggleToolbar(ev, "PersonalToolbar");
+}, "Toggle bookmark bar");
+
+ext.add("toggle-menu-bar", function(ev, arg) {
+    toggleToolbar(ev, "toolbar-menubar");
+}, "Toggle bookmark bar");
+
+ext.add("toggle-tgm-bar", function(ev, arg) {
+    toggleToolbar(ev, "TabGroupsManagerToolbar");
+}, "Toggle TabGroups Manager toolbar.");  
 //}}%PRESERVE%
 // ========================================================================= //
 
@@ -1285,11 +1320,11 @@ key.setEditKey(["C-x", '8', '-'], function(ev, arg) {
     inputChars(ev, "…");
 }, "Input …");
 
-key.setGlobalKey(["<C-f10>", 'p'], function(ev, arg) {
+key.setGlobalKey(["C-<f10>", 'p'], function(ev, arg) {
     toggleproxy.toggleProxy();
 }, "Toggle proxy.");
 
-key.setGlobalKey(["<C-f10>", 'c'], function(ev, arg) {
+key.setGlobalKey(["C-<f10>", 'c'], function(ev, arg) {
     addon9408.ctmain.btDoToggle();
 }, "Toggle color.");
 
