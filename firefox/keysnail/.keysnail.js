@@ -101,6 +101,27 @@ ext.add("read-it-later-list-in-split-panel", function() {
     splitpannel.toggle("http://readitlaterlist.com/unread", true, 'right');
 }, 'Show Read It Later list Split Panel');
 
+ext.add("read-it-later-sidebar-in-split-panel", function() {    
+    splitpannel.toggle('chrome://isreaditlater/content/list.xul', true, 'right');
+}, 'Show ReadItLater sidebar in Split Panel. (readitlater extension)');
+
+ext.add("save-to-read-sidebar-in-split-panel", function() {
+    splitpannel.toggle("chrome://save2read/content/ff-sidebar.xul", true, 'right');
+}, 'Toggle Save-To-Read sidebar. (save2read extension)');
+
+//FIXME: not work?
+ext.add("pano-sidebar-in-split-panel", function() {
+    splitpannel.toggle('chrome://pano/content/sidebar.xul', true, 'right');
+}, 'Open Pano sidebar in Split Panel (extension Pano).');
+
+//FIXME: manual refreshing needed when active tab changed in main panel
+ext.add("headings-map-in-split-panel", function() {
+    splitpannel.toggle('chrome://headings/content/headings.xul', 'true', 'right');
+}, 'Show Headings Map sidebar in Split Panel.');
+
+ext.add("scrapbook-sidebar-in-split-panel", function () {
+    splitpannel.toggle('chrome://scrapbook/content/scrapbook.xul', true, 'right');
+}, 'Toggle Scrapbook sidebar (extension Scrapbook or Scrapbook Plus)');
 
 ext.add("view-in-sidebar", function() {
     toggleSidebar('', false);
