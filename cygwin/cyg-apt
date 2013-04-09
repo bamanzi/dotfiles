@@ -134,7 +134,7 @@ class CygAptSetup:
         self.cache = last_cache
 
         cygwin_version = os.uname()[2][:3]
-        self.setup_ini = self.config + "/setup.ini"
+        #self.setup_ini = self.config + "/setup.ini"
         self.cygwin_version = float(cygwin_version)
         distname = "curr"
         h = open(self.cyg_apt_rc, "w")
@@ -155,9 +155,9 @@ class CygAptSetup:
             sys.stderr.write('creating %s\n' % installed_db)
             installed = {0:{}}
             self.write_installed()
-        if not os.path.isfile(self.setup_ini):
-            sys.stderr.write('getting %s\n' % self.setup_ini)
-            self.update(self.cyg_apt_rc) 
+        #if not os.path.isfile(self.setup_ini):
+        #    sys.stderr.write('getting %s\n' % self.setup_ini)
+        #    self.update(self.cyg_apt_rc) 
         
         
     def usage(self, cyg_apt_rc=None):
@@ -204,7 +204,7 @@ class CygAptSetup:
             pm = PathMapper("", True)
         else:
             pm = PathMapper(rc["ROOT"][:-1], False)
-        setup_ini = pm.map_path(rc["setup_ini"])
+        #setup_ini = pm.map_path(rc["setup_ini"])
         if (main_mirror):
             mirrors = { 'main': main_mirror }
         else:
@@ -645,7 +645,7 @@ class CygApt:
                     except:
                         print lines[j]
                         raise
-                    if key=="message" or value[0] == '"' and value.find('"', 1) == -1:
+                    if key=="message" or (value[0] == '"' and value.find('"', 1) == -1):
                         while 1:
                             j = j + 1
                             value += '\n' + lines[j]
@@ -946,9 +946,9 @@ class CygApt:
         if not self.packagename:
             raise CygAptError("search command requires a string to search for")
         if not self.regex_search:
-            regexp = re.escape(self.packagename)
+            regexp = re.compile(re.escape(self.packagename), re.I)
         else:
-            regexp = self.packagename
+            regexp = re.compile(self.packagename, re.I)
         packages = []
         keys = []
         if self.distname in self.dists:
@@ -960,9 +960,9 @@ class CygApt:
                         keys.append(j)
         for i in keys:
             self.packagename = i
-            if not regexp or re.search(regexp, i) \
-               or re.search(regexp, self.get_field('sdesc')) \
-               or re.search(regexp, self.get_field('ldesc')):
+            if not regexp or regexp.search(i) \
+               or regexp.search(self.get_field('sdesc')) \
+               or regexp.search(self.get_field('ldesc')):
                 if self.distname in self.dists:
                     if self.dists[self.distname][i].has_key(self.INSTALL):
                         packages.append(i)
@@ -1474,7 +1474,7 @@ class CygApt:
         self.postremove_dir = "/etc/postremove"
         self.preremove_dir =  "/etc/preremove"
         
-        self.setup_ini = self.pm.map_path(self.setup_ini)
+        #self.setup_ini = self.pm.map_path(self.setup_ini)
         self.dos_bin_dir = self.pm.mountroot + "/bin"
         self.dos_bash = self.pm.mountroot + "bin/bash"
         self.dos_ln = self.pm.mountroot + "bin/ln"
