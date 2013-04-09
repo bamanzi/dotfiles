@@ -695,7 +695,7 @@ class CygApt:
         else:
             package = self.dists[self.distname][self.packagename]
         
-        file, size, md5 = string.split(package['install'])
+        file, size, md5 = string.split(package[self.INSTALL])
         return file, md5, package['mirror']
     
     
