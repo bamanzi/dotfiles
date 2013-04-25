@@ -619,6 +619,11 @@ class CygApt:
         self.dists = {'test': {}, 'curr': {}, 'prev' : {}}
         for mirror_id, mirror_url in self.mirrors.items():
             setup_ini = self.cache + '/' + urllib.quote(mirror_url, '').lower() + '/' + 'setup.ini'
+            if os.path.exists(setup_ini):
+                print "File not exist: " + setup_ini
+                print "(Maybe you need to run 'cyg-apt update')"
+                continue
+            
             chunks = string.split(open(setup_ini).read(), '\n\n@ ')
             for i in chunks[1:]:
                 lines = string.split(i, '\n')
