@@ -39,7 +39,7 @@ class CygAptSetup:
     def __init__(self, cygwin_p):
         self.cygwin_p = cygwin_p
         self.rc_options = ['ROOT', 'mirror', 'cache', 'setup_ini', 'distname',\
-            'barred', 'auto_update', 'mirrors']
+            'barred', 'auto_update', 'arch']
         self.rc_comments = {\
             "ROOT"     : "# The root of your Cygwin installation as a windows path\n",
             "mirror"   : "# URL of your Cygwin mirror: example "\
@@ -59,8 +59,10 @@ class CygAptSetup:
                 "# Run cyg-apt under DOS with -f (force) option to change "\
                 "these packages.\n"\
                 "# Treat Cygwin core packages with CAUTION.\n",
-            "auto_update" : "# Auto update setup.ini before install any package (default: False)."\
-                "# If set to False, you need to manually call 'cyg-apt update' to update setup.ini.\n"
+            "auto_update" : "# Auto update setup.ini before install any package (default: False).\n"\
+                "# IF set to False, you need to manually call 'cyg-apt update' to update setup.ini.\n",
+            "arch" : "# x86 or x86_64, used to find the setup.ini and local cache folder. \n"\
+                "# required after 2013-07-22 (default: x86).\n"\
             }
         self.sn = os.path.basename(sys.argv[0])
         self.rc_regex = re.compile("^\s*(\w+)\s*=\s*(.*)\s*$")
@@ -115,7 +117,8 @@ class CygAptSetup:
         # Refuse to remove/install any package including these substrings
         # since cyg-apt is dependent on them
         self.barred = "python cygwin base-cygwin coreutils bash zlib libreadline gnupg"
-        self.auto_update = True
+        self.auto_update = False
+        self.arch = "x86"  #FIXME
         
         if not self.cygwin_p:
             print >> sys.stderr, "%s: settup only supported under Cygwin. Exiting."\
@@ -131,10 +134,11 @@ class CygAptSetup:
                 last_cache = missing_cache_marker
                 last_mirror  = missing_mirror_marker
         self.mirror = last_mirror
+        self.mirrors = { 'main': self.mirror }
         self.cache = last_cache
 
         cygwin_version = os.uname()[2][:3]
-        #self.setup_ini = self.config + "/setup.ini"
+        self.setup_ini = self.config + "/setup.ini"
         self.cygwin_version = float(cygwin_version)
         distname = "curr"
         h = open(self.cyg_apt_rc, "w")
@@ -204,7 +208,7 @@ class CygAptSetup:
             pm = PathMapper("", True)
         else:
             pm = PathMapper(rc["ROOT"][:-1], False)
-        #setup_ini = pm.map_path(rc["setup_ini"])
+        setup_ini = pm.map_path(rc["setup_ini"])
         if (main_mirror):
             mirrors = { 'main': main_mirror }
         else:
@@ -213,18 +217,15 @@ class CygAptSetup:
             else:
                 mirrors = { 'offcial': rc["mirror"] }
 
+        arch = rc["arch"]
         for mirror_id, mirror in mirrors.items():
-            downloads = pm.map_path(rc["cache"]) + '/' + urllib.quote(mirror, '').lower()
-            if not mirror[-1] == "/":
-                sep = "/"
-            else:
-                sep = ""
+            downloads = os.path.join(pm.map_path(rc["cache"]), urllib.quote(mirror, '').lower(), arch)
 
             setup_ini_names = [os.path.basename(setup_ini).replace(".ini", ".bz2"),\
                 os.path.basename(setup_ini)]
 
             for (setup_ini_name, index) in zip(setup_ini_names, range(len(setup_ini_names))):
-                setup_ini_url = '%s%s%s' % (mirror, sep, setup_ini_name)
+                setup_ini_url = os.path.join(mirror, arch, setup_ini_name)
                 err = None
                 try:
                     uri_get(self.tmpdir, setup_ini_url, verbose=True)
@@ -257,7 +258,7 @@ class CygAptSetup:
 
             if verify:
                 sig_name = setup_ini_name + ".sig"
-                sig_url = "%s%s%s" % (mirror, sep, sig_name)
+                sig_url = os.path.join(mirror, sig_name)
                 err = uri_get(self.tmpdir, sig_url, verbose=True)
                 if err:
                     print >> sys.stderr,\
@@ -368,7 +369,7 @@ def uri_get(dir, uri, verbose=True):
             if os.path.exists(url_base + ".tmp"):
                 os.remove(url_base + ".tmp")
             os.chdir(old_cwd)
-            raise CygAptError("failed to download from %s: %s" % (uri, e))
+            raise CygAptError("failed to download from %s: %s" % (uri, err))
         os.chdir(old_cwd)
     else:
         raise CygAptError("bad URL %s" % uri)
@@ -494,7 +495,7 @@ class CygApt:
         # Define constants
         self.installed_db_magic = 'INSTALLED.DB 2\n'
         self.INSTALL = 'install'
-        self.rc_options = ['ROOT', 'mirror', 'cache', 'setup_ini', 'distname', 'barred', 'mirrors']
+        self.rc_options = ['ROOT', 'mirror', 'cache', 'setup_ini', 'distname', 'barred', 'mirrors', 'arch']
         self.distnames = ('curr', 'test', 'prev')
         self.rc_regex = re.compile("^\s*(\w+)\s*=\s*(.*)\s*$")
 
@@ -521,6 +522,7 @@ class CygApt:
         self.cyg_apt_rc = main_cyg_apt_rc
         self.mirror = ''
         self.mirrors = {}
+        self.arch = "x86"
         
         # Read in our configuration
         self.get_rc(open(self.cyg_apt_rc))
@@ -618,8 +620,8 @@ class CygApt:
             return
         self.dists = {'test': {}, 'curr': {}, 'prev' : {}}
         for mirror_id, mirror_url in self.mirrors.items():
-            setup_ini = self.cache + '/' + urllib.quote(mirror_url, '').lower() + '/' + 'setup.ini'
-            if os.path.exists(setup_ini):
+            setup_ini = os.path.join(self.cache, urllib.quote(mirror_url, '').lower(), self.arch, 'setup.ini')
+            if not os.path.exists(setup_ini):
                 print "File not exist: " + setup_ini
                 print "(Maybe you need to run 'cyg-apt update')"
                 continue
