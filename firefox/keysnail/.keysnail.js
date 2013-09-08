@@ -1494,6 +1494,14 @@ key.setGlobalKey(['C-<f11>', 'm'], function(ev, arg) {
     });
 }, "Expand/collapse subbrowsers (SplitBrowser addon)");
 
-key.setGlobalKey(['<f9>', 'w'], function(ev, arg) {
+key.setGlobalKey(['C-<f9>', 'w'], function(ev, arg) {
     ext.exec('wiktionary-lookup-selection', arg, ev);
 }, "Translation selection with Wiktionary & Google Translate.");
+
+key.setGlobalKey(['<f12>', 'i'], function(ev, arg) {
+    ext.exec("cnblogs-ing-in-split-panel", arg, ev);
+}, "Open Split Panel and navigate to http://space.cnblogs.com/mi/");
+
+key.setGlobalKey(['C-<f9>', 't'], function(ev, arg) {
+    ext.exec("tab-send-to-tmt", arg, ev);
+}, "Send current tab to TMT row.");

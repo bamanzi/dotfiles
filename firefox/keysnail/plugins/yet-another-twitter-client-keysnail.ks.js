@@ -12,7 +12,7 @@ const PLUGIN_INFO =
     <name>Yet Another Twitter Client KeySnail</name>
     <description>Make KeySnail behave like Twitter client</description>
     <description lang="ja">KeySnail を Twitter クライアントに</description>
-    <version>3.1.5</version>
+    <version>3.1.9</version>
     <updateURL>https://github.com/mooz/keysnail/raw/master/plugins/yet-another-twitter-client-keysnail.ks.js</updateURL>
     <iconURL>https://github.com/mooz/keysnail/raw/master/plugins/icon/yet-another-twitter-client-keysnail.icon.png</iconURL>
     <author mail="stillpedant@gmail.com" homepage="http://d.hatena.ne.jp/mooz/">mooz</author>
@@ -456,6 +456,7 @@ let pOptions = plugins.setupOptions("twitter_client", {
     },
     "lists"                                 : { preset: [] },
     "show_sources"                          : { preset: true },
+    "show_retweet_count"                    : { preset: false },
     "hide_profile_image_gif"                : {
         preset: false,
         description: M({ ja: "ユーザのアイコンが Gif 画像であった場合は隠す",
@@ -505,7 +506,7 @@ const $U = {
 
     decodeJSON:
     function decodeJSON(json) {
-        return util.safeEval("(" + json + ")");
+        return JSON.parse(json);
     },
 
     quoteToUnicode: function (quote) {
@@ -533,9 +534,18 @@ const $U = {
         return elem;
     },
 
+    linkClass: "ks-text-link",
+    createLinkElement: function (url, text) {
+        return $U.createElement("description", {
+            "class"       : $U.linkClass,
+            "tooltiptext" : url,
+            "value"       : text
+        });
+    },
+
     insertAfter:
     function insertAfter(parent, node, referenceNode) {
-	parent.insertBefore(node, referenceNode.nextSibling);
+        parent.insertBefore(node, referenceNode.nextSibling);
     },
 
     shortenURL:
@@ -571,6 +581,15 @@ const $U = {
     extractLinks: function (str) {
         return Array.slice(str.match(/(?:(?:http|ftp)s?\:\/\/|www\.)[^\s]+/g))
             .map(function (url) url.indexOf("www") ? url : "http://" + url);
+    },
+
+    encodeOAuth: function (str) {
+        return encodeURIComponent(str)
+            .replace(/\!/g, "%21")
+            .replace(/\'/g, "%27")
+            .replace(/\(/g, "%28")
+            .replace(/\)/g, "%29")
+            .replace(/\*/g, "%2A");
     }
 };
 
@@ -638,7 +657,7 @@ function OAuth(info, tokens) {
     let context = {};
 
     if (!userscript.require("oauth.js", context)) {
-        display.notify(L(util.xmlGetLocaleString(PLUGIN_INFO.name)) + " : " +
+        display.notify(PLUGIN_INFO.name + " : " +
                        M({ja: "このプラグインの動作には oauth.js が必要です。 oauth.js をプラグインディレクトリ内に配置した上でお試し下さい。",
                           en: "This plugin requires oauth.js but not found. Please locate oauth.js to the plugin directory."}));
     }
@@ -647,45 +666,6 @@ function OAuth(info, tokens) {
 }
 
 OAuth.prototype = {
-    syncRequest:
-    function syncRequest(options) {
-        var xhr = new XMLHttpRequest();
-
-        var accessor = {
-            consumerSecret : this.info.consumerSecret,
-            tokenSecret    : this.tokens.oauth_token_secret
-        };
-
-        var message = {
-            action     : options.action,
-            method     : options.method,
-            parameters : [
-                ["oauth_consumer_key"     , this.info.consumerKey],
-                ["oauth_token"            , this.tokens.oauth_token],
-                ["oauth_signature_method" , this.info.signatureMethod],
-                ["oauth_version"          , "1.0"]
-            ]
-        };
-
-        if (options.parameters)
-            message.parameters = message.parameters.concat(options.parameters);
-
-        this._oauth.setTimestampAndNonce(message);
-        this._oauth.SignatureMethod.sign(message, accessor);
-
-        var oAuthArgs  = this._oauth.getParameterMap(message.parameters);
-        var authHeader = this._oauth.getAuthorizationHeader(this.info.authHeader, oAuthArgs);
-
-        xhr.mozBackgroundRequest = true;
-        xhr.open(message.method, message.action, false);
-        xhr.setRequestHeader("Authorization", authHeader);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-        xhr.send(options.query || null);
-
-        return xhr.responseText;
-    },
-
     asyncRequest:
     function asyncRequest(options, callback, onprogress) {
         var xhr = new XMLHttpRequest();
@@ -724,7 +704,7 @@ OAuth.prototype = {
         if (this.tokens.oauth_token)
             message.parameters.push(["oauth_token", this.tokens.oauth_token]);
 
-        if (options.parameters)
+        if (options.parameters && message.method === "POST")
         {
             outer:
             for (let [, params] in Iterator(options.parameters))
@@ -749,14 +729,11 @@ OAuth.prototype = {
         this._oauth.SignatureMethod.sign(message, accessor);
 
         var oAuthArgs  = this._oauth.getParameterMap(message.parameters);
-        var authHeader = this._oauth.getAuthorizationHeader(options.host || this.info.authHeader, oAuthArgs);
+        var endPoint = this._oauth.addToURL(message.action, oAuthArgs);
 
         xhr.mozBackgroundRequest = true;
-        xhr.open(message.method, message.action, true);
-        xhr.setRequestHeader("Authorization", authHeader);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-        xhr.send(options.query || null);
+        xhr.open(message.method, endPoint, true);
+        xhr.send(null);
     }
 };
 
@@ -796,21 +773,19 @@ const twitterAPI = {
 
         for (let [k, v] in Iterator(args))
             if (typeof v !== "undefined")
-                action = action.replace(util.format("{%s}", k), encodeURIComponent(v), "g");
+                action = action.replace(util.format("{%s}", k), $U.encodeOAuth(v), "g");
 
-        let query = [k + "=" + encodeURIComponent(v)
-                     for ([k, v] in Iterator(params))
-                     if (typeof v !== "undefined")].join("&");
-
-        if (query.length)
-            action += "?" + query;
+        let (query = [k + "=" + $U.encodeOAuth(v)
+                      for ([k, v] in Iterator(params))
+                      if (typeof v !== "undefined")].join("&")) {
+            if (query.length)
+                action += (action.indexOf("?") < 0 ? "?" : "&") + query;
+        };
 
         let requestArg = {
             action     : action,
             host       : proto.host,
-            method     : proto.method,
-            query      : query,
-            parameters : [[k, v] for ([k, v] in Iterator(params))]
+            method     : proto.method
         };
 
         return requestArg;
@@ -889,17 +864,17 @@ const twitterAPI = {
         // ============================================================ //
 
         "statuses/home_timeline": {
-            action : "https://api.twitter.com/1/statuses/home_timeline.json",
+            action : "https://api.twitter.com/1.1/statuses/home_timeline.json",
             method : "GET"
         },
 
         "statuses/user_timeline": {
-            action : "https://api.twitter.com/1/statuses/user_timeline.json",
+            action : "https://api.twitter.com/1.1/statuses/user_timeline.json",
             method : "GET"
         },
 
         "statuses/mentions": {
-            action : "https://api.twitter.com/1/statuses/mentions.json",
+            action : "https://api.twitter.com/1.1/statuses/mentions_timeline.json",
             method : "GET"
         },
 
@@ -908,22 +883,22 @@ const twitterAPI = {
         // ============================================================ //
 
         "statuses/update": {
-            action : "https://api.twitter.com/1/statuses/update.json",
+            action : "https://api.twitter.com/1.1/statuses/update.json",
             method : "POST"
         },
 
         "statuses/destroy": {
-            action : "https://api.twitter.com/1/statuses/destroy/{id}.json",
+            action : "https://api.twitter.com/1.1/statuses/destroy/{id}.json",
             method : "DELETE"
         },
 
         "statuses/retweet": {
-            action : "https://api.twitter.com/1/statuses/retweet/{id}.json",
+            action : "https://api.twitter.com/1.1/statuses/retweet/{id}.json",
             method : "POST"
         },
 
         "statuses/show": {
-            action : "https://api.twitter.com/1/statuses/show/{id}.json",
+            action : "https://api.twitter.com/1.1/statuses/show/{id}.json",
             method : "GET"
         },
 
@@ -932,22 +907,22 @@ const twitterAPI = {
         // ============================================================ //
 
         "favorites": {
-            action : "https://api.twitter.com/1/favorites.json",
+            action : "https://api.twitter.com/1.1/favorites/list.json",
             method : "GET"
         },
 
         "favorites/user": {
-            action : "https://api.twitter.com/1/favorites/{user}.json",
+            action : "https://api.twitter.com/1.1/favorites/list.json?user_id={user}",
             method : "GET"
         },
 
         "favorites/create": {
-            action : "https://api.twitter.com/1/favorites/create/{id}.json",
+            action : "https://api.twitter.com/1.1/favorites/create.json",
             method : "POST"
         },
 
         "favorites/destroy": {
-            action : "https://api.twitter.com/1/favorites/destroy/{id}.json",
+            action : "https://api.twitter.com/1.1/favorites/destroy.json",
             method : "POST"
         },
 
@@ -956,12 +931,12 @@ const twitterAPI = {
         // ============================================================ //
 
         "lists/index": {
-            action : "https://api.twitter.com/1/lists.json",
+            action : "https://api.twitter.com/1.1/lists/list.json",
             method : "GET"
         },
 
         "lists/statuses": {
-            action : "https://api.twitter.com/1/lists/statuses.json",
+            action : "https://api.twitter.com/1.1/lists/statuses.json",
             host   : "https://api.twitter.com/",
             method : "GET"
         },
@@ -971,7 +946,7 @@ const twitterAPI = {
         // ============================================================ //
 
         "search": {
-            action : "https://search.twitter.com/search.json",
+            action : "https://api.twitter.com/1.1/search/tweets.json",
             method : "GET"
         },
 
@@ -980,12 +955,12 @@ const twitterAPI = {
         // ============================================================ //
 
         "direct_messages": {
-            action : "https://api.twitter.com/1/direct_messages.json",
+            action : "https://api.twitter.com/1.1/direct_messages.json",
             method : "GET"
         },
 
         "direct_messages/sent": {
-            action : "https://api.twitter.com/1/direct_messages/sent.json",
+            action : "https://api.twitter.com/1.1/direct_messages/sent.json",
             method : "GET"
         },
 
@@ -994,7 +969,7 @@ const twitterAPI = {
         // ============================================================ //
 
         "account/verify_credentials": {
-            action: "https://api.twitter.com/1/account/verify_credentials.json",
+            action: "https://api.twitter.com/1.1/account/verify_credentials.json",
             method: "GET"
         },
 
@@ -1003,7 +978,7 @@ const twitterAPI = {
         // ============================================================ //
 
         "statuses/friends": {
-            action: "https://api.twitter.com/1/statuses/friends.json",
+            action: "https://api.twitter.com/1.1/friends/list.json",
             method: "GET"
         }
     },
@@ -1014,9 +989,7 @@ const twitterAPI = {
 
     isRetryable:
     function isRetryable(xhr) {
-        return (xhr.status === 401)
-            && ((xhr.responseText.indexOf("Could not authenticate you") !== -1) ||
-                (xhr.responseText.indexOf("This method requires authentication") !== -1));
+        return false;
     },
 
     isDMManipulationNotAllowed:
@@ -1191,7 +1164,7 @@ var twitterClient =
                 let { action } = this;
 
                 if (context.params) {
-                    let query = [k + "=" + encodeURIComponent(v)
+                    let query = [k + "=" + $U.encodeOAuth(v)
                                  for ([k, v] in Iterator(context.params))
                                  if (typeof v !== "undefined")].join("&");
                     if (query.length)
@@ -1446,17 +1419,6 @@ var twitterClient =
 
         // Searches {{ ============================================================== //
 
-        function filterSearchResult(status) {
-            status.user = {
-                screen_name             : status.from_user,
-                name                    : status.from_user,
-                profile_image_url       : status.profile_image_url
-            };
-            status.in_reply_to_screen_name = status.to_user;
-
-            return status;
-        }
-
         var gTrackings = {};
 
         function addTrackingCrawler(query, infoHolder) {
@@ -1473,8 +1435,7 @@ var twitterClient =
                     name         : query,
                     interval     : infoHolder["interval"] || pOptions["tracking_update_interval"],
                     oauth        : gOAuth,
-                    countName    : "rpp",
-                    mapper       : function (response) response.results.map(filterSearchResult),
+                    mapper       : function (response) response.statuses,
                     getLastID    : function () infoHolder["lastID"],
                     setLastID    : function (v) {
                         infoHolder["lastID"] = v;
@@ -1577,27 +1538,24 @@ var twitterClient =
 
         // Styles {{ ================================================================ //
 
-        const gLinkClass = "ks-text-link";
-
         if (!share.ksTextLinkStyleRegistered)
         {
-            style.register(<><![CDATA[
-                description.ks-text-link {
-                    color           : #0800ab;
-                    text-decoration : underline;
-                    cursor          : pointer !important;
-                }
-
-                description.ks-text-link:hover {
-                    color : #616161;
-                }
-
-                .ks-loading-message {
-                    text-align  : center;
-                    font-weight : bold;
-                    font-size   : 130%;
-                }
-            ]]></>.toString());
+            style.register('                              \
+                description.ks-text-link {                \
+                    color           : #0800ab;            \
+                    text-decoration : underline;          \
+                    cursor          : pointer !important; \
+                }                                         \
+                                                          \
+                description.ks-text-link:hover {          \
+                    color : #616161;                      \
+                }                                         \
+                                                          \
+                .ks-loading-message {                     \
+                    text-align  : center;                 \
+                    font-weight : bold;                   \
+                    font-size   : 130%;                   \
+                }');
 
             share.ksTextLinkStyleRegistered = true;
         }
@@ -2157,91 +2115,122 @@ var twitterClient =
 
             let labelTimeline = M({ja: "タイムライン", en: "Timeline"});
 
-            let containerXML =
-                <vbox style="margin-left  : 4px;
-                             margin-right : 4px;
-                             overflow:auto;"
-                      >
-                    <hbox align="center" flex="1">
-                        <description style="font-weight : bold;
-                                            margin      : 0px 4px;"
-                                     id={HEAD_USER_NAME} />
-                        <spacer flex="1" />
-                        <!-- misc -->
-                        <toolbarbutton label="Home"
-                                       image={TWITTER_ICON}
-                                       oncommand={"KeySnail.modules.prompt.finish(true);" + root + ".showTimeline();"}
-                                       />
-                        <toolbarbutton label="Mentions"
-                                       image={MENTIONS_ICON}
-                                       oncommand={"KeySnail.modules.prompt.finish(true);" + root + ".showMentions();"}
-                                       />
-                        <toolbarbutton label="Favorites"
-                                       image={FAVORITED_ICON}
-                                       oncommand={root + ".showFavorites();"}
-                                       />
-                        <toolbarbutton label="DM"
-                                       image={MESSAGE_ICON}
-                                       oncommand={root + ".showDMs();"}
-                                       />
-                        <toolbarseparator style="height : 16px; margin : 0 4px; padding : 0;" />
-                        <!-- limit -->
-                        <image src={LIMIT_ICON} style="margin-right: 4px;"/>
-                        <description style="margin:auto 4px;" id={HEAD_API_USAGE} />
-                        <toolbarseparator style="height : 16px; margin : 0 4px; padding : 0;" />
-                        <!-- misc -->
-                        <toolbarbutton tooltiptext={tooltipTextClose} class="tab-close-button"
-                                       oncommand="KeySnail.modules.prompt.finish(true);" />
-                    </hbox>
-                    <hbox id={HEAD_CRAWLER_BUTTON_CONTAINER}>
-                        <spacer flex="1" />
-                        <toolbarseparator id={HEAD_LIST_ORIGIN} style="height : 16px; margin : 0 2px; padding : 0;" />
-                        <toolbarseparator id={HEAD_SEARCH_ORIGIN} style="height : 16px; margin : 0 2px; padding : 0;" />
-                        <toolbarbutton id={HEAD_ADD_SEARCH}
-                                       image={SEARCH_ADD_ICON}
-                                       tooltiptext={tooltipTextAddTracking}
-                                       oncommand={root + ".addTracking();"} />
-                    </hbox>
-                    <hbox align="center" flex="1">
-                        <vbox align="center">
-                            <image style="border-left   : 1px solid ThreeDShadow;
-                                          border-top    : 1px solid ThreeDShadow;
-                                          border-right  : 1px solid ThreeDHighlight;
-                                          border-bottom : 1px solid ThreeDHighlight;
-                                          width         : 46px;
-                                          height        : 46px;
-                                          margin-left   : 4px;
-                                          margin-right  : 4px;"
-                                   id={HEAD_USER_ICON} />
-                        </vbox>
-                        <vbox align="center" id={HEAD_USER_INFO} >
-                            <vbox align="center">
-                                <toolbarbutton tooltiptext={tooltipTextTwitter}
-                                               id={HEAD_USER_BUTTON_TWITTER}
-                                               image={TWITTER_ICON} />
-                                <toolbarbutton tooltiptext={tooltipTextHome}
-                                               id={HEAD_USER_BUTTON_HOME}
-                                               image={HOME_ICON} />
-                            </vbox>
-                        </vbox>
-                        <vbox flex="1"
-                              onclick={root + ".tweetBoxClicked(event);"}
-                              id={HEAD_USER_TWEET}
-                              style="background-color : white;
-                                     height           : 50px;
-                                     margin           : 0 4px 4px 4px;
-                                     border-left      : 1px solid ThreeDShadow;
-                                     border-top       : 1px solid ThreeDShadow;
-                                     border-right     : 1px solid ThreeDHighlight;
-                                     border-bottom    : 1px solid ThreeDHighlight;
-                                     overflow         : auto;"
-                              >
-                            <description />
-                        </vbox>
-                    </hbox>
-                    <menupopup id={HEAD_MENU} />
-                    <menupopup id={HEAD_DYNAMIC_MENU} />
-                </vbox>;
+            if (!share.ksYatckStyleRegistered)
+            {
+                style.register(_.template('                           \
+                    #yatck-header {                                   \
+                        margin-left  : 4px;                           \
+                        margin-right : 4px;                           \
+                        overflow:auto;                                \
+                    }                                                 \
+                                                                      \
+                    #<%= HEAD_USER_NAME %> {                          \
+                        font-weight : bold;                           \
+                        margin      : 0px 4px;                        \
+                    }                                                 \
+                                                                      \
+                    #<%= HEAD_USER_ICON %> {                          \
+                        border-left   : 1px solid ThreeDShadow;       \
+                        border-top    : 1px solid ThreeDShadow;       \
+                        border-right  : 1px solid ThreeDHighlight;    \
+                        border-bottom : 1px solid ThreeDHighlight;    \
+                        width         : 46px;                         \
+                        height        : 46px;                         \
+                        margin-left   : 4px;                          \
+                        margin-right  : 4px;                          \
+                    }                                                 \
+                                                                      \
+                    #<%= HEAD_USER_TWEET %> {                         \
+                        background-color : white;                     \
+                        height           : 50px;                      \
+                        margin           : 0 4px 4px 4px;             \
+                        border-left      : 1px solid ThreeDShadow;    \
+                        border-top       : 1px solid ThreeDShadow;    \
+                        border-right     : 1px solid ThreeDHighlight; \
+                        border-bottom    : 1px solid ThreeDHighlight; \
+                        resize           : vertical;                  \
+                        overflow         : auto;                      \
+                    }                                                 \
+                                                                      \
+                    #yatck-header toolbarseparator {                  \
+                        height  : 16px;                               \
+                        margin  : 0 4px;                              \
+                        padding : 0;                                  \
+                    }                                                 \
+                                                                      \
+                    #yatck-header toolbarseparator[id] {              \
+                        margin : 0 2px;                               \
+                    }')({
+                  HEAD_USER_NAME  : HEAD_USER_NAME,
+                  HEAD_USER_ICON  : HEAD_USER_ICON,
+                  HEAD_USER_TWEET : HEAD_USER_TWEET
+                }));
+
+                share.ksYatckStyleRegistered = true;
+            }
+
+            let containerXML = '<vbox id="yatck-header">                                                                                       \
+                    <hbox align="center" flex="1">                                                                                             \
+                        <description id="' + html.escapeTag(HEAD_USER_NAME) + '" />                                                            \
+                        <spacer flex="1" />                                                                                                    \
+                        <!-- misc -->                                                                                                          \
+                        <toolbarbutton label="Home"                                                                                            \
+                                       image="' + html.escapeTag(TWITTER_ICON) + '"                                                            \
+                                       oncommand="' + html.escapeTag("KeySnail.modules.prompt.finish(true);" + root + ".showTimeline();") + '" \
+                                       />                                                                                                      \
+                        <toolbarbutton label="Mentions"                                                                                        \
+                                       image="' + html.escapeTag(MENTIONS_ICON) + '"                                                           \
+                                       oncommand="' + html.escapeTag("KeySnail.modules.prompt.finish(true);" + root + ".showMentions();") + '" \
+                                       />                                                                                                      \
+                        <toolbarbutton label="Favorites"                                                                                       \
+                                       image="' + html.escapeTag(FAVORITED_ICON) + '"                                                          \
+                                       oncommand="' + html.escapeTag(root + ".showFavorites();") + '"                                          \
+                                       />                                                                                                      \
+                        <toolbarbutton label="DM"                                                                                              \
+                                       image="' + html.escapeTag(MESSAGE_ICON) + '"                                                            \
+                                       oncommand="' + html.escapeTag(root + ".showDMs();") + '"                                                \
+                                       />                                                                                                      \
+                        <toolbarseparator />                                                                                                   \
+                        <!-- limit -->                                                                                                         \
+                        <image src="' + html.escapeTag(LIMIT_ICON) + '" style="margin-right: 4px;"/>                                           \
+                        <description style="margin:auto 4px;" id="' + html.escapeTag(HEAD_API_USAGE) + '" />                                   \
+                        <toolbarseparator />                                                                                                   \
+                        <!-- misc -->                                                                                                          \
+                        <toolbarbutton tooltiptext="' + html.escapeTag(tooltipTextClose) + '" class="tab-close-button"                         \
+                                       oncommand="KeySnail.modules.prompt.finishhtml.escapeTag(true);" />                                      \
+                    </hbox>                                                                                                                    \
+                    <hbox id="' + html.escapeTag(HEAD_CRAWLER_BUTTON_CONTAINER) + '">                                                          \
+                        <spacer flex="1" />                                                                                                    \
+                        <toolbarseparator id="' + html.escapeTag(HEAD_LIST_ORIGIN) + '" />                                                     \
+                        <toolbarseparator id="' + html.escapeTag(HEAD_SEARCH_ORIGIN) + '" />                                                   \
+                        <toolbarbutton id="' + html.escapeTag(HEAD_ADD_SEARCH) + '"                                                            \
+                                       image="' + html.escapeTag(SEARCH_ADD_ICON) + '"                                                         \
+                                       tooltiptext="' + html.escapeTag(tooltipTextAddTracking) + '"                                            \
+                                       oncommand="' + html.escapeTag(root + ".addTracking();") + '" />                                         \
+                    </hbox>                                                                                                                    \
+                    <hbox align="center" flex="1">                                                                                             \
+                        <vbox align="center">                                                                                                  \
+                            <image id="' + html.escapeTag(HEAD_USER_ICON) + '" />                                                              \
+                        </vbox>                                                                                                                \
+                        <vbox align="center" id="' + html.escapeTag(HEAD_USER_INFO) + '" >                                                     \
+                            <vbox align="center">                                                                                              \
+                                <toolbarbutton tooltiptext="' + html.escapeTag(tooltipTextTwitter) + '"                                        \
+                                               id="' + html.escapeTag(HEAD_USER_BUTTON_TWITTER) + '"                                           \
+                                               image="' + html.escapeTag(TWITTER_ICON) + '" />                                                 \
+                                <toolbarbutton tooltiptext="' + html.escapeTag(tooltipTextHome) + '"                                           \
+                                               id="' + html.escapeTag(HEAD_USER_BUTTON_HOME) + '"                                              \
+                                               image="' + html.escapeTag(HOME_ICON) + '" />                                                    \
+                            </vbox>                                                                                                            \
+                        </vbox>                                                                                                                \
+                        <vbox flex="1"                                                                                                         \
+                              onclick="' + html.escapeTag(root + ".tweetBoxClicked(event);") + '"                                              \
+                              id="' + html.escapeTag(HEAD_USER_TWEET) + '">                                                                    \
+                            <description />                                                                                                    \
+                        </vbox>                                                                                                                \
+                    </hbox>                                                                                                                    \
+                    <menupopup id="' + html.escapeTag(HEAD_MENU) + '" />                                                                       \
+                    <menupopup id="' + html.escapeTag(HEAD_DYNAMIC_MENU) + '" />                                                               \
+                </vbox>';
 
             let container = util.xmlToDom(containerXML);
 
@@ -2424,13 +2413,16 @@ var twitterClient =
         // Popup notifications {{ =================================================== //
 
         function showPopup(arg) {
-            alertsService.showAlertNotification(arg.icon,
-                                                arg.title,
-                                                arg.message,
-                                                !!arg.link,
-                                                arg.link,
-                                                arg.observer);
-
+            try {
+                alertsService.showAlertNotification(arg.icon || "",
+                                                    arg.title || "",
+                                                    arg.message || "",
+                                                    !!arg.link || false,
+                                                    arg.link || null,
+                                                    arg.observer || null);
+            } catch (x) {
+                log(LOG_LEVEL_DEBUG, "failed to show popup: " + x);
+            }
         }
 
         function showOldestUnPopUppedStatus() {
@@ -2540,25 +2532,53 @@ var twitterClient =
         // TwitterClient : Authorization
         // ================================================================================ //
 
-        function authorize() {
+        function authorize(onRequestTokenDone) {
             gOAuth.tokens.oauth_token        = "";
             gOAuth.tokens.oauth_token_secret = "";
 
             twitterAPI.request("oauth/request_token", {
                 ok: function (res) {
                     let parts = res.split("&");
-
                     gOAuth.tokens.oauth_token        = parts[0].split("=")[1];
                     gOAuth.tokens.oauth_token_secret = parts[1].split("=")[1];
 
-                    gBrowser.loadOneTab("https://twitter.com/oauth/authorize?oauth_token=" +
-                                        gOAuth.tokens.oauth_token,
-                                        null, null, null, false);
+                    requestOAuthVerifier(gOAuth.tokens.oauth_token, function (oauthVerifier) {
+                        onRequestTokenDone(oauthVerifier);
+                    });
                 },
                 ng: function (res, xhr) {
                     display.notify("Failed to request token :: " + xhr.responseText);
                 }
             });
+        }
+
+        function requestOAuthVerifier(authToken, onAuthFinish) {
+            var tabElement = gBrowser.loadOneTab(
+                "https://twitter.com/oauth/authorize?oauth_token=" + authToken,
+                null, null, null, false
+            );
+            var tabBrowser = gBrowser.getBrowserForTab(tabElement);
+            tabBrowser.addEventListener("DOMContentLoaded", function loadListener(ev) {
+                let rootWin = tabBrowser.contentWindow;
+                let doc = ev.target;
+                if (doc !== rootWin.document) return; // only for main window
+
+                let docURL = doc.location.href;
+                if (/^https:\/\/github.com\/mooz\/keysnail\/wiki\?/.test(docURL)) {
+                    tabBrowser.removeEventListener("DOMContentLoaded", loadListener, true);
+
+                    var oauth_verifier = docURL.split('?')[1].split('&')
+                            .map(function(q) {
+                                var temp = q.split('=');
+                                return {
+                                    key: temp[0],
+                                    value: temp[1]
+                                };
+                            })
+                            .filter(function(q) q.key == 'oauth_verifier')[0].value;
+                    onAuthFinish(oauth_verifier);
+                }
+            }, true);
         }
 
         function reAuthorize() {
@@ -2569,26 +2589,19 @@ var twitterClient =
         }
 
         function authorizationSequence() {
-            authorize();
-
-            gPrompt.close();
-            prompt.read(
-                M({ ja: "認証が終了したら Enter キーを押してください",
-                    en: "Press Enter When Authorization Finished:"}),
-                function (str) {
-                    if (str === null)
-                        return;
-
-                    getAccessToken(function () {
-                        showFollowersStatus();
-                        setUserInfo();
-                    });
-                }
-            );
+            authorize(function (oauth_verifier) {
+              getAccessToken(oauth_verifier, function () {
+                showFollowersStatus();
+                setUserInfo();
+              });
+            });
         }
 
-        function getAccessToken(next) {
+        function getAccessToken(oauth_verifier, next) {
             twitterAPI.request("oauth/access_token", {
+                params: {
+                    oauth_verifier: oauth_verifier,
+                },
                 ok: function (res) {
                     let parts = res.split("&");
 
@@ -2655,7 +2668,7 @@ var twitterClient =
                     en: "Added status to favorites" });
 
             twitterAPI.request(util.format("favorites/%s", aDelete ? "destroy" : "create"), {
-                args: {
+                params: {
                     id : aStatusID
                 },
                 ok: function (res, xhr) {
@@ -2689,8 +2702,6 @@ var twitterClient =
 
         function searchWord(word) {
             doSearchWord(word, function (results) {
-                results = results.map(filterSearchResult);
-
                 if (!results.length) {
                     display.echoStatusBar(M({
                         ja: word + L(" に対する検索結果はありません"),
@@ -2709,13 +2720,13 @@ var twitterClient =
 
                 twitterAPI.request("search", {
                     params: {
-                        rpp    : 100,
+                        count  : 100,
                         q      : word,
                         max_id : opts.max_id,
                         include_entities : true
                     },
                     ok: function (res, xhr) {
-                        let results = ($U.decodeJSON( xhr.responseText) || {"results":[]}).results;
+                        let results = ($U.decodeJSON( xhr.responseText) || {"statuses":[]}).statuses;
                         next(results);
                     },
                     ng: function (res, xhr) {
@@ -2727,7 +2738,6 @@ var twitterClient =
 
             function fetchPrevious(status, after) {
                 doSearchWord(word, function (results) {
-                    results = results.map(filterSearchResult);
                     results.shift();
                     after(results);
                 }, {
@@ -2887,10 +2897,18 @@ var twitterClient =
                             share.twitterImmediatelyAddedStatuses.push(status);
                         },
                         ng: function (res, xhr) {
+                            var response, errorMessage;
+                            try {
+                                response = $U.decodeJSON(res);
+                                errorMessage = ":" + response.errors.map(function ({message}) message).join("\n");
+                            } catch (x) {
+                                errorMessage = "";
+                            }
+
                             showPopupMayBe({
                                 title   : M({ja: "ごめんなさい", en: "I'm sorry..."}),
                                 message : M({ja: "つぶやけませんでした",
-                                             en: "Failed to tweet"}) + " (" + xhr.status + ")"
+                                             en: "Failed to tweet"}) + " (" + xhr.status + ")" + errorMessage
                             });
                         }
                     });
@@ -2979,7 +2997,7 @@ var twitterClient =
             }
 
             function showListsInPrompt(cache) {
-                let collection = Array.slice((cache || {lists:[]}).lists).map(
+                let collection = Array.slice((cache || [])).map(
                     function (list)
                     [
                         list.name,
@@ -3255,9 +3273,34 @@ var twitterClient =
         }
 
         function createMessageNode(messageText, status) {
+            let retweetedStatus = status.retweeted_status;
+            if (retweetedStatus) {
+                // Retweeted status. Add "RT @screenname: "
+                let retweetedMessageNode = createMessageNode(retweetedStatus.text, retweetedStatus);
+                let retweetedUserName = retweetedStatus.user.screen_name;
+
+                let newChildren = [
+                    retweetedMessageNode.firstChild, document.createTextNode("RT "),
+                    $U.createLinkElement("http://twitter.com/" + retweetedUserName, "@" + retweetedUserName),
+                    document.createTextNode(": ")
+                ].concat(Array.slice(retweetedMessageNode.childNodes));
+
+                while (retweetedMessageNode.firstChild) {
+                    retweetedMessageNode.removeChild(retweetedMessageNode.firstChild);
+                }
+
+                for (let [, childNode] in Iterator(newChildren)) {
+                    retweetedMessageNode.appendChild(childNode);
+                }
+
+                return retweetedMessageNode;
+            }
+
+            // Otherwise
+
             let entities = getEntitiesFromStatus(status);
             let messageNode = entities
-                    ? createMessageNodeFromEntities(messageText, entities)
+                    ? createMessageNodeFromEntities(messageText, status.text, entities)
                     : createMessageNodeWithoutEntities(messageText);
 
             if (status.in_reply_to_status_id_str) {
@@ -3266,11 +3309,7 @@ var twitterClient =
                     status.in_reply_to_screen_name,
                     status.in_reply_to_status_id_str
                 );
-                messageNode.appendChild($U.createElement("description", {
-                    "class"       : gLinkClass,
-                    "tooltiptext" : url,
-                    "value"       : "[in reply to]"
-                }));
+                messageNode.appendChild($U.createLinkElement(url, "[in reply to]"));
             }
 
             return messageNode;
@@ -3293,7 +3332,7 @@ var twitterClient =
             return sortedEntities;
         }
 
-        function createMessageNodeFromEntities(messageText, entities) {
+        function createMessageNodeFromEntities(messageText, escapedMessageText, entities) {
             let messageNode = $U.createElement("description", {
                 style : "-moz-user-select : text !important;"
             });
@@ -3302,7 +3341,7 @@ var twitterClient =
 
             let sortedEntitiesWithType = getSortedEntitiesWithType(entities);
             sortedEntitiesWithType.forEach(function ({ type, entity }) {
-                let leftMessage = messageText.slice(cursor, entity.indices[0]);
+                let leftMessage = html.unEscapeTag(escapedMessageText.slice(cursor, entity.indices[0]));
                 messageNode.appendChild(document.createTextNode(leftMessage));
 
                 // move cursor
@@ -3310,26 +3349,14 @@ var twitterClient =
 
                 switch (type) {
                 case "hashtags":
-                    messageNode.appendChild($U.createElement("description", {
-                        "class"       : gLinkClass,
-                        "tooltiptext" : "http://twitter.com/search?q=" + encodeURIComponent(entity.text),
-                        "value"       : "#" + entity.text
-                    }));
+                    messageNode.appendChild($U.createLinkElement("http://twitter.com/search?q=" + encodeURIComponent(entity.text), "#" + entity.text));
                     break;
                 case "urls":
                 case "media":
-                    messageNode.appendChild($U.createElement("description", {
-                        "class"       : gLinkClass,
-                        "tooltiptext" : entity.expanded_url,
-                        "value"       : entity.display_url || entity.url
-                    }));
+                    messageNode.appendChild($U.createLinkElement(entity.expanded_url, entity.display_url || entity.url));
                     break;
                 case "user_mentions":
-                    messageNode.appendChild($U.createElement("description", {
-                        "class"       : gLinkClass,
-                        "tooltiptext" : "http://twitter.com/" + entity.screen_name,
-                        "value"       : "@" + entity.screen_name
-                    }));
+                    messageNode.appendChild($U.createLinkElement("http://twitter.com/" + entity.screen_name, "@" + entity.screen_name));
                     break;
                 }
             });
@@ -3372,11 +3399,7 @@ var twitterClient =
                     }
 
                     messageNode.appendChild(document.createTextNode(left));
-                    messageNode.appendChild($U.createElement("description", {
-                        "class"       : gLinkClass,
-                        "tooltiptext" : url,
-                        "value"       : matched[i]
-                    }));
+                    messageNode.appendChild($U.createLinkElement(url, matched[i]));
 
                     messageText = right;
                 }
@@ -3391,7 +3414,7 @@ var twitterClient =
         }
 
         function extractAllURLsFromStatus(status) {
-            let entities = getEntitiesFromStatus(status);
+            let entities = getEntitiesFromStatus(status.retweeted_status ? status.retweeted_status : status);
 
             if (entities) {
                 let sortedEntitiesWithType = getSortedEntitiesWithType(entities);
@@ -3441,23 +3464,25 @@ var twitterClient =
             function favIconGetter(aRow) aRow[0].favorited ? FAVORITED_ICON : "";
             let preferScreenName = pOptions["prefer_screen_name"];
             let showSources      = pOptions["show_sources"];
+            let showRTCount      = pOptions["show_retweet_count"];
 
             function statusMapper(status) {
                 var created = Date.parse(status.created_at);
                 var matched = status.source ? status.source.match(">(.*)</a>") : "";
 
-                return [status,
-                        let (url = status.user.profile_image_url)
-                            ((pOptions.hide_profile_image_gif && /\.gif$/.test(url)) ?
-                             "http://a1.twimg.com/images/default_profile_0_bigger.png" : url),
-                        preferScreenName ? status.user.screen_name : status.user.name,
-                        html.unEscapeTag(status.text),
-                        favIconGetter,
-                        util.format("%s %s",
-                                    getElapsedTimeString(current - created),
-                                    showSources ? (matched ? matched[1] : "Web") : "",
-                                    (status.in_reply_to_screen_name ?
-                                     " to " + status.in_reply_to_screen_name : ""))];
+                return [
+                    status,
+                    let (url = status.user.profile_image_url)
+                        ((pOptions.hide_profile_image_gif && /\.gif$/.test(url)) ?
+                         "http://a1.twimg.com/images/default_profile_0_bigger.png" : url),
+                    preferScreenName ? status.user.screen_name : status.user.name,
+                    html.unEscapeTag(status.text),
+                    favIconGetter,
+                    getElapsedTimeString(current - created) +
+                        (showRTCount && status.retweet_count ? " (" + status.retweet_count + " RT)" : "") +
+                        (status.in_reply_to_screen_name ? " to " + status.in_reply_to_screen_name : "") +
+                        (showSources ? " " + (matched ? matched[1] : "Web") : "")
+                ];
             }
 
             var collection = statuses.map(statusMapper);
@@ -3642,6 +3667,9 @@ var twitterClient =
         }
 
         function modifyCache(aId, proc) {
+            if (!gStatuses.cache)
+                return;
+
             for (let [, status] in Iterator(gStatuses.cache))
                 if (status.id_str === aId)
                     proc(status);
@@ -3682,26 +3710,44 @@ var twitterClient =
             });
         }
 
-        function updateFriendsCache() {
-            share.friendsCache = [];
-            (function update(cursor){
+        function updateFriendsCache(previousCursor) {
+            if (!Array.isArray(share.friendsCache)) {
+                share.friendsCache = [];
+            }
+            (function update (cursor) {
+                var updateInterval = 1000 * 35;
+
                 twitterAPI.request('statuses/friends', {
                     params: { cursor: cursor },
                     ok: function (res, xhr) {
                         res = $U.decodeJSON(res);
-                        (res.users || []).forEach(function(i) {
-                            share.friendsCache.push("@" + i.screen_name);
-                            share.friendsCache.push("D " + i.screen_name);
+
+                        (res.users || []).forEach(function (user) {
+                            share.friendsCache.push("@" + user.screen_name);
+                            share.friendsCache.push("D " + user.screen_name);
                         });
+
+                        share.friendsCache.sort();
+                        share.friendsCache = _.uniq(share.friendsCache, true /* sorted */);
+                        persist.preserve({
+                            cache: share.friendsCache,
+                            cursor: res.next_cursor_str,
+                            last_update_date: new Date()
+                        }, "yatck_friends_cache");
+
                         if (res.next_cursor_str !== "0") {
-                            update(res.next_cursor_str);
-                        } else {
-                            share.friendsCache.sort();
-                            persist.preserve(share.friendsCache, "yatck_friends_cache");
+                            setTimeout(function () {
+                                update(res.next_cursor_str);
+                            }, updateInterval);
                         }
+                    },
+                    ng: function (res, xhr) {
+                        setTimeout(function (res, xhr) {
+                            update(cursor);
+                        }, updateInterval * 5);
                     }
                 });
-            })(-1);
+            })(typeof previousCursor === "number" ? previousCursor : -1);
         }
 
         /**
@@ -3713,7 +3759,7 @@ var twitterClient =
             tweetBoxClicked: function (aEvent) {
                 let elem   = aEvent.target;
                 let text   = elem.value || "";
-                let isLink = elem.getAttribute("class") === gLinkClass;
+                let isLink = elem.getAttribute("class") === $U.linkClass;
                 let status = my.twitterSelectedStatus;
 
                 if (aEvent.button === 2)
@@ -4162,10 +4208,24 @@ var twitterClient =
         if (!share.userInfo)
             self.setUserInfo();
 
-        if (!share.friendsCache)
-            share.friendsCache = persist.restore("yatck_friends_cache") || null;
-        if (!share.friendsCache)
-            self.updateFriendsCache();
+        function dayDifference(day1, day2) {
+            var diff = Math.abs(day1.getTime() - day2.getTime()) / (1000 * 60 * 60 * 24);
+            return diff;
+        }
+
+        if (!share.friendsCache) {
+            let friendsCacheInfo = persist.restore("yatck_friends_cache") || null;
+            if (friendsCacheInfo && Array.isArray(friendsCacheInfo.cache)) {
+                share.friendsCache = friendsCacheInfo.cache;
+            } else {
+                friendsCacheInfo = { cursor: -1 };
+            }
+            if (friendsCacheInfo.cursor !== 0 ||
+                !friendsCacheInfo.last_update_date ||
+                dayDifference(new Date(), new Date(friendsCacheInfo.last_update_date)) > 7 /* Expires 1 week */) {
+                self.updateFriendsCache(friendsCacheInfo.cursor);
+            }
+        }
 
         if (pOptions["automatically_begin"])
         {

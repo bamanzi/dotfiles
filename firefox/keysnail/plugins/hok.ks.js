@@ -5,7 +5,7 @@ var PLUGIN_INFO =
     <name>HoK</name>
     <description>Hit a hint for KeySnail</description>
     <description lang="ja">キーボードでリンクを開く</description>
-    <version>1.3.6</version>
+    <version>1.3.9</version>
     <updateURL>https://github.com/mooz/keysnail/raw/master/plugins/hok.ks.js</updateURL>
     <iconURL>https://github.com/mooz/keysnail/raw/master/plugins/icon/hok.icon.png</iconURL>
     <author mail="stillpedant@gmail.com" homepage="http://d.hatena.ne.jp/mooz/">mooz</author>
@@ -335,7 +335,7 @@ const pOptions = plugins.setupOptions("hok", {
 
     "selector" : {
         preset: 'a[href], input:not([type="hidden"]), textarea, iframe, area, select, button, embed,' +
-            '*[onclick], *[onmouseover], *[onmousedown], *[onmouseup], *[oncommand], *[role="link"], *[role="button"]',
+            '*[onclick], *[onmouseover], *[onmousedown], *[onmouseup], *[oncommand], *[role="link"], *[role="button"], *[role="menuitem"]',
         description: M({
             en: "Selectors API Path query",
             ja: "ヒントの取得に使う Selectors API クエリ"
@@ -444,6 +444,26 @@ const pOptions = plugins.setupOptions("hok", {
             en: "Make unique hints only (Free from Enter key)",
             ja: "必ずユニークなヒントを生成する (Enter を押す必要が無くなる)"
         })
+    },
+
+    "follow_link_nextpattern": {
+        preset: "\\bnext\\b|\\bnewer\\b|\\bmore\\b|→$|>>$|≫$|»$|^>$|^次|進む|^つぎへ|続"
+    },
+
+    "follow_link_prevpattern": {
+        preset: "\\bback\\b|\\bprev\\b|\\bprevious\\b|\\bolder|^←|^<<|^≪|^«|^<$|戻る|^もどる|^前.*|^<前"
+    },
+
+    "follow_link_nextrel_selector": {
+        preset: "a[rel='next']"
+    },
+
+    "follow_link_prevrel_selctor": {
+        preset: "a[rel='prev']"
+    },
+
+    "follow_link_candidate_selector": {
+        preset: "a[href], input:not([type='hidden']), button"
     }
 }, PLUGIN_INFO);
 
@@ -548,6 +568,27 @@ function followLink(elem, where) {
     catch (x) {}
 }
 
+// Follow previous / next
+function followRel(doc, rel, pattern) {
+    let target  = doc.querySelector(rel);
+    if (target) {
+        followLink(target, CURRENT_TAB);
+        return;
+    }
+
+    let relLinkPattern   = new RegExp(pattern, "i");
+    let relLinkCandidates = Array.slice(
+        doc.querySelectorAll(pOptions["follow_link_candidate_selector"])
+    );
+
+    for (let [, elem] in Iterator(relLinkCandidates.reverse())) {
+        if (relLinkPattern.test(elem.textContent) /*|| regex.test(elem.value) */) {
+            followLink(elem, CURRENT_TAB);
+            return;
+        }
+    }
+}
+
 function openContextMenu(elem) {
     document.popupNode = elem;
     var menu = document.getElementById("contentAreaContextMenu");
@@ -575,7 +616,7 @@ function saveLink(elem, skipPrompt) {
 
     try {
         window.urlSecurityCheck(url, doc.nodePrincipal);
-        saveURL(url, text, null, true, skipPrompt, makeURI(url, doc.characterSet));
+        saveURL(url, text, null, true, skipPrompt, makeURI(url, doc.characterSet), doc);
     } catch (e) {}
 }
 
@@ -612,16 +653,12 @@ var useSelector = pOptions["use_selector"] && ("querySelector" in document);
 
 var hok = function () {
     var hintKeys            = pOptions["hint_keys"];
-    var selector            = pOptions["selector"];
-    var xPathExp            = pOptions["xpath"];
     var hintBaseStyle       = pOptions["hint_base_style"];
     var hintColorLink       = pOptions["hint_color_link"];
     var hintColorForm       = pOptions["hint_color_form"];
     var hintColorFocused    = pOptions["hint_color_focused"];
     var hintColorCandidates = pOptions["hint_color_candidates"];
     var elementColorFocused = pOptions["element_color_focused"];
-    var uniqueOnly          = pOptions["unique_only"];
-    var uniqueFire          = pOptions["unique_fire"];
 
     var keyMap = {};
     if (pOptions["user_keymap"])
@@ -679,6 +716,7 @@ var hok = function () {
     function createTextHints(amount) {
         var reverseHints = {};
         var numHints = 0;
+        var uniqueOnly = pOptions["unique_only"];
 
         function next(hint) {
             var l = hint.length;
@@ -879,11 +917,11 @@ var hok = function () {
 
         if (useSelector)
         {
-            result = doc.querySelectorAll(priorQuery || localQuery || selector);
+            result = doc.querySelectorAll(priorQuery || localQuery || pOptions["selector"]);
         }
         else
         {
-            let xpathResult = doc.evaluate(priorQuery || xPathExp, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+            let xpathResult = doc.evaluate(priorQuery || pOptions["xpath"], doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
             result = [];
 
             for (let i = 0, len = xpathResult.snapshotLength; i < len; ++i)
@@ -1148,7 +1186,7 @@ var hok = function () {
         let foundCount = updateHeaderMatchHints();
 
         // fire if hint is unique
-        if (uniqueFire && !supressUniqueFire) {
+        if (pOptions["unique_fire"] && !supressUniqueFire) {
             if (foundCount == 1 && getAliveLastMatchHint()) {
                 var targetElem = lastMatchHint.element;
                 destruction();
@@ -1164,23 +1202,16 @@ var hok = function () {
     }
 
     function setLocalQuery() {
-        if (pOptions["local_queries"] && typeof content.location.href == "string")
+        let currentPageURL = content.location.href;
+        if (pOptions["local_queries"] && currentPageURL)
         {
-            for (let [, row] in Iterator(pOptions["local_queries"]))
+            for (let [, [targetURLPattern, localSelector, toOverride]]
+                 in Iterator(pOptions["local_queries"]))
             {
-                if (content.location.href.match(row[0]))
+                if (currentPageURL.match(targetURLPattern))
                 {
-                    if (row[2])
-                    {
-                        // not append
-                        localQuery = row[1];
-                    }
-                    else
-                    {
-                        // append
-                        localQuery = selector + ", " + row[1];
-                    }
-
+                    localQuery = toOverride ? localSelector
+                        : pOptions["selector"] + ", " + localSelector;
                     return;
                 }
             }
@@ -1215,10 +1246,13 @@ var hok = function () {
             originalSuspendedStatus = key.suspended;
             key.suspended = true;
 
-            init();
-            setLocalQuery();
-
-            drawHints();
+            try {
+                init();
+                setLocalQuery();
+                drawHints();
+            } catch (x) {
+                hintCount = 0;
+            }
 
             if (hintCount > 1)
             {
@@ -1385,6 +1419,18 @@ plugins.withProvides(function (provide) {
             }
         });
     }, M({ja: "HoK - 拡張ヒントモードを開始", en: "Start Hit a Hint extended mode"}));
+
+    provide("hok-follow-next-link", function () {
+        followRel(content.document,
+                  pOptions["follow_link_nextrel_selector"],
+                  pOptions["follow_link_nextpattern"]);
+    }, "Follow next link");
+
+    provide("hok-follow-prev-link", function () {
+        followRel(content.document,
+                  pOptions["follow_link_prevrel_selector"],
+                  pOptions["follow_link_prevpattern"]);
+    }, "Follow previous link");
 }, PLUGIN_INFO);
 
 // }} ======================================================================= //
