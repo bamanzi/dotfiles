@@ -957,7 +957,7 @@ key.setGlobalKey(['C-c', 't', 'r'], function (ev, arg) {
 }, 'Display your timeline', true);
     
 key.setGlobalKey(['C-c', 'p'], function (ev, arg) {
-    ext.exec("paste--and-go", arg, ev);
+    ext.exec("paste-and-go", arg, ev);
 }, 'Paste an URL or a search term and Go');
     
     
@@ -1226,6 +1226,8 @@ key.setEditKey('C-k', function (ev) {
 }, 'Kill the rest of the line');
 
 key.setEditKey('C-y', command.yank, 'Paste (Yank)');
+
+key.setEditKey(['C-c', 'C-y'], command.yank, 'Paste (Yank)');
 
 key.setEditKey('M-y', command.yankPop, 'Paste pop (Yank pop)', true);
 
