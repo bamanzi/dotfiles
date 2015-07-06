@@ -1,0 +1,106 @@
+== hhighlighter (or just h)
+
+A tiny utility to highlight multiple keywords with different colors
+
+- Idea: Paolo Antinori
+- Based on: *ack* - http://beyondgrep.com/ written by Andy Lester
+
+=== Description
+
+*h* (hhighlighter is just a name to help search engines) is a really tiny helper script meant to highlight keywords in the output of another *nix command:
+
+
+=== Requirements
+
+*h* is just a tiny facade in front of *ack* so you need to install it first.
+
+*What is ack?*
+
+*ack* is a tool like *grep*, optimized for programmers
+
+Designed for programmers with large heterogeneous trees of source code, ack is written purely in portable Perl 5 and takes advantage of the power of Perl's regular expressions.
+
+see: http://beyondgrep.com/
+
+*ack installation*
+
+*ack* is part of many major linux distributions so you should use your *package manager* to install it.
+
+see: http://beyondgrep.com/install/
+
+If you want to install *ack* in a *portable* way ( at the end ack is just a script ) you do it in this way:
+
+`curl http://beyondgrep.com/ack-2.08-single-file > ~/bin/ack && chmod 0755 !#:3`
+
+
+=== Installation Instructions
+
+*h* is implemented as a function in *bash*.
+
+You can install it in *one of these ways*:
+
+- copy and paste `h()` function in your `~/.bashrc`
+- configure your `~/.bashrc` to load the external script with `. /path/to/h.sh`
+
+=== Platform Specifics
+
+*h* has currently been tested only on *bash* and *zsh* on *Linux* and *MacOSX*.
+
+=== Usage
+
+*h* is meant to consume the output of another Linux command via pipe
+
+```
+$ h
+usage: YOUR_COMMAND | h [-i] [-d] args...
+	-i : ignore case
+	-d : disable regexp
+	-n : invert colors
+```
+
+
+=== Examples
+
+.Available colors
+----
+echo "abcdefghijklmnopqrstuvxywz" | h   a b c d e f g h i j k l
+----
+
+.Invert colors
+----
+echo "abcdefghijklmnopqrstuvxywz" | h -n   a b c d e f g h i j k l
+----
+
+.Support for `tail` in follow mode
+----
+tail -F | h keyword1 keyword2
+----
+
+.Case Insensitive
+----
+mvn clean install | h -i failure success
+----
+
+.Disable regular expression
+----
+tail -F my.log | h -d org.apache.camel
+----
+
+.Highlight multiple keys with the same color (using regexp syntax)
+----
+echo abcd | h 'b|d'
+----
+
+
+=== Screenshots
+
+image:screenshots/rainbow.png[Rainbow,scaledwidth="75%"]
+
+
+image:screenshots/jboss-tail.png[Tail,scaledwidth="75%"]
+
+
+image:screenshots/maven.png[Maven,scaledwidth="75%"]
+
+
+----------
