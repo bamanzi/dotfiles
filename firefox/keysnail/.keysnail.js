@@ -76,10 +76,15 @@ ext.add("split-window-horizontally", function() {
         splitpannel.toggle(window._content.document.location, true, "right");
     }
 }, 'split-window-horizontally (Fox Splitter addon)');
-    
+
+//split panel
 ext.add("view-in-split-panel", function () {
     splitpannel.toggle(window._content.document.location, true, 'right');
 }, 'Open Split Panel and load current URL in it .');
+
+ext.add("bookmarks-sidebar-in-split-panel", function() {
+    splitpannel.toggle("chrome://browser/content/bookmarks/bookmarksPanel.xul", true, 'right');
+}, 'Open Bookmarks Sidebar in Split Panel');
 
 ext.add("cnblogs-ing-in-split-panel", function () {
     splitpannel.toggle('http://space.cnblogs.com/mi/', true, 'right');
@@ -89,19 +94,19 @@ ext.add("google-reader-i-in-split-panel", function() {
     splitpannel.toggle('https://www.google.com/reader/i/#stream/user%2F02753487812100788291%2Fstate%2Fcom.google%2Fread', true, 'right');
 }, 'Open Split Panel and load Google Reader in it .');
 
-ext.add("google-translate-in-split-panel", function () {    
+ext.add("google-translate-in-split-panel", function () {
     splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=en&ie=UTF-8", true, 'right');
 }, 'Open Split Panel and load Google Translate (any->en) in it .');
-    
+
 ext.add("google-translate-cn-in-split-panel", function () {
     splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=zh-CN&ie=UTF-8", true, 'right');
 }, 'Open Split Panel and load Google Translate (any->zh-CN) in it .');
 
-ext.add("read-it-later-list-in-split-panel", function() {    
+ext.add("read-it-later-list-in-split-panel", function() {
     splitpannel.toggle("http://readitlaterlist.com/unread", true, 'right');
 }, 'Show Read It Later list Split Panel');
 
-ext.add("read-it-later-sidebar-in-split-panel", function() {    
+ext.add("read-it-later-sidebar-in-split-panel", function() {
     splitpannel.toggle('chrome://isreaditlater/content/list.xul', true, 'right');
 }, 'Show ReadItLater sidebar in Split Panel. (readitlater extension)');
 
@@ -119,6 +124,7 @@ ext.add("headings-map-in-split-panel", function() {
     splitpannel.toggle('chrome://headings/content/headings.xul', 'true', 'right');
 }, 'Show Headings Map sidebar in Split Panel.');
 
+//** sidebar
 ext.add("scrapbook-sidebar-in-split-panel", function () {
     splitpannel.toggle('chrome://scrapbook/content/scrapbook.xul', true, 'right');
 }, 'Toggle Scrapbook sidebar (extension Scrapbook or Scrapbook Plus)');
@@ -145,19 +151,20 @@ ext.add("read-it-later-sidebar", function () {
     toggleSidebar("RIL_sidebarlist");
 }, 'Toggle ReadItLater sidebar. (readitlater extension)');
  
-ext.add("save-to-read-sidebar", function () {    
+ext.add("save-to-read-sidebar", function () {
     toggleSidebar("viewSidebar_save2read");
 }, 'Toggle Save-To-Read sidebar. (save2read extension)');
 
 ext.add("pano-sidebar", function() {
     toggleSidebar('viewPanoramaSidebar');
 }, 'Toggle Pano side bar (extension Pano).');
-    
+
 ext.add("scrapbook-sidebar", function () {
     toggleSidebar("viewScrapBookSidebar");
 }, 'Toggle Scrapbook sidebar (extension Scrapbook or Scrapbook Plus)');
 
 
+//**Scrapbook (Plus)
 //make some ScrapBook (Plus)'s command could be manipulated with keyboard     
 ext.add("scrapbook-highlight", function(ev, arg) {
     //if ARG given, switch to correspding highligher and use it
@@ -190,9 +197,9 @@ ext.add("goo.gl", function () {
     let endpoint = "https://www.googleapis.com/urlshortener/v1/url";
     let params = { "longUrl": window._content.document.location.href };
     let result = util.httpPostJSON(endpoint, params, function (xhr) {
-        if (xhr.status == 200) {        
+        if (xhr.status == 200) {
             var ret = JSON.parse(xhr.responseText);
-            command.setClipboardText(ret.id);        
+            command.setClipboardText(ret.id);
             display.echoStatusBar("Short URL copied into clipboard: " + ret.id, 3000);
         } else {
             display.echoStatusBar("goo.gl service failed: " + xhr.statusText, 3000);
@@ -245,8 +252,8 @@ ext.add("bookmark-on-delicious", function(ev, arg) {
         '&notes='+encodeURIComponent(''+(content.getSelection?
                                          content.getSelection():
                                          content.getSelection?
-                                               content.getSelection():
-                                               content.selection.createRange().text))+
+                                         content.getSelection():
+                                         content.selection.createRange().text))+
         '&v=6&';
     var a=function(){
         if(!window.open(f+'noui=1&jump=doclose','deliciousuiv6',
@@ -320,27 +327,27 @@ ext.add("paste-and-go", function() {
         //pastego addon
         pastego.onToolbarButtonCommand();
         return;
-    }    
+    }
     var url = command.getClipboardText();
     if (url.indexOf("://") != -1)
     {
-	    window._content.location = url;
+        window._content.location = url;
     }
     else
     {
-	    //url = util.format("http://www.google.com/search?q=%s&ie=utf-8&oe=utf-8", encodeURIComponent(url));
-	    BrowserSearch.loadSearch(url, false);
+        //url = util.format("http://www.google.com/search?q=%s&ie=utf-8&oe=utf-8", encodeURIComponent(url));
+        BrowserSearch.loadSearch(url, false);
     }
 }, "Paste the URL or keyword from clipboard and Go");
 
 ext.add("paste-to-tab-and-go", function() {
     var url = command.getClipboardText();
     if (url.indexOf("://") != -1)
-	    gBrowser.loadOneTab(url, null, null, null, false);
+        gBrowser.loadOneTab(url, null, null, null, false);
     else
     {
-	    //url = util.format("http://www.google.com/search?q=%s&ie=utf-8&oe=utf-8", encodeURIComponent(url));
-	    BrowserSearch.loadSearch(url, true);
+        //url = util.format("http://www.google.com/search?q=%s&ie=utf-8&oe=utf-8", encodeURIComponent(url));
+        BrowserSearch.loadSearch(url, true);
     }
 }, "Paste the URL or keyword from clipboard to a new tab and Go");
 
@@ -356,12 +363,12 @@ ext.add("go-to-selected-url", function() {
 }, "Open selected text as an URL and go to it.");
 
 
-ext.add("highlight-symbol-at-point", function() {        
-    var word = getBrowserSelection();                    
-    if (word) {                                          
-        gFindBar._findField.value = word;                
-        gFindBar._highlightDoc(true, word);              
-    }                                                    
+ext.add("highlight-all", function() {
+    var word = getBrowserSelection();
+    if (word) {
+        gFindBar._findField.value = word;
+        gFindBar._highlightDoc(true, word);
+    }
 }, "highlight all occurrence of current selected word.");
 
 ext.add("next-occur", function() {
@@ -390,9 +397,9 @@ function google_translate (whatToTranslate, lang, callback) {
          alert('Text is too long');
          return;
      }
-    
+
     var httpRequest = null;
-    
+
     //e.g http://translate.google.com/m?hl=zh-CN&sl=auto&tl=en&ie=UTF-8&prev=_m&q=dictionary
     // var fullUrl = "http://translate.google.com/m?hl=" + lang + "&sl=auto&tl=" + lang + "&ie=UTF-8" +
     //    "&q=" + whatToTranslate;
@@ -400,10 +407,10 @@ function google_translate (whatToTranslate, lang, callback) {
         "&hl=" + lang + "&langpair=auto|" + lang + "&tbb=1" ;
 
     function removeHTMLTags(mitkell) {  //clean up a string from html tags
- 	    var strInputCode = mitkell;
- 	    var strTagStrippedText = strInputCode.replace(/<\/?[^>]+(>|$)/g, "");
- 	    return strTagStrippedText;
- 	}
+        var strInputCode = mitkell;
+        var strTagStrippedText = strInputCode.replace(/<\/?[^>]+(>|$)/g, "");
+        return strTagStrippedText;
+    }
 
     function infoReceived() {  // if there is response from Google then write out translation
         var output = httpRequest.responseText;
@@ -430,11 +437,11 @@ function google_translate (whatToTranslate, lang, callback) {
             if (callback) {
                 callback(kimenet[0]);
             } else {
-                display.echoStatusBar(kimenet[0], 5000);               
+                display.echoStatusBar(whatToTranslate + ': ' + kimenet[0], 5000);
             }
         }
     }
-    
+
     httpRequest = new XMLHttpRequest();
     httpRequest.open("GET", fullUrl, true);
     httpRequest.onload = infoReceived;
@@ -579,7 +586,7 @@ ext.add("evernote-clearly", function() {
 
 ext.add("tabundle-group", function(ev, arg) {
     Tabundle.createGroupListHtml = function() {
-		//....https://gist.github.com/1851778
+        //....https://gist.github.com/1851778
     };
     Tabundle.createIndexHtml();
     //var path = Tabundle.createListHtml()
@@ -590,23 +597,23 @@ ext.add("tabundle-group", function(ev, arg) {
 }, "Use tabundle extension to capture info of all tabs of current group."); 
 
 toggleToolbar = function(aEvent, toolbar_id, force) {
-	if(toolbar_id != aEvent.originalTarget.parentNode.id) {
-		var toolbar = document.getElementById(toolbar_id);
-		try {
-			// Firefox 4, mainly the bookmark toolbar button
+    if(toolbar_id != aEvent.originalTarget.parentNode.id) {
+        var toolbar = document.getElementById(toolbar_id);
+        try {
+            // Firefox 4, mainly the bookmark toolbar button
             var hidingAttribute = toolbar.getAttribute("type") == "menubar" ?
-        	    "autohide" : "collapsed";
+                "autohide" : "collapsed";
             var isVisble = toolbar.getAttribute(hidingAttribute);
-                
-			setToolbarVisibility(toolbar, !isVisble);
-            
-			if(force)
-				toolbar.collapsed = !toolbar.collapsed;
-		} catch(e) {
-			toolbar.collapsed = !toolbar.collapsed;
-			document.persist(toolbar_id, "collapsed");
-		}
-	}
+
+            setToolbarVisibility(toolbar, !isVisble);
+
+            if(force)
+                toolbar.collapsed = !toolbar.collapsed;
+        } catch(e) {
+            toolbar.collapsed = !toolbar.collapsed;
+            document.persist(toolbar_id, "collapsed");
+        }
+    }
 };
 
 ext.add("toggle-nav-bar", function(ev, argv) {
@@ -625,6 +632,8 @@ ext.add("toggle-tgm-bar", function(ev, arg) {
     toggleToolbar(ev, "TabGroupsManagerToolbar");
 }, "Toggle TabGroups Manager toolbar.");
 
+
+//** misc
 ext.add("tab-send-to-tmt", function(ev, arg) {
         var panoGroup = TabView._window.GroupItems.getActiveGroupItem();
         var groupName = panoGroup.getTitle();
@@ -639,12 +648,12 @@ ext.add("tab-send-to-tmt", function(ev, arg) {
                 tmtGroupId = row.getAttribute("bmId");
             }   
         }
-        
+
         if (tmtGroupId < 0) {
             //create a new group
             tmtGroupId = Visibo.TMT.API.addRow(groupName);
         }
-        
+
         var tab = gBrowser.selectedTab;
         var tabdata = Visibo.TMT.Tab.extractTabData(tab);
         if (tabdata) {
@@ -652,7 +661,7 @@ ext.add("tab-send-to-tmt", function(ev, arg) {
             //gBrowser.removeTab(tab); 
         }
 }, "Send current tab to TooManyTabs (the row of TabCandy group name) and then close it.");
-        
+
 ext.add("tabgroup-send-to-tmt", function(ev, arg) {
         var panoGroup = TabView._window.GroupItems.getActiveGroupItem();
         var groupName = panoGroup.getTitle();
@@ -665,7 +674,7 @@ ext.add("tabgroup-send-to-tmt", function(ev, arg) {
             //      "bmId:  " + row.getAttribute("bmId"));
             if (row.getAttribute("title")==groupName) {
                 tmtGroupId = row.getAttribute("bmId");
-            }   
+            }
         }
 
         if (tmtGroupId < 0) {
@@ -674,7 +683,7 @@ ext.add("tabgroup-send-to-tmt", function(ev, arg) {
         }
 
         //print("tmtGroupId=" + tmtGroupId);
-        
+
         var groupTabs = panoGroup._children;
         for (var i=0; i<groupTabs.length; i++) {
             var tab = groupTabs[i].tab;
@@ -683,7 +692,7 @@ ext.add("tabgroup-send-to-tmt", function(ev, arg) {
                 Visibo.TMT.API.addTabToRow(tabdata, tmtGroupId);
             }
         }
-        
+
         //FIXME: how to close a tab without activating neighbour?
         //    or: how to close a whole group (just like pano extension)?
         for (var i=groupTabs.length-1; i>=0; i--) {
@@ -691,6 +700,9 @@ ext.add("tabgroup-send-to-tmt", function(ev, arg) {
         }
 }, "Send all tabs of current group (FF4+ TabCandy group) to TooManyTabs and then close them.");
 
+ext.add("reload-pac", function(ev, arg) {
+    Components.classes["@mozilla.org/network/protocol-proxy-service;1"].getService().reloadPAC();
+}, "Reload proxy PAC script.");
 //}}%PRESERVE%
 // ========================================================================= //
 
@@ -836,10 +848,6 @@ key.setGlobalKey(['C-x', 's'], function (ev) {
     command.focusElement(command.elementsRetrieverButton, 0);
 }, 'Focus to the first button', true);
 
-key.setGlobalKey(['C-x', '0'], function (ev, arg) {
-    ext.exec("delete-window", arg, ev);
-}, 'Close current active "window" (Fox Splitter addon)');
-
 key.setGlobalKey(['C-x', '1'], function (ev, arg) {
     ext.exec("delete-other-windows", arg, ev);
 }, 'close-other-window (Fox Splitter addon)');
@@ -966,12 +974,12 @@ key.setGlobalKey(['C-c', 't', 'T'], function (ev, arg) {
 key.setGlobalKey(['C-c', 't', 'r'], function (ev, arg) {
     ext.exec("twitter-client-display-timeline", arg);
 }, 'Display your timeline', true);
-    
+
 key.setGlobalKey(['C-c', 'p'], function (ev, arg) {
     ext.exec("paste-and-go", arg, ev);
 }, 'Paste an URL or a search term and Go');
-    
-    
+
+
 key.setGlobalKey(['C-c', 'P'], function (ev, arg) {
     ext.exec("paste-to-tab-and-go", arg, ev);
 }, 'Paste to new tab and Go');
@@ -1062,7 +1070,7 @@ key.setViewKey(['C-x', 'k'], function (ev) {
 }, 'Close tab / window');
 
 key.setViewKey(['<f3>', 'j'], function (ev, arg) {
-    ext.exec("highlight-symbol-at-point", arg, ev);
+    ext.exec("highlight-all", arg, ev);
 }, 'highlight next occurence of current selected word');
 
 key.setViewKey(['<f3>', '*'], function (ev, arg) {
@@ -1134,6 +1142,10 @@ key.setViewKey('M-<down>', function (ev, arg) {
     backForwardMenu.openPopupAtScreen(document.width / 2, document.height / 2, true);
 }, 'Show page history menu');
 
+key.setViewKey('<backspace>', function (ev) {
+    BrowserBack();
+}, 'Back to last page in history.');
+
 key.setEditKey(['C-x', 'h'], function (ev) {
     command.selectAll(ev);
 }, 'Select whole text', true);
@@ -1146,7 +1158,7 @@ key.setEditKey([['C-x', 'u'], ['C-_']], function (ev) {
 key.setEditKey([['C-x', 'U'], ['M-_']], function (ev) {
     display.echoStatusBar("Redo!", 2000);
     goDoCommand("cmd_redo");
-}, 'Undo');
+}, 'Redo');
 
 key.setEditKey(['C-x', 'r', 'd'], function (ev, arg) {
     command.replaceRectangle(ev.originalTarget, "", false, !arg);
@@ -1175,11 +1187,6 @@ key.setEditKey([['C-SPC'], ['C-@']], function (ev) {
 key.setEditKey('C-o', function (ev) {
     command.openLine(ev);
 }, 'Open line');
-
-key.setEditKey('C-\\', function (ev) {
-    display.echoStatusBar("Redo!", 2000);
-    goDoCommand("cmd_redo");
-}, 'Redo');
 
 key.setEditKey('C-a', function (ev) {
     command.beginLine(ev);
@@ -1494,7 +1501,7 @@ key.setGlobalKey(['<f5>', 't'], function (ev, arg) {
 key.setGlobalKey(['<f5>', 'T'], function (ev, arg) {
     gPano.pane.toggleOpen();
 }, 'select tab (pano extension)');
-    
+
 key.setGlobalKey(['<f5>', 'b'], function(ev, arg) {
     ext.exec('bmany-list-all-bookmarks', arg, ev);
 }, 'bmany - List all bookmarks.');
@@ -1528,6 +1535,21 @@ key.setGlobalKey(['C-<f11>', 'b'], function(ev, arg) {
     ext.exec('toggle-bookmark-bar', arg, ev);
 }, "Show/hide bookmark bar");
 
+
+key.setGlobalKey(['<f3>', 'C-T'], function(ev, arg) {
+    var sel = getBrowserSelection();
+    if (sel) {
+        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=en&ie=UTF-8&q="; + encodeURIComponent(sel), true, 'right');
+    }
+}, 'Translate selection to English and show result in Split Panel.');
+
+key.setGlobalKey(['<f3>', 'C-t'], function(ev, arg) {
+    var sel = getBrowserSelection();
+    if (sel) {
+        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=zh-CN&ie=UTF-8&q="; + encodeURIComponent(sel), true, 'right');
+    }
+}, 'Translate selection to Chinese and show result in Split Panel.');
+
 key.setGlobalKey(['<f12>', 'i'], function(ev, arg) {
     ext.exec("cnblogs-ing-in-split-panel", arg, ev);
 }, "Open Split Panel and navigate to http://space.cnblogs.com/mi/");
@@ -1539,3 +1561,4 @@ key.setGlobalKey(['<f12>', 't'], function(ev, arg) {
 key.setGlobalKey(["C-x", 'b'], function (ev, arg) {
     ext.exec("tanything", arg);
 }, "Tanything plugin: List all tabs and select.", true);
+
