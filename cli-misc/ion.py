@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 File: ion.py
 Author: Rinat F Sabitov
@@ -32,10 +33,13 @@ def load_description_file(filename):
     if os.path.isfile(filename):
         with open(filename, 'r') as descript_file:
             for line in descript_file:
-                lexer = shlex.shlex(line)
-                key = lexer.get_token().strip('"')
-                value = ' '.join(list(lexer))
-                result[key] = value
+                #lexer = shlex.shlex(line)
+                #key = lexer.get_token().strip('"')
+                parts = shlex.split(line)
+                if len(parts)>1:
+                    key = parts[0]
+                    value = ' '.join(parts[1:])
+                    result[key] = value
     return result
 
 
@@ -90,3 +94,30 @@ class Description(object):
 
 def dopen(target_file, *args, **kwargs):
     return Description(target_file, *args, **kwargs)
+
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv)>2:
+        # write description
+        target_file = sys.argv[1]
+        description = ' '.join(sys.argv[2:])
+        dumps(target_file, description)
+    elif len(sys.argv)>1:
+        target_file = sys.argv[1]
+        if os.path.isdir(target_file):
+            from glob import glob
+            files = glob(os.path.join(target_file, "*"))
+            desc_file = _get_description_filename(os.path.join(target_file, DESCRIPTION_FILE))
+            desc = load_description_file(desc_file)
+            for f in files:
+                b = os.path.basename(f)
+                print "%s\t%s" % (b, desc.get(b, ''))
+        elif os.path.isfile(target_file):
+            print "%s\t%s" % (os.path.basename(target_file), loads(target_file))
+        else:
+            raise "No such file: %s" % target_file
+    else:
+        print "Usage: ion filename                # show description for file"
+        print "       ion dir                     # show description for all files in dir"
+        print "       ion filename description... # write description for file"
