@@ -356,6 +356,14 @@ ext.add("go-to-selected-url", function() {
 }, "Open selected text as an URL and go to it.");
 
 
+ext.add("highlight-symbol-at-point", function() {        
+    var word = getBrowserSelection();                    
+    if (word) {                                          
+        gFindBar._findField.value = word;                
+        gFindBar._highlightDoc(true, word);              
+    }                                                    
+}, "highlight all occurrence of current selected word.");
+
 ext.add("next-occur", function() {
     var word = getBrowserSelection();
     if (word) {
@@ -1053,6 +1061,18 @@ key.setViewKey(['C-x', 'k'], function (ev) {
     BrowserCloseTabOrWindow();
 }, 'Close tab / window');
 
+key.setViewKey(['<f3>', 'j'], function (ev, arg) {
+    ext.exec("highlight-symbol-at-point", arg, ev);
+}, 'highlight next occurence of current selected word');
+
+key.setViewKey(['<f3>', '*'], function (ev, arg) {
+    ext.exec("next-occur", arg, ev);
+}, 'highlight next occurence of current selected word');
+
+key.setViewKey(['<f3>', '#'], function (ev, arg) {
+    ext.exec("previous-occur", arg, ev);
+}, 'highlight previous occurence of current selected word');
+
 key.setViewKey(['<f3>', 'q'], function (ev, arg) {
     ext.exec("search-selection", arg, ev);
 }, 'Search the selection with current default engine');
@@ -1387,15 +1407,6 @@ key.setCaretKey('M-p', function (ev) {
 key.setCaretKey('M-n', function (ev) {
     command.walkInputElement(command.elementsRetrieverButton, false, true);
 }, 'Focus to the previous button');
-
-
-key.setViewKey(['C-c', '*'], function (ev, arg) {
-    ext.exec("next-occur", arg, ev);
-}, 'highlight next occurence of current selected word');
-
-key.setViewKey(['C-c', '#'], function (ev, arg) {
-    ext.exec("previous-occur", arg, ev);
-}, 'highlight previous occurence of current selected word');
 
 key.setViewKey(['C-c', 'C-a'], function (ev, arg) {
     ext.exec('increase-digit-in-url', arg, ev);
