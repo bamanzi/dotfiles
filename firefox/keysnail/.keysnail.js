@@ -374,47 +374,6 @@ ext.add("previous-occur", function() {
     gFindBar.onFindAgainCommand(true);
 }, "highlight previouse occurence of current selected word");
 
-ext.add("increase-digit-in-url", function() {
-    var pattern = /(.*?)([0]*)([0-9]+)([^0-9]*)$/;
-    var url = content.location.href;
-    var digit = url.match(pattern);
-    if (digit[1] && digit[3]) {
-        let len = digit[3].length;
-        let next = +digit[3] + (arg ? arg : 1);
-        content.location.href = digit[1] + (digit[2] || "").slice(next.toString().length - len) + next + (digit[4] || "");
-    }
-}, 'Increment last digit in the URL');
-
-ext.add("decrease-digit-in-url", function() {
-    var pattern = /(.*?)([0]*)([0-9]+)([^0-9]*)$/;
-    var url = content.location.href;
-    var digit = url.match(pattern);
-    if (digit[1] && digit[3]) {
-        let len = digit[3].length;
-        let next = +digit[3] - (arg ? arg : 1);
-        content.location.href = digit[1] + (digit[2] || "").slice(next.toString().length - len) + next + (digit[4] || "");
-    }
-}, 'Decrement last digit in the URL');
-
-ext.add("count-region", function(ev, arg) {
-    var aInput = ev.originalTarget;
-    var value = aInput.value;
- 
-    var selcount = aInput.selectionEnd - aInput.selectionStart;
- 
-    display.echoStatusBar("Total:" + value.length + " Selected:" + selcount, 3000);
-}, "Count chars.");
-
-function inputChars(ev, chars) {
-    var aInput = ev.originalTarget;
-    var value = aInput.value;
-    var originalSelStart = aInput.selectionStart;
-    
-    aInput.value = value.slice(0, aInput.selectionStart) + chars + value.slice(aInput.selectionEnd, value.length)
-    
-    aInput.selectionStart = originalSelStart + 1;
-    aInput.selectionEnd = aInput.selectionStart;
-}
 
 //{{{ inline translate:
 // based on code stolen from Mar Mod extension
@@ -528,6 +487,50 @@ ext.add("wiktionary-lookup-selection", function() {
  ext.add("dict", function () {
     dictDefineSelection();
 }, 'Looks up the definition of selected words using Dict protocol (requires Dict extension).');
+
+//URL
+ext.add("increase-digit-in-url", function() {
+    var pattern = /(.*?)([0]*)([0-9]+)([^0-9]*)$/;
+    var url = content.location.href;
+    var digit = url.match(pattern);
+    if (digit[1] && digit[3]) {
+        let len = digit[3].length;
+        let next = +digit[3] + (arg ? arg : 1);
+        content.location.href = digit[1] + (digit[2] || "").slice(next.toString().length - len) + next + (digit[4] || "");
+    }
+}, 'Increment last digit in the URL');
+
+ext.add("decrease-digit-in-url", function() {
+    var pattern = /(.*?)([0]*)([0-9]+)([^0-9]*)$/;
+    var url = content.location.href;
+    var digit = url.match(pattern);
+    if (digit[1] && digit[3]) {
+        let len = digit[3].length;
+        let next = +digit[3] - (arg ? arg : 1);
+        content.location.href = digit[1] + (digit[2] || "").slice(next.toString().length - len) + next + (digit[4] || "");
+    }
+}, 'Decrement last digit in the URL');
+
+//misc
+ext.add("count-region", function(ev, arg) {
+    var aInput = ev.originalTarget;
+    var value = aInput.value;
+ 
+    var selcount = aInput.selectionEnd - aInput.selectionStart;
+ 
+    display.echoStatusBar("Total:" + value.length + " Selected:" + selcount, 3000);
+}, "Count chars.");
+
+function inputChars(ev, chars) {
+    var aInput = ev.originalTarget;
+    var value = aInput.value;
+    var originalSelStart = aInput.selectionStart;
+    
+    aInput.value = value.slice(0, aInput.selectionStart) + chars + value.slice(aInput.selectionEnd, value.length)
+    
+    aInput.selectionStart = originalSelStart + 1;
+    aInput.selectionEnd = aInput.selectionStart;
+}
 
 ext.add("open-extension-dialog", function(ev, arg) {
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
@@ -688,8 +691,8 @@ ext.add("tabgroup-send-to-tmt", function(ev, arg) {
 key.quitKey              = "C-g";
 key.helpKey              = "<f1>";
 key.escapeKey            = "C-q";
-key.macroStartKey        = "<f3>";
-key.macroEndKey          = "<f4>";
+key.macroStartKey        = "C-x (";
+key.macroEndKey          = "C-x )";
 key.universalArgumentKey = "C-u";
 key.negativeArgument1Key = "C--";
 key.negativeArgument2Key = "C-M--";
@@ -1046,17 +1049,25 @@ key.setViewKey(['C-c', ':'], function (ev, arg) {
     shell.input(null, arg);
 }, 'List and execute commands', true);
 
-key.setViewKey(['C-c', 'd'], function (ev) {
+key.setViewKey(['C-x', 'k'], function (ev) {
     BrowserCloseTabOrWindow();
 }, 'Close tab / window');
 
-key.setViewKey(['C-c', 'q'], function (ev, arg) {
+key.setViewKey(['<f3>', 'q'], function (ev, arg) {
     ext.exec("search-selection", arg, ev);
 }, 'Search the selection with current default engine');
 
-key.setViewKey(['C-o', 'B'], function (ev, arg) {
-    ext.exec("bmany-list-bookmarklets", arg, ev);
-}, 'bmany - List all bookmarklets');
+key.setViewKey(['<f3>', 'd'], function(ev, arg) {
+    ext.exec('dict', arg, ev);
+}, "Query selection with Dict protocol (requires Dict extension)");
+
+key.setViewKey(['<f3>', 'w'], function(ev, arg) {
+    ext.exec('wiktionary-lookup-selection', arg, ev);
+}, "Translation selection with Wiktionary & Google Translate.");
+
+key.setViewKey(['<f3>', 'g'], function(ev, arg) {
+    ext.exec('go-to-selected-url', arg, ev);
+}, "Go to selected URL.");
 
 key.setViewKey('C-f', function (ev) {
     key.generateKey(ev.originalTarget, KeyEvent.DOM_VK_RIGHT, true);
@@ -1110,6 +1121,11 @@ key.setEditKey(['C-x', 'h'], function (ev) {
 key.setEditKey([['C-x', 'u'], ['C-_']], function (ev) {
     display.echoStatusBar("Undo!", 2000);
     goDoCommand("cmd_undo");
+}, 'Undo');
+
+key.setEditKey([['C-x', 'U'], ['M-_']], function (ev) {
+    display.echoStatusBar("Redo!", 2000);
+    goDoCommand("cmd_redo");
 }, 'Undo');
 
 key.setEditKey(['C-x', 'r', 'd'], function (ev, arg) {
@@ -1227,7 +1243,7 @@ key.setEditKey('C-k', function (ev) {
 
 key.setEditKey('C-y', command.yank, 'Paste (Yank)');
 
-key.setEditKey(['C-c', 'C-y'], command.yank, 'Paste (Yank)');
+key.setEditKey(['C-c', 'C-v'], command.yank, 'Paste (Yank)');
 
 key.setEditKey('M-y', command.yankPop, 'Paste pop (Yank pop)', true);
 
@@ -1381,12 +1397,6 @@ key.setViewKey(['C-c', '#'], function (ev, arg) {
     ext.exec("previous-occur", arg, ev);
 }, 'highlight previous occurence of current selected word');
 
-key.setViewKey(["C-x", 'b'], function (ev, arg) {
-    ext.exec("tanything", arg);
-}, "view all tabs", true);
-
-
-
 key.setViewKey(['C-c', 'C-a'], function (ev, arg) {
     ext.exec('increase-digit-in-url', arg, ev);
 }, 'Increase last digit in the URL (go to next page)');
@@ -1474,7 +1484,6 @@ key.setGlobalKey(['<f5>', 'T'], function (ev, arg) {
     gPano.pane.toggleOpen();
 }, 'select tab (pano extension)');
     
-    
 key.setGlobalKey(['<f5>', 'b'], function(ev, arg) {
     ext.exec('bmany-list-all-bookmarks', arg, ev);
 }, 'bmany - List all bookmarks.');
@@ -1483,11 +1492,15 @@ key.setGlobalKey(['<f5>', 'B'], function(ev, arg) {
     ext.exec('bmany-list-toolbar-bookmarks', arg, ev);
 }, 'bmany - List toolbar bookmarks.');
 
+key.setGlobalKey(['<f5>', 'C-b'], function (ev, arg) {
+    ext.exec("bmany-list-bookmarklets", arg, ev);
+}, 'bmany - List all bookmarklets');
+
 key.setGlobalKey(['<f5>', ':'], function(ev, arg) {
     ext.exec('list-command', arg, ev);
 }, 'vimperator-like commands');
 
-key.setGlobalKey(['C-<f11>', 'm'], function(ev, arg) {
+key.setGlobalKey(['C-<f11>', '2'], function(ev, arg) {
     SplitBrowser._browsers.forEach(function(aBrowser) {
         if (!aBrowser.contentCollapsed)
             aBrowser.collapse();
@@ -1496,14 +1509,22 @@ key.setGlobalKey(['C-<f11>', 'm'], function(ev, arg) {
     });
 }, "Expand/collapse subbrowsers (SplitBrowser addon)");
 
-key.setGlobalKey(['C-<f9>', 'w'], function(ev, arg) {
-    ext.exec('wiktionary-lookup-selection', arg, ev);
-}, "Translation selection with Wiktionary & Google Translate.");
+key.setGlobalKey(['C-<f11>', 'm'], function(ev, arg) {
+    ext.exec('toggle-menu-bar', arg, ev);
+}, "Show/hide menu bar");
+
+key.setGlobalKey(['C-<f11>', 'b'], function(ev, arg) {
+    ext.exec('toggle-bookmark-bar', arg, ev);
+}, "Show/hide bookmark bar");
 
 key.setGlobalKey(['<f12>', 'i'], function(ev, arg) {
     ext.exec("cnblogs-ing-in-split-panel", arg, ev);
 }, "Open Split Panel and navigate to http://space.cnblogs.com/mi/");
 
-key.setGlobalKey(['C-<f9>', 't'], function(ev, arg) {
+key.setGlobalKey(['<f12>', 't'], function(ev, arg) {
     ext.exec("tab-send-to-tmt", arg, ev);
 }, "Send current tab to TMT row.");
+
+key.setGlobalKey(["C-x", 'b'], function (ev, arg) {
+    ext.exec("tanything", arg);
+}, "Tanything plugin: List all tabs and select.", true);
