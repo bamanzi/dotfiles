@@ -244,7 +244,7 @@ util.httpPostJSON= function (url, params, callback) {
             xhr.send(params);
  
             return xhr;
-}
+};
 
 ext.add("bookmark-on-delicious", function(ev, arg) {
     var f='http://www.delicious.com/save?url='+encodeURIComponent(content.location.href)+
@@ -258,11 +258,11 @@ ext.add("bookmark-on-delicious", function(ev, arg) {
     var a=function(){
         if(!window.open(f+'noui=1&jump=doclose','deliciousuiv6',
                         'location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550'))
-            location.href=f+'jump=yes'
+            location.href=f+'jump=yes';
     };
     if(/Firefox/.test(navigator.userAgent)) {
-        setTimeout(a,0)}
-    else{
+        setTimeout(a,0);
+    } else {
         a();
     }
 }, "bookmark current page on delicious.");
@@ -423,14 +423,15 @@ function google_translate (whatToTranslate, lang, callback) {
             output = output.replace(/&amp;/gi,'&');
             output = output.replace(/&#39;/gi,"'");
             var fieldArray = output.split('</head>');
+            var tempResz = [];
             if (fieldArray[1].search('class="short_text"')!=-1) {
-                var tempResz = fieldArray[1].split('<span id=result_box class="short_text">');
+                tempResz = fieldArray[1].split('<span id=result_box class="short_text">');
             }
             else if (fieldArray[1].search('class="medium_text"')!=-1) {
-                var tempResz = fieldArray[1].split('<span id=result_box class="medium_text">');
+                tempResz = fieldArray[1].split('<span id=result_box class="medium_text">');
             }
             else {
-                var tempResz = fieldArray[1].split('<span id=result_box class="long_text">');
+                tempResz = fieldArray[1].split('<span id=result_box class="long_text">');
             }
             //alert(tempResz[1]);
             var kimenet = tempResz[1].split('</span></div>');
@@ -474,8 +475,8 @@ ext.add("google-translate-selection", function() {
         // <span title="Emacs粉丝应该很喜欢这个插件" onmouseover="this.style.backgroundColor='#ebeff9'" onmouseout="this.style.backgroundColor='#fff'">Emacs fans should like this plug-in</span>
         var ret = result.split(">");
         result = ret[1].split("<");
-        display.echoStatusBar(selection + ": " + result[0], 5000)
-    }
+        display.echoStatusBar(selection + ": " + result[0], 5000);
+    };
     google_translate(selection, "en", callback);
 }, "Translate the selection to English and show result in status bar.");
 
@@ -486,8 +487,8 @@ ext.add("google-translate-selection-to-cn", function() {
         // <span title="Emacs粉丝应该很喜欢这个插件" onmouseover="this.style.backgroundColor='#ebeff9'" onmouseout="this.style.backgroundColor='#fff'">Emacs fans should like this plug-in</span>
         var ret = result.split(">");
         result = ret[1].split("<");
-        display.echoStatusBar(selection + ": " + result[0], 5000)
-    }
+        display.echoStatusBar(selection + ": " + result[0], 5000);
+    };
     google_translate(selection, "zh-CN", callback);
 }, "Translate the selection to Chinese and show result in status bar.");
 
@@ -541,7 +542,7 @@ function inputChars(ev, chars) {
     var value = aInput.value;
     var originalSelStart = aInput.selectionStart;
     
-    aInput.value = value.slice(0, aInput.selectionStart) + chars + value.slice(aInput.selectionEnd, value.length)
+    aInput.value = value.slice(0, aInput.selectionStart) + chars + value.slice(aInput.selectionEnd, value.length);
     
     aInput.selectionStart = originalSelStart + 1;
     aInput.selectionEnd = aInput.selectionStart;
@@ -592,7 +593,7 @@ ext.add("tabundle-group", function(ev, arg) {
     //var path = Tabundle.createListHtml()
     var path = Tabundle.createGroupListHtml();
     if (path) {
-        gBrowser.selectedTab = gBrowser.addTab('file://' + path)
+        gBrowser.selectedTab = gBrowser.addTab('file://' + path);
     }
 }, "Use tabundle extension to capture info of all tabs of current group."); 
 
@@ -1539,14 +1540,14 @@ key.setGlobalKey(['C-<f11>', 'b'], function(ev, arg) {
 key.setGlobalKey(['<f3>', 'C-T'], function(ev, arg) {
     var sel = getBrowserSelection();
     if (sel) {
-        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=en&ie=UTF-8&q="; + encodeURIComponent(sel), true, 'right');
+        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=en&ie=UTF-8&q=" + encodeURIComponent(sel), true, 'right');
     }
 }, 'Translate selection to English and show result in Split Panel.');
 
 key.setGlobalKey(['<f3>', 'C-t'], function(ev, arg) {
     var sel = getBrowserSelection();
     if (sel) {
-        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=zh-CN&ie=UTF-8&q="; + encodeURIComponent(sel), true, 'right');
+        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=zh-CN&ie=UTF-8&q=" + encodeURIComponent(sel), true, 'right');
     }
 }, 'Translate selection to Chinese and show result in Split Panel.');
 
