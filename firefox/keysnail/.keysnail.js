@@ -1,4 +1,4 @@
-// ========================== KeySnail Init File =========================== //
+1// ========================== KeySnail Init File =========================== //
 
 // You can preserve your code in this area when generating the init file using GUI.
 // Put all your code except special key, set*key, hook, blacklist.
@@ -33,8 +33,12 @@ ext.add("other-window", function() {
 }, 'Select another window (Fox Splitter addon)');
 
 ext.add("delete-frame", function() {
-    SplitBrowser.activeBrowserCloseWindow();
-}, 'Close current active "window" (SplitBrowser addon)');
+    if (typeof SplitBrowser == "undefined") {
+        BrowserTryToCloseWindow();
+    } else {
+        SplitBrowser.activeBrowserCloseWindow();
+    }
+}, 'Close current active "window" (Fox Splitter addon)');
 
 ext.add("delete-window", function() {
     if (typeof SplitBrowser == "undefined") {
@@ -47,9 +51,12 @@ ext.add("delete-window", function() {
             gBrowser.removeTab(gBrowser.mCurrentTab);
         }
     }
-}, 'Close tab (or \'window\', if Spli tBrowser addon installed)');
+}, 'Close tab (or \'window\', if Fox Splitter addon installed)');
 
 ext.add("delete-other-windows", function() {
+  if (typeof SplitBrowser == "undefined") {
+      splitpannel.toggle(null, false, "any");
+  } else {
     var url = SplitBrowser.activeBrowser != gBrowser ? SplitBrowser.activeSubBrowser.src : null;
     var browsers = SplitBrowser.browsers;
     for (var i = 0; i < browsers.length; ++i) {
@@ -58,8 +65,8 @@ ext.add("delete-other-windows", function() {
     if (url) {
         window.loadURI(url);
     }
-}, 'delete-other-window (Fox Splitter addon)');
-
+  }
+}, 'delete-other-windows (Fox Splitter or Split Pannel required');
 
 ext.add("split-window-vertically" , function() {
     if ( (typeof(SplitBrowser)) != "undefined" ) {
@@ -75,7 +82,7 @@ ext.add("split-window-horizontally", function() {
     } else {
         splitpannel.toggle(window._content.document.location, true, "right");
     }
-}, 'split-window-horizontally (Fox Splitter addon)');
+}, 'split-window-horizontally (Fox Splitter or Split Pannel required');
 
 //split panel
 ext.add("view-in-split-panel", function () {
@@ -1518,15 +1525,6 @@ key.setGlobalKey(['<f5>', 'C-b'], function (ev, arg) {
 key.setGlobalKey(['<f5>', ':'], function(ev, arg) {
     ext.exec('list-command', arg, ev);
 }, 'vimperator-like commands');
-
-key.setGlobalKey(['C-<f11>', '2'], function(ev, arg) {
-    SplitBrowser._browsers.forEach(function(aBrowser) {
-        if (!aBrowser.contentCollapsed)
-            aBrowser.collapse();
-        else
-            aBrowser.expand(true);
-    });
-}, "Expand/collapse subbrowsers (SplitBrowser addon)");
 
 key.setGlobalKey(['C-<f11>', 'm'], function(ev, arg) {
     ext.exec('toggle-menu-bar', arg, ev);
