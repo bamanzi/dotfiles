@@ -1,13 +1,12 @@
-1// ========================== KeySnail Init File =========================== //
+// ========================== KeySnail Init File =========================== //
 
 // You can preserve your code in this area when generating the init file using GUI.
 // Put all your code except special key, set*key, hook, blacklist.
 // ========================================================================= //
 //{{%PRESERVE%
-// Put your codes here
+//* PRESERVE
 
-
-//Use Fox Splitter addon to mimic C-x 1/2/3 stuff
+//** Use Fox Splitter addon to mimic C-x 1/2/3 stuff
 ext.add("other-window", function() {
     function focusSubBrowserById(aId) {
         SplitBrowser.getSubBrowserById(aId).browser.contentWindow.focus();
@@ -84,7 +83,7 @@ ext.add("split-window-horizontally", function() {
     }
 }, 'split-window-horizontally (Fox Splitter or Split Pannel required');
 
-//split panel
+//** split panel
 ext.add("view-in-split-panel", function () {
     splitpannel.toggle(window._content.document.location, true, 'right');
 }, 'Open Split Panel and load current URL in it .');
@@ -170,8 +169,49 @@ ext.add("scrapbook-sidebar", function () {
     toggleSidebar("viewScrapBookSidebar");
 }, 'Toggle Scrapbook sidebar (extension Scrapbook or Scrapbook Plus)');
 
+//** sidebar
+//FIXME: not work on Firefox > 24?
+toggleToolbar = function(aEvent, toolbar_id, force) {
+    if(toolbar_id != aEvent.originalTarget.parentNode.id) {
+        var toolbar = document.getElementById(toolbar_id);
+        try {
+            // Firefox 4, mainly the bookmark toolbar button
+            var hidingAttribute = toolbar.getAttribute("type") == "menubar" ?
+                "autohide" : "collapsed";
+            var isHidden = toolbar.getAttribute(hidingAttribute) == "true";
 
-//**Scrapbook (Plus)
+            setToolbarVisibility(toolbar, !isHidden);
+
+            if(force)
+                toolbar.collapsed = !toolbar.collapsed;
+        } catch(e) {
+            toolbar.collapsed = !toolbar.collapsed;
+            document.persist(toolbar_id, "collapsed");
+        }
+    }
+};
+
+ext.add("toggle-nav-bar", function(ev, argv) {
+    toggleToolbar(ev, "nav-bar");
+}, "Toggle navigation bar");
+
+ext.add("toggle-bookmark-bar", function(ev, argv) {
+    toggleToolbar(ev, "PersonalToolbar");
+}, "Toggle bookmark bar");
+
+ext.add("toggle-menu-bar", function(ev, arg) {
+    toggleToolbar(ev, "toolbar-menubar");
+}, "Toggle menu bar");
+
+ext.add("toggle-addon-bar", function(ev, argv) {
+    toggleToolbar(ev, "addon-bar");
+}, "Toggle addon bar");
+
+ext.add("toggle-tgm-bar", function(ev, arg) {
+    toggleToolbar(ev, "TabGroupsManagerToolbar");
+}, "Toggle TabGroups Manager toolbar.");
+
+//** Scrapbook (Plus)
 //make some ScrapBook (Plus)'s command could be manipulated with keyboard     
 ext.add("scrapbook-highlight", function(ev, arg) {
     //if ARG given, switch to correspding highligher and use it
@@ -187,6 +227,7 @@ ext.add("scrapbook-save", function() {
 }, "Capture current page to Scrapbook, or save modification.");
 
 
+//** some online services
 //is.gd service
 ext.add("is.gd", function () {
     let endpoint = "http://is.gd/api.php?longurl=" + encodeURIComponent(window._content.document.location);
@@ -274,101 +315,16 @@ ext.add("bookmark-on-delicious", function(ev, arg) {
     }
 }, "bookmark current page on delicious.");
 
-//Yet Another Twitter Client KeySnail 
-plugins.options["twitter_client.keymap"] = {
-    "C-z"   : "prompt-toggle-edit-mode",
-    "SPC"   : "prompt-next-page",
-    "b"     : "prompt-previous-page",
-    "j"     : "prompt-next-completion",
-    "k"     : "prompt-previous-completion",
-    "g"     : "prompt-beginning-of-candidates",
-    "G"     : "prompt-end-of-candidates",
-    "q"     : "prompt-cancel",
-    // twitter client specific actions
-    "t"     : "tweet",
-    "r"     : "reply",
-    "R"     : "retweet",
-    "D"     : "delete-tweet",
-    "f"     : "add-to-favorite",
-    "v"     : "display-entire-message",
-    "V"     : "view-in-twitter",
-    "c"     : "copy-tweet",
-    "s"     : "show-target-status",
-    "@"     : "show-mentions",
-    "/"     : "search-word",
-    "o"     : "open-url"
-};
+ext.add("gwt", function() {
+    var newurl = "http://gxc.google.com/gwt/x?u=" + window.content.location.href;
+    content.location.href = newurl;
+}, "Use GWT to view current url.");
 
-plugins.options["twitter_client.update_interval"] = 10000;
-
-
-//jump to previous page or next page
-ext.add("previous-page", function () {
-    var document = window._content.document;
-    var links = document.links;
-    for(i = 0; i < links.length; i++) {
-        if (   (links[i].text == '上一页')   || (links[i].text == '<上一页')
-               || (links[i].text == '上一篇') || (links[i].text == '< 前一页')
-               || (links[i].text == 'Previous') || (links[i].text == 'Prev') 
-               || (links[i].text == '<')        || (links[i].text == '<<')) 
-            document.location = links[i].href;
-    }
-}, "Previous page");
-
-ext.add("next-page", function () {
-    var document = window._content.document;
-    var links = document.links;
-    for(i = 0; i < links.length; i++) {
-        if (   (links[i].text == '下一页')  || (links[i].text == '下一页>')
-               || (links[i].text == '下一篇') || (links[i].text == '后一页 >')
-               || (links[i].text == 'Next')    || (links[i].text == 'next') 
-               || (links[i].text == '>')       || (links[i].text == '>>')) 
-            document.location = links[i].href;
-    }
-}, "Next page");
-
-
-// paste and go
-ext.add("paste-and-go", function() {
-    if (typeof(pastego) != "undefined") {
-        //pastego addon
-        pastego.onToolbarButtonCommand();
-        return;
-    }
-    var url = command.getClipboardText();
-    if (url.indexOf("://") != -1)
-    {
-        window._content.location = url;
-    }
-    else
-    {
-        //url = util.format("http://www.google.com/search?q=%s&ie=utf-8&oe=utf-8", encodeURIComponent(url));
-        BrowserSearch.loadSearch(url, false);
-    }
-}, "Paste the URL or keyword from clipboard and Go");
-
-ext.add("paste-to-tab-and-go", function() {
-    var url = command.getClipboardText();
-    if (url.indexOf("://") != -1)
-        gBrowser.loadOneTab(url, null, null, null, false);
-    else
-    {
-        //url = util.format("http://www.google.com/search?q=%s&ie=utf-8&oe=utf-8", encodeURIComponent(url));
-        BrowserSearch.loadSearch(url, true);
-    }
-}, "Paste the URL or keyword from clipboard to a new tab and Go");
-
-// selection
-ext.add("search-selection", function() {
-    if(!getBrowserSelection()) return;
-    BrowserSearch.loadSearch(getBrowserSelection(), true);
-}, "Use the default search engine to search the phrase currently selected");
-
+//** selection
 ext.add("go-to-selected-url", function() {
     if(!getBrowserSelection()) return;
     gBrowser.loadOneTab(getBrowserSelection(), null, null, null, true);
 }, "Open selected text as an URL and go to it.");
-
 
 ext.add("highlight-all", function() {
     var word = getBrowserSelection();
@@ -396,7 +352,7 @@ ext.add("previous-occur", function() {
     gFindBar.onFindAgainCommand(true);
 }, "highlight previouse occurence of current selected word");
 
-
+//*** translation
 //{{{ inline translate:
 // based on code stolen from Mar Mod extension
 function google_translate (whatToTranslate, lang, callback) {
@@ -499,6 +455,10 @@ ext.add("google-translate-selection-to-cn", function() {
     google_translate(selection, "zh-CN", callback);
 }, "Translate the selection to Chinese and show result in status bar.");
 
+ext.add("fast-translation", function() {
+    fasttransk.openresult(0);
+}, 'Translate selection and show result in Fast Translation dialog.');
+
 ext.add("wiktionary-lookup-selection", function() {
     if (!getBrowserSelection()) {
         display.echoStatusBar("Wiktionary: You must selection something.", 2000);
@@ -511,7 +471,126 @@ ext.add("wiktionary-lookup-selection", function() {
     dictDefineSelection();
 }, 'Looks up the definition of selected words using Dict protocol (requires Dict extension).');
 
-//URL
+//*** web search
+ext.add("search-selection", function() {
+    if(!getBrowserSelection()) return;
+    BrowserSearch.loadSearch(getBrowserSelection(), true);
+}, "Use the default search engine to search the phrase currently selected");
+
+ext.add("google-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://www.google.com.hk/s?wd=ctags%20site%3Akomodoide.com
+    var url = "http://www.jwss.cc/?q=" + getBrowserSelection()
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Google search engine to search the phrase currently selected");
+ 
+ext.add("ddg-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://duckduckgo.com/?q=ctags%20site:komodoide.com
+    var url = "https://duckduckgo.com/?q=" + getBrowserSelection()
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use DuckDuckGo search engine to search the phrase currently selected");
+
+ext.add("baidu-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://www.baidu.com/s?wd=ctags%20site%3Akomodoide.com
+    var url = "https://www.baidu.com/s?wd=" + getBrowserSelection()
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Baidu search engine to search the phrase currently selected");
+ 
+ext.add("yahoo-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://search.yahoo.com/search?p=ctags%20site:komodoide.com
+    var url = "https://search.yahoo.com/search?p=" + getBrowserSelection()
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Yahoo search engine to search the phrase currently selected");
+
+
+ext.add("google-site-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://www.google.com.hk/s?q=ctags%20site%3Akomodoide.com
+    var url = "http://www.jwss.cc/?q=" + getBrowserSelection() +" site%3A" + content.location.hostname;
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Google search engine to search the phrase currently selected on current site");
+ 
+ext.add("ddg-site-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://duckduckgo.com/?q=ctags%20site%3Akomodoide.com
+    var url = "https://duckduckgo.com/?q=" + getBrowserSelection() +" site%3A" + content.location.hostname;
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use DuckDuckGo search engine to search the phrase currently selected on current site"); 
+
+ext.add("baidu-site-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://www.baidu.com/s?wd=ctags%20site%3Akomodoide.com
+    var url = "https://www.baidu.com/s?wd=" + getBrowserSelection() +" site%3A" + content.location.hostname;
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Baidu search engine to search the phrase currently selected on current site");
+ 
+ext.add("yahoo-site-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://search.yahoo.com/search?p=ctags%20site:komodoide.com
+    var url = "https://search.yahoo.com/search?p=" + getBrowserSelection() +" site%3A" + content.location.hostname;
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Yahoo search engine to search the phrase currently selected on current site"); 
+
+
+//** navigration
+//jump to previous page or next page
+ext.add("previous-page", function () {
+    var document = window._content.document;
+    var links = document.links;
+    for(i = 0; i < links.length; i++) {
+        if (   (links[i].text == '上一页')   || (links[i].text == '<上一页')
+               || (links[i].text == '上一篇') || (links[i].text == '< 前一页')
+               || (links[i].text == 'Previous') || (links[i].text == 'Prev') 
+               || (links[i].text == '<')        || (links[i].text == '<<')) 
+            document.location = links[i].href;
+    }
+}, "Previous page");
+
+ext.add("next-page", function () {
+    var document = window._content.document;
+    var links = document.links;
+    for(i = 0; i < links.length; i++) {
+        if (   (links[i].text == '下一页')  || (links[i].text == '下一页>')
+               || (links[i].text == '下一篇') || (links[i].text == '后一页 >')
+               || (links[i].text == 'Next')    || (links[i].text == 'next') 
+               || (links[i].text == '>')       || (links[i].text == '>>')) 
+            document.location = links[i].href;
+    }
+}, "Next page");
+
+// paste and go
+ext.add("paste-and-go", function() {
+    if (typeof(pastego) != "undefined") {
+        //pastego addon
+        pastego.onToolbarButtonCommand();
+        return;
+    }
+    var url = command.getClipboardText();
+    if (url.indexOf("://") != -1)
+    {
+        window._content.location = url;
+    }
+    else
+    {
+        //url = util.format("http://www.google.com/search?q=%s&ie=utf-8&oe=utf-8", encodeURIComponent(url));
+        BrowserSearch.loadSearch(url, false);
+    }
+}, "Paste the URL or keyword from clipboard and Go");
+
+ext.add("paste-to-tab-and-go", function() {
+    var url = command.getClipboardText();
+    if (url.indexOf("://") != -1)
+        gBrowser.loadOneTab(url, null, null, null, false);
+    else
+    {
+        //url = util.format("http://www.google.com/search?q=%s&ie=utf-8&oe=utf-8", encodeURIComponent(url));
+        BrowserSearch.loadSearch(url, true);
+    }
+}, "Paste the URL or keyword from clipboard to a new tab and Go");
+
 ext.add("increase-digit-in-url", function() {
     var pattern = /(.*?)([0]*)([0-9]+)([^0-9]*)$/;
     var url = content.location.href;
@@ -534,7 +613,7 @@ ext.add("decrease-digit-in-url", function() {
     }
 }, 'Decrement last digit in the URL');
 
-//misc
+//** misc
 ext.add("count-region", function(ev, arg) {
     var aInput = ev.originalTarget;
     var value = aInput.value;
@@ -543,17 +622,6 @@ ext.add("count-region", function(ev, arg) {
  
     display.echoStatusBar("Total:" + value.length + " Selected:" + selcount, 3000);
 }, "Count chars.");
-
-function inputChars(ev, chars) {
-    var aInput = ev.originalTarget;
-    var value = aInput.value;
-    var originalSelStart = aInput.selectionStart;
-    
-    aInput.value = value.slice(0, aInput.selectionStart) + chars + value.slice(aInput.selectionEnd, value.length);
-    
-    aInput.selectionStart = originalSelStart + 1;
-    aInput.selectionEnd = aInput.selectionStart;
-}
 
 ext.add("open-extension-dialog", function(ev, arg) {
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
@@ -582,12 +650,6 @@ ext.add("open-extension-dialog", function(ev, arg) {
     OpenAddonsMgr('extensions', 'addons://list/extension');
 }, "Open the Addons Manager.");
 
-ext.add("gwt", function() {
-    var newurl = "http://gxc.google.com/gwt/x?u=" + window.content.location.href;
-    content.location.href = newurl;
-}, "Use GWT to view current url.");
-
-    
 ext.add("evernote-clearly", function() {
    readable_by_evernote__menu__call();
 }, "Read current page in Evernote Clearly (call again to quit)."); 
@@ -604,49 +666,6 @@ ext.add("tabundle-group", function(ev, arg) {
     }
 }, "Use tabundle extension to capture info of all tabs of current group."); 
 
-//FIXME: not work on Firefox > 24?
-toggleToolbar = function(aEvent, toolbar_id, force) {
-    if(toolbar_id != aEvent.originalTarget.parentNode.id) {
-        var toolbar = document.getElementById(toolbar_id);
-        try {
-            // Firefox 4, mainly the bookmark toolbar button
-            var hidingAttribute = toolbar.getAttribute("type") == "menubar" ?
-                "autohide" : "collapsed";
-            var isHidden = toolbar.getAttribute(hidingAttribute) == "true";
-
-            setToolbarVisibility(toolbar, !isHidden);
-
-            if(force)
-                toolbar.collapsed = !toolbar.collapsed;
-        } catch(e) {
-            toolbar.collapsed = !toolbar.collapsed;
-            document.persist(toolbar_id, "collapsed");
-        }
-    }
-};
-
-ext.add("toggle-nav-bar", function(ev, argv) {
-    toggleToolbar(ev, "nav-bar");
-}, "Toggle navigation bar");
-
-ext.add("toggle-bookmark-bar", function(ev, argv) {
-    toggleToolbar(ev, "PersonalToolbar");
-}, "Toggle bookmark bar");
-
-ext.add("toggle-menu-bar", function(ev, arg) {
-    toggleToolbar(ev, "toolbar-menubar");
-}, "Toggle menu bar");
-
-ext.add("toggle-addon-bar", function(ev, argv) {
-    toggleToolbar(ev, "addon-bar");
-}, "Toggle addon bar");
-
-ext.add("toggle-tgm-bar", function(ev, arg) {
-    toggleToolbar(ev, "TabGroupsManagerToolbar");
-}, "Toggle TabGroups Manager toolbar.");
-
-
-//** misc
 ext.add("tab-send-to-tmt", function(ev, arg) {
         var panoGroup = TabView._window.GroupItems.getActiveGroupItem();
         var groupName = panoGroup.getTitle();
@@ -717,63 +736,19 @@ ext.add("reload-pac", function(ev, arg) {
     Components.classes["@mozilla.org/network/protocol-proxy-service;1"].getService().reloadPAC();
 }, "Reload proxy PAC script.");
 
-
-ext.add("google-search-selection", function() {
-    if(!getBrowserSelection()) return;
-    //https://www.google.com.hk/s?wd=ctags%20site%3Akomodoide.com
-    var url = "http://www.jwss.cc/?q=" + getBrowserSelection()
-    gBrowser.loadOneTab(url, null, null, null, false);
-}, "Use Google search engine to search the phrase currently selected");
- 
-ext.add("ddg-search-selection", function() {
-    if(!getBrowserSelection()) return;
-    //https://duckduckgo.com/?q=ctags%20site:komodoide.com
-    var url = "https://duckduckgo.com/?q=" + getBrowserSelection()
-    gBrowser.loadOneTab(url, null, null, null, false);
-}, "Use DuckDuckGo search engine to search the phrase currently selected");
-
-ext.add("baidu-search-selection", function() {
-    if(!getBrowserSelection()) return;
-    //https://www.baidu.com/s?wd=ctags%20site%3Akomodoide.com
-    var url = "https://www.baidu.com/s?wd=" + getBrowserSelection()
-    gBrowser.loadOneTab(url, null, null, null, false);
-}, "Use Baidu search engine to search the phrase currently selected");
- 
-ext.add("yahoo-search-selection", function() {
-    if(!getBrowserSelection()) return;
-    //https://search.yahoo.com/search?p=ctags%20site:komodoide.com
-    var url = "https://search.yahoo.com/search?p=" + getBrowserSelection()
-    gBrowser.loadOneTab(url, null, null, null, false);
-}, "Use Yahoo search engine to search the phrase currently selected");
+//** some utiltity functions
+function inputChars(ev, chars) {
+    var aInput = ev.originalTarget;
+    var value = aInput.value;
+    var originalSelStart = aInput.selectionStart;
+    
+    aInput.value = value.slice(0, aInput.selectionStart) + chars + value.slice(aInput.selectionEnd, value.length);
+    
+    aInput.selectionStart = originalSelStart + 1;
+    aInput.selectionEnd = aInput.selectionStart;
+}
 
 
-ext.add("google-site-search-selection", function() {
-    if(!getBrowserSelection()) return;
-    //https://www.google.com.hk/s?wd=ctags%20site%3Akomodoide.com
-    var url = "http://www.jwss.cc/?q=" + getBrowserSelection() +" site%3A" + content.location.hostname;
-    gBrowser.loadOneTab(url, null, null, null, false);
-}, "Use Google search engine to search the phrase currently selected on current site");
- 
-ext.add("ddg-site-search-selection", function() {
-    if(!getBrowserSelection()) return;
-    //https://duckduckgo.com/?q=ctags%20site:komodoide.com
-    var url = "https://duckduckgo.com/?q=" + getBrowserSelection() +" site%3A" + content.location.hostname;
-    gBrowser.loadOneTab(url, null, null, null, false);
-}, "Use DuckDuckGo search engine to search the phrase currently selected on current site"); 
-
-ext.add("baidu-site-search-selection", function() {
-    if(!getBrowserSelection()) return;
-    //https://www.baidu.com/s?wd=ctags%20site%3Akomodoide.com
-    var url = "https://www.baidu.com/s?wd=" + getBrowserSelection() +" site%3A" + content.location.hostname;
-    gBrowser.loadOneTab(url, null, null, null, false);
-}, "Use Baidu search engine to search the phrase currently selected on current site");
- 
-ext.add("yahoo-site-search-selection", function() {
-    if(!getBrowserSelection()) return;
-    //https://search.yahoo.com/search?p=ctags%20site:komodoide.com
-    var url = "https://search.yahoo.com/search?p=" + getBrowserSelection() +" site%3A" + content.location.hostname;
-    gBrowser.loadOneTab(url, null, null, null, false);
-}, "Use Yahoo search engine to search the phrase currently selected on current site"); 
 //}}%PRESERVE%
 // ========================================================================= //
 
@@ -875,6 +850,7 @@ hook.addToHook('Unload', function () {
 
 // ============================= Key bindings ============================== //
 
+//* global mode
 key.setGlobalKey('C-M-r', function (ev) {
     userscript.reload();
 }, 'Reload the initialization file', true);
@@ -1083,6 +1059,7 @@ key.setGlobalKey(['C-o', 'k'], function (ev, arg) {
     ext.exec("bmany-list-all-bookmarks-with-keyword", arg, ev);
 }, 'bmany - List bookmarks with keyword', true);
 
+//* view mode
 key.setViewKey([['C-n'], ['C-c', 'j']], function (ev) {
     key.generateKey(ev.originalTarget, KeyEvent.DOM_VK_DOWN, true);
 }, 'Scroll line down');
@@ -1123,50 +1100,9 @@ key.setViewKey(['C-c', 'l'], function (ev) {
     BrowserForward();
 }, 'Forward');
 
-key.setViewKey(['C-c', 'i'], function (ev, arg) {
-    //stolen from keysnail's vi-style configuration
-    children = document.getElementById("nav-bar").children;
-    for (i = 0; i < children.length; i++) {
-        children[i].style.backgroundColor = "pink";
-    }
-    util.setBoolPref("accessibility.browsewithcaret", !util.getBoolPref("accessibility.browsewithcaret"));
-}, 'Enter caret mode');
-
-key.setViewKey(['C-c', ':'], function (ev, arg) {
-    shell.input(null, arg);
-}, 'List and execute commands', true);
-
 key.setViewKey(['C-x', 'k'], function (ev) {
     BrowserCloseTabOrWindow();
 }, 'Close tab / window');
-
-key.setViewKey(['<f3>', 'j'], function (ev, arg) {
-    ext.exec("highlight-all", arg, ev);
-}, 'highlight next occurence of current selected word');
-
-key.setViewKey(['<f3>', '*'], function (ev, arg) {
-    ext.exec("next-occur", arg, ev);
-}, 'highlight next occurence of current selected word');
-
-key.setViewKey(['<f3>', '#'], function (ev, arg) {
-    ext.exec("previous-occur", arg, ev);
-}, 'highlight previous occurence of current selected word');
-
-key.setViewKey(['<f3>', 'q'], function (ev, arg) {
-    ext.exec("search-selection", arg, ev);
-}, 'Search the selection with current default engine');
-
-key.setViewKey(['<f3>', 'd'], function(ev, arg) {
-    ext.exec('dict', arg, ev);
-}, "Query selection with Dict protocol (requires Dict extension)");
-
-key.setViewKey(['<f3>', 'w'], function(ev, arg) {
-    ext.exec('wiktionary-lookup-selection', arg, ev);
-}, "Translation selection with Wiktionary & Google Translate.");
-
-key.setViewKey(['<f3>', 'g'], function(ev, arg) {
-    ext.exec('go-to-selected-url', arg, ev);
-}, "Go to selected URL.");
 
 key.setViewKey('C-f', function (ev) {
     key.generateKey(ev.originalTarget, KeyEvent.DOM_VK_RIGHT, true);
@@ -1200,14 +1136,6 @@ key.setViewKey('M-n', function (ev) {
     command.walkInputElement(command.elementsRetrieverButton, false, true);
 }, 'Focus to the previous button');
 
-key.setViewKey(['[', '['], function (ev, arg) {
-    ext.exec("previous-page", arg, ev);
-}, 'Previous page');
-
-key.setViewKey([']', ']'], function (ev, arg) {
-    ext.exec("next-page", arg, ev);
-}, 'Next page');
-
 key.setViewKey('M-<down>', function (ev, arg) {
     var backForwardMenu = document.getElementById("backForwardMenu");
     backForwardMenu.openPopupAtScreen(document.width / 2, document.height / 2, true);
@@ -1217,6 +1145,200 @@ key.setViewKey('<backspace>', function (ev) {
     BrowserBack();
 }, 'Back to last page in history.');
 
+//** f3: related to selection
+key.setViewKey(['<f3>', 'j'], function (ev, arg) {
+    ext.exec("highlight-all", arg, ev);
+}, 'highlight all occurences of current selected word');
+
+key.setViewKey(['<f3>', '*'], function (ev, arg) {
+    ext.exec("next-occur", arg, ev);
+}, 'highlight next occurence of current selected word');
+
+key.setViewKey(['<f3>', '#'], function (ev, arg) {
+    ext.exec("previous-occur", arg, ev);
+}, 'highlight previous occurence of current selected word');
+
+key.setViewKey(['<f3>', 'q'], function (ev, arg) {
+    ext.exec("search-selection", arg, ev);
+}, 'Search the selection with current default engine');
+
+key.setViewKey(['<f3>', 'd'], function(ev, arg) {
+    ext.exec('dict', arg, ev);
+}, "Query selection with Dict protocol (requires Dict extension)");
+
+key.setViewKey(['<f3>', 'w'], function(ev, arg) {
+    ext.exec('wiktionary-lookup-selection', arg, ev);
+}, "Translation selection with Wiktionary & Google Translate.");
+
+key.setViewKey(['<f3>', 'g'], function(ev, arg) {
+    ext.exec('go-to-selected-url', arg, ev);
+}, "Go to selected URL.");
+
+key.setViewKey(['<f3>', 'C-T'], function(ev, arg) {
+    var sel = getBrowserSelection();
+    if (sel) {
+        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=en&ie=UTF-8&q=" + encodeURIComponent(sel), true, 'right');
+    }
+}, 'Translate selection to English and show result in Split Panel.');
+
+key.setViewKey(['<f3>', 'C-t'], function(ev, arg) {
+    var sel = getBrowserSelection();
+    if (sel) {
+        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=zh-CN&ie=UTF-8&q=" + encodeURIComponent(sel), true, 'right');
+    }
+}, 'Translate selection to Chinese and show result in Split Panel.');
+
+//** misc user commands
+key.setViewKey(['C-c', 'i'], function (ev, arg) {
+    //stolen from keysnail's vi-style configuration
+    children = document.getElementById("nav-bar").children;
+    for (i = 0; i < children.length; i++) {
+        children[i].style.backgroundColor = "pink";
+    }
+    util.setBoolPref("accessibility.browsewithcaret", !util.getBoolPref("accessibility.browsewithcaret"));
+}, 'Enter caret mode');
+
+key.setViewKey(['C-c', ':'], function (ev, arg) {
+    shell.input(null, arg);
+}, 'List and execute commands', true);
+
+key.setViewKey(['C-c', 'C-a'], function (ev, arg) {
+    ext.exec('increase-digit-in-url', arg, ev);
+}, 'Increase last digit in the URL (go to next page)');
+
+key.setViewKey(['C-c', 'C-d'], function (ev, arg) {
+    ext.exec('decrease-digit-in-url', arg, ev);
+}, 'Decrease last digit in the URL (go to prev page)');
+
+key.setViewKey(['[', '['], function (ev, arg) {
+    ext.exec("previous-page", arg, ev);
+}, 'Previous page');
+
+key.setViewKey([']', ']'], function (ev, arg) {
+    ext.exec("next-page", arg, ev);
+}, 'Next page');
+
+
+//* caret mode
+key.setCaretKey([['C-c', 'i'], ['ESC']], function (ev, arg) {
+    children = document.getElementById("nav-bar").children;
+    for (i = 0; i < children.length; i++) {
+        children[i].style.backgroundColor = "transparent";
+    }
+    util.setBoolPref("accessibility.browsewithcaret", false);
+}, 'Exit caret mode');
+
+key.setCaretKey(['C-c', ';'], function (ev) {
+    ext.exec("hok-start-extended-mode", ev);
+}, 'Start Hit a Hint extended mode');
+
+key.setCaretKey([['C-a'], ['^']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectBeginLine") : goDoCommand("cmd_beginLine");
+}, 'Move caret to the beginning of the line');
+
+key.setCaretKey('C-e', function (ev) {
+    ext.exec("hok-start-continuous-mode", ev);
+}, 'Start Hit a Hint continuous mode');
+
+key.setCaretKey([['$'], ['M->'], ['G']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectEndLine") : goDoCommand("cmd_endLine");
+}, 'Move caret to the end of the line');
+
+key.setCaretKey([['C-n'], ['j']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectLineNext") : goDoCommand("cmd_scrollLineDown");
+}, 'Move caret to the next line');
+
+key.setCaretKey([['C-p'], ['k']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectLinePrevious") : goDoCommand("cmd_scrollLineUp");
+}, 'Move caret to the previous line');
+
+key.setCaretKey([['C-f'], ['l']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectCharNext") : goDoCommand("cmd_scrollRight");
+}, 'Move caret to the right');
+
+key.setCaretKey([['C-b'], ['h'], ['C-h']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectCharPrevious") : goDoCommand("cmd_scrollLeft");
+}, 'Move caret to the left');
+
+key.setCaretKey([['M-f'], ['w']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectWordNext") : goDoCommand("cmd_wordNext");
+}, 'Move caret to the right by word');
+
+key.setCaretKey([['M-b'], ['W']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectWordPrevious") : goDoCommand("cmd_wordPrevious");
+}, 'Move caret to the left by word');
+
+key.setCaretKey([['C-v'], ['SPC']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectPageNext") : goDoCommand("cmd_movePageDown");
+}, 'Move caret down by page');
+
+key.setCaretKey([['M-v'], ['b']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectPagePrevious") : goDoCommand("cmd_movePageUp");
+}, 'Move caret up by page');
+
+key.setCaretKey([['M-<'], ['g']], function (ev) {
+    ev.target.ksMarked ? goDoCommand("cmd_selectTop") : goDoCommand("cmd_scrollTop");
+}, 'Move caret to the top of the page');
+
+key.setCaretKey('J', function (ev) {
+    util.getSelectionController().scrollLine(true);
+}, 'Scroll line down');
+
+key.setCaretKey('K', function (ev) {
+    util.getSelectionController().scrollLine(false);
+}, 'Scroll line up');
+
+key.setCaretKey(',', function (ev) {
+    util.getSelectionController().scrollHorizontal(true);
+    goDoCommand("cmd_scrollLeft");
+}, 'Scroll left');
+
+key.setCaretKey('.', function (ev) {
+    goDoCommand("cmd_scrollRight");
+    util.getSelectionController().scrollHorizontal(false);
+}, 'Scroll right');
+
+key.setCaretKey('z', function (ev) {
+    command.recenter(ev);
+}, 'Scroll to the cursor position');
+
+key.setCaretKey([['C-SPC'], ['C-@']], function (ev) {
+    command.setMark(ev);
+}, 'Set the mark', true);
+
+key.setCaretKey(':', function (ev, arg) {
+    shell.input(null, arg);
+}, 'List and execute commands', true);
+
+key.setCaretKey('R', function (ev) {
+    BrowserReload();
+}, 'Reload the page', true);
+
+key.setCaretKey('B', function (ev) {
+    BrowserBack();
+}, 'Back');
+
+key.setCaretKey('F', function (ev) {
+    ext.exec("hok-start-background-mode", ev);
+}, 'Start Hit a Hint background mode');
+
+key.setCaretKey(['C-x', 'h'], function (ev) {
+    goDoCommand("cmd_selectAll");
+}, 'Select all', true);
+
+key.setCaretKey('f', function (ev) {
+    ext.exec("hok-start-foreground-mode", ev);
+}, 'Start Hit a Hint foreground mode');
+
+key.setCaretKey('M-p', function (ev) {
+    command.walkInputElement(command.elementsRetrieverButton, true, true);
+}, 'Focus to the next button');
+
+key.setCaretKey('M-n', function (ev) {
+    command.walkInputElement(command.elementsRetrieverButton, false, true);
+}, 'Focus to the previous button');
+
+//* edit mode
 key.setEditKey(['C-x', 'h'], function (ev) {
     command.selectAll(ev);
 }, 'Select whole text', true);
@@ -1368,132 +1490,7 @@ key.setEditKey('M-p', function (ev) {
     command.walkInputElement(command.elementsRetrieverTextarea, false, true);
 }, 'Focus to the previous text area');
 
-key.setCaretKey([['C-c', 'i'], ['ESC']], function (ev, arg) {
-    children = document.getElementById("nav-bar").children;
-    for (i = 0; i < children.length; i++) {
-        children[i].style.backgroundColor = "transparent";
-    }
-    util.setBoolPref("accessibility.browsewithcaret", false);
-}, 'Exit caret mode');
-
-key.setCaretKey(['C-c', ';'], function (ev) {
-    ext.exec("hok-start-extended-mode", ev);
-}, 'Start Hit a Hint extended mode');
-
-key.setCaretKey([['C-a'], ['^']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectBeginLine") : goDoCommand("cmd_beginLine");
-}, 'Move caret to the beginning of the line');
-
-key.setCaretKey('C-e', function (ev) {
-    ext.exec("hok-start-continuous-mode", ev);
-}, 'Start Hit a Hint continuous mode');
-
-key.setCaretKey([['$'], ['M->'], ['G']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectEndLine") : goDoCommand("cmd_endLine");
-}, 'Move caret to the end of the line');
-
-key.setCaretKey([['C-n'], ['j']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectLineNext") : goDoCommand("cmd_scrollLineDown");
-}, 'Move caret to the next line');
-
-key.setCaretKey([['C-p'], ['k']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectLinePrevious") : goDoCommand("cmd_scrollLineUp");
-}, 'Move caret to the previous line');
-
-key.setCaretKey([['C-f'], ['l']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectCharNext") : goDoCommand("cmd_scrollRight");
-}, 'Move caret to the right');
-
-key.setCaretKey([['C-b'], ['h'], ['C-h']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectCharPrevious") : goDoCommand("cmd_scrollLeft");
-}, 'Move caret to the left');
-
-key.setCaretKey([['M-f'], ['w']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectWordNext") : goDoCommand("cmd_wordNext");
-}, 'Move caret to the right by word');
-
-key.setCaretKey([['M-b'], ['W']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectWordPrevious") : goDoCommand("cmd_wordPrevious");
-}, 'Move caret to the left by word');
-
-key.setCaretKey([['C-v'], ['SPC']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectPageNext") : goDoCommand("cmd_movePageDown");
-}, 'Move caret down by page');
-
-key.setCaretKey([['M-v'], ['b']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectPagePrevious") : goDoCommand("cmd_movePageUp");
-}, 'Move caret up by page');
-
-key.setCaretKey([['M-<'], ['g']], function (ev) {
-    ev.target.ksMarked ? goDoCommand("cmd_selectTop") : goDoCommand("cmd_scrollTop");
-}, 'Move caret to the top of the page');
-
-key.setCaretKey('J', function (ev) {
-    util.getSelectionController().scrollLine(true);
-}, 'Scroll line down');
-
-key.setCaretKey('K', function (ev) {
-    util.getSelectionController().scrollLine(false);
-}, 'Scroll line up');
-
-key.setCaretKey(',', function (ev) {
-    util.getSelectionController().scrollHorizontal(true);
-    goDoCommand("cmd_scrollLeft");
-}, 'Scroll left');
-
-key.setCaretKey('.', function (ev) {
-    goDoCommand("cmd_scrollRight");
-    util.getSelectionController().scrollHorizontal(false);
-}, 'Scroll right');
-
-key.setCaretKey('z', function (ev) {
-    command.recenter(ev);
-}, 'Scroll to the cursor position');
-
-key.setCaretKey([['C-SPC'], ['C-@']], function (ev) {
-    command.setMark(ev);
-}, 'Set the mark', true);
-
-key.setCaretKey(':', function (ev, arg) {
-    shell.input(null, arg);
-}, 'List and execute commands', true);
-
-key.setCaretKey('R', function (ev) {
-    BrowserReload();
-}, 'Reload the page', true);
-
-key.setCaretKey('B', function (ev) {
-    BrowserBack();
-}, 'Back');
-
-key.setCaretKey('F', function (ev) {
-    ext.exec("hok-start-background-mode", ev);
-}, 'Start Hit a Hint background mode');
-
-key.setCaretKey(['C-x', 'h'], function (ev) {
-    goDoCommand("cmd_selectAll");
-}, 'Select all', true);
-
-key.setCaretKey('f', function (ev) {
-    ext.exec("hok-start-foreground-mode", ev);
-}, 'Start Hit a Hint foreground mode');
-
-key.setCaretKey('M-p', function (ev) {
-    command.walkInputElement(command.elementsRetrieverButton, true, true);
-}, 'Focus to the next button');
-
-key.setCaretKey('M-n', function (ev) {
-    command.walkInputElement(command.elementsRetrieverButton, false, true);
-}, 'Focus to the previous button');
-
-key.setViewKey(['C-c', 'C-a'], function (ev, arg) {
-    ext.exec('increase-digit-in-url', arg, ev);
-}, 'Increase last digit in the URL (go to next page)');
-
-key.setViewKey(['C-c', 'C-d'], function (ev, arg) {
-    ext.exec('decrease-digit-in-url', arg, ev);
-}, 'Decrease last digit in the URL (go to prev page)');
-
+//** misc
 key.setEditKey(["C-x", '8', "'"], function(ev, arg) {
     inputChars(ev, "「");
 }, "Input 「");
@@ -1518,6 +1515,12 @@ key.setEditKey(["C-x", '8', '-'], function(ev, arg) {
     inputChars(ev, "…");
 }, "Input …");
 
+key.setEditKey('M-=', function(ev, arg) {
+    ext.exec("count-region", arg, ev);
+}, "Count selected or all chars in current editbox.");
+
+//* Global (additional)
+//** C-f10: toggle options
 key.setGlobalKey(["C-<f10>", 'p'], function(ev, arg) {
     toggleproxy.toggleProxy();
 }, "Toggle proxy.");
@@ -1558,10 +1561,7 @@ key.setGlobalKey(['C-<f10>', 'D'], function (ev, arg) {
 }, 'Toggle \'double-click-to-translate\' of Wiktionary & Google Translate extension.');
 
 
-key.setViewKey('M-=', function(ev, arg) {
-    ext.exec("count-region", arg, ev);
-}, "Count selected or all chars in current editbox.");
-
+//** f5 (anything-like)
 key.setGlobalKey(['<f5>', 't'], function (ev, arg) {
     if (typeof(listAllTabsMenu) != "undefined")
         listAllTabsMenu.onCtrlTabKeycommand();  //List All Tabs Menu extension
@@ -1589,6 +1589,7 @@ key.setGlobalKey(['<f5>', ':'], function(ev, arg) {
     ext.exec('list-command', arg, ev);
 }, 'vimperator-like commands');
 
+//** f11: window, ui-parts
 key.setGlobalKey(['C-<f11>', 'm'], function(ev, arg) {
     ext.exec('toggle-menu-bar', arg, ev);
 }, "Show/hide menu bar");
@@ -1598,20 +1599,7 @@ key.setGlobalKey(['C-<f11>', 'b'], function(ev, arg) {
 }, "Show/hide bookmark bar");
 
 
-key.setGlobalKey(['<f3>', 'C-T'], function(ev, arg) {
-    var sel = getBrowserSelection();
-    if (sel) {
-        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=en&ie=UTF-8&q=" + encodeURIComponent(sel), true, 'right');
-    }
-}, 'Translate selection to English and show result in Split Panel.');
-
-key.setGlobalKey(['<f3>', 'C-t'], function(ev, arg) {
-    var sel = getBrowserSelection();
-    if (sel) {
-        splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=zh-CN&ie=UTF-8&q=" + encodeURIComponent(sel), true, 'right');
-    }
-}, 'Translate selection to Chinese and show result in Split Panel.');
-
+//** misc
 key.setGlobalKey(['<f12>', 'i'], function(ev, arg) {
     ext.exec("cnblogs-ing-in-split-panel", arg, ev);
 }, "Open Split Panel and navigate to http://space.cnblogs.com/mi/");
