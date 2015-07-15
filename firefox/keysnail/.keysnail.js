@@ -604,6 +604,7 @@ ext.add("tabundle-group", function(ev, arg) {
     }
 }, "Use tabundle extension to capture info of all tabs of current group."); 
 
+//FIXME: not work on Firefox > 24?
 toggleToolbar = function(aEvent, toolbar_id, force) {
     if(toolbar_id != aEvent.originalTarget.parentNode.id) {
         var toolbar = document.getElementById(toolbar_id);
@@ -611,9 +612,9 @@ toggleToolbar = function(aEvent, toolbar_id, force) {
             // Firefox 4, mainly the bookmark toolbar button
             var hidingAttribute = toolbar.getAttribute("type") == "menubar" ?
                 "autohide" : "collapsed";
-            var isVisble = toolbar.getAttribute(hidingAttribute);
+            var isHidden = toolbar.getAttribute(hidingAttribute) == "true";
 
-            setToolbarVisibility(toolbar, !isVisble);
+            setToolbarVisibility(toolbar, !isHidden);
 
             if(force)
                 toolbar.collapsed = !toolbar.collapsed;
@@ -626,7 +627,7 @@ toggleToolbar = function(aEvent, toolbar_id, force) {
 
 ext.add("toggle-nav-bar", function(ev, argv) {
     toggleToolbar(ev, "nav-bar");
-}, "Toggle bookmark bar");
+}, "Toggle navigation bar");
 
 ext.add("toggle-bookmark-bar", function(ev, argv) {
     toggleToolbar(ev, "PersonalToolbar");
@@ -634,7 +635,11 @@ ext.add("toggle-bookmark-bar", function(ev, argv) {
 
 ext.add("toggle-menu-bar", function(ev, arg) {
     toggleToolbar(ev, "toolbar-menubar");
-}, "Toggle bookmark bar");
+}, "Toggle menu bar");
+
+ext.add("toggle-addon-bar", function(ev, argv) {
+    toggleToolbar(ev, "addon-bar");
+}, "Toggle addon bar");
 
 ext.add("toggle-tgm-bar", function(ev, arg) {
     toggleToolbar(ev, "TabGroupsManagerToolbar");
