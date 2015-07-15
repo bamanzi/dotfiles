@@ -115,7 +115,7 @@ let translator = (function() {
     const apikey = "3C9778666C5BA4B406FFCBEE64EF478963039C51";
 
     return {
-        LANG_JA: 'ja',
+        LANG_ZH: 'zh-CHS',
         LANG_EN: 'en',
 
         detect: function(word, next) {
@@ -147,7 +147,7 @@ plugins.withProvides(function(provide){
     provide('mstranslator-open-prompt', function(ev, arg){
         let prevText = "";
         let lastTranslated = "";
-
+ 
         let requestTimer;
 
         let initialInput = (document.commandDispatcher.focusedWindow || gBrowser.contentWindow).getSelection().toString();
@@ -188,10 +188,10 @@ plugins.withProvides(function(provide){
             translator.detect(word, function(slang) {
                 if (!slang)
                     display.echoStatusBar("Error !");
-                else if (slang == translator.LANG_JA)
+                else if (slang != translator.LANG_EN)
                     target = translator.LANG_EN;
                 else
-                    target = translator.LANG_JA;
+                    target = translator.LANG_ZH;
                 translator.translate(word, target, function (translated) {
                     if (translated)
                         echo(slang, word, target, lastTranslated = translated)
