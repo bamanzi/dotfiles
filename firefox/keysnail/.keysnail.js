@@ -716,6 +716,64 @@ ext.add("tabgroup-send-to-tmt", function(ev, arg) {
 ext.add("reload-pac", function(ev, arg) {
     Components.classes["@mozilla.org/network/protocol-proxy-service;1"].getService().reloadPAC();
 }, "Reload proxy PAC script.");
+
+
+ext.add("google-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://www.google.com.hk/s?wd=ctags%20site%3Akomodoide.com
+    var url = "http://www.jwss.cc/?q=" + getBrowserSelection()
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Google search engine to search the phrase currently selected");
+ 
+ext.add("ddg-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://duckduckgo.com/?q=ctags%20site:komodoide.com
+    var url = "https://duckduckgo.com/?q=" + getBrowserSelection()
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use DuckDuckGo search engine to search the phrase currently selected");
+
+ext.add("baidu-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://www.baidu.com/s?wd=ctags%20site%3Akomodoide.com
+    var url = "https://www.baidu.com/s?wd=" + getBrowserSelection()
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Baidu search engine to search the phrase currently selected");
+ 
+ext.add("yahoo-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://search.yahoo.com/search?p=ctags%20site:komodoide.com
+    var url = "https://search.yahoo.com/search?p=" + getBrowserSelection()
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Yahoo search engine to search the phrase currently selected");
+
+
+ext.add("google-site-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://www.google.com.hk/s?wd=ctags%20site%3Akomodoide.com
+    var url = "http://www.jwss.cc/?q=" + getBrowserSelection() +" site%3A" + content.location.hostname;
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Google search engine to search the phrase currently selected on current site");
+ 
+ext.add("ddg-site-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://duckduckgo.com/?q=ctags%20site:komodoide.com
+    var url = "https://duckduckgo.com/?q=" + getBrowserSelection() +" site%3A" + content.location.hostname;
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use DuckDuckGo search engine to search the phrase currently selected on current site"); 
+
+ext.add("baidu-site-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://www.baidu.com/s?wd=ctags%20site%3Akomodoide.com
+    var url = "https://www.baidu.com/s?wd=" + getBrowserSelection() +" site%3A" + content.location.hostname;
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Baidu search engine to search the phrase currently selected on current site");
+ 
+ext.add("yahoo-site-search-selection", function() {
+    if(!getBrowserSelection()) return;
+    //https://search.yahoo.com/search?p=ctags%20site:komodoide.com
+    var url = "https://search.yahoo.com/search?p=" + getBrowserSelection() +" site%3A" + content.location.hostname;
+    gBrowser.loadOneTab(url, null, null, null, false);
+}, "Use Yahoo search engine to search the phrase currently selected on current site"); 
 //}}%PRESERVE%
 // ========================================================================= //
 
