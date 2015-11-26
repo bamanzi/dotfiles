@@ -35,7 +35,7 @@ force=0    #unused at now
 localdb=0
 # when ROOT specified, installed database would be $ROOT/etc/setup
 [ -n "$ROOT" ] && localdb=0
-while [ $# -gt 0 ]; do
+while [ $# -gt 1 ]; do
     case $1 in 
      -v|--verbose)  verbose=1; shift;;
      -h|--help)  Usage; exit 0;;
