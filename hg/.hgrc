@@ -1,0 +1,38 @@
+[ui]
+username = Ba Manzi <bamanzi@gmail.com>
+
+[auth]
+# search "auth" in `hg help config`
+bb.prefix = bitbucket.org
+bb.username = bamanzi
+bb.password = FOOBAR
+bb.schemes = http https
+
+gh.prefix = github.com
+bb.username = bamanzi
+bb.password = FOOBAR
+bb.schemes = http https
+
+[extensions]
+convert =
+pager =
+color = 
+graphlog =
+extdiff = 
+
+
+[pager]
+pager=LESS=FRX less
+attend = annotate, cat, diff, export, glog, log, qdiff, help
+
+[extdiff]
+cmd.vimdiff = vimdiff
+# or `hg extdiff -p vimdiff ....`
+
+cmd.gvimdiff = gvimdiff
+
+cmd.diffuse = diffuse
+# or `hg extdiff -p diffuse ....`
+
+cmd.ediff = sh
+opts.ediff = -c 'if [ -d $0 ]; then emacsclient --eval "(ediff-directories \"$0\" \"$1\" \"\")"; else emacsclient --eval "(ediff-files \"$0\" \"$1\")"; fi' 
