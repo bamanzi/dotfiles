@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+# http://pastebin.geany.org/about/ 
+
+import urllib
+import urllib2
+import os
+import sys
+
+def paste_code():
+    fields = []
+    fields.append(('content', ''.join(sys.stdin.readlines())))
+    #fields.append(('author', os.getlogin()))
+    fields.append(('author', os.environ['LOGNAME']))
+    fields.append(('lexer', 'python'))
+    request = urllib2.Request(
+        'http://pastebin.geany.org/api/',
+        urllib.urlencode(fields),
+    )
+    response = urllib2.urlopen(request)
+    print response.read()[:-1]
+
+if __name__ == '__main__':
+    paste_code()
+
