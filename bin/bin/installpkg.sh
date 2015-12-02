@@ -67,7 +67,7 @@ silent=0
 localdb=0
 # when ROOT specified, installed database would be $ROOT/etc/setup
 [ -n "$ROOT" ] && localdb=0
-while [ $# -gt 0 ]; do
+while [ $# -gt 1 ]; do
     case $1 in 
      -v|--verbose)  verbose=1; shift;;
      -f|--force)   force=1;  shift;;
