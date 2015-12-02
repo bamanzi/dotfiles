@@ -1,0 +1,9 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>Ubuntu Manpages</os:ShortName>
+<os:Description>Ubuntu Hypertext Man Pages</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16" type="image/x-icon">http:///assets/light/images/favicon.ico</os:Image>
+<SearchForm>http://manpages.ubuntu.com/</SearchForm>
+<os:Url type="text/html" method="GET" template="http://packages.ubuntu.com/{searchTerms}">
+</os:Url>
+</SearchPlugin>
