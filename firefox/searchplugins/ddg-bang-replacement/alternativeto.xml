@@ -1,0 +1,9 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>AlternativeTo.net</os:ShortName>
+<os:Description>AlternativeTo.net</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16" type="image/png">http://www.portablefreeware.com/images/favicon.png</os:Image>
+<SearchForm>http://alternativeto.net/</SearchForm>
+<os:Url type="text/html" method="GET" template="http://alternativeto.net/browse/search/?q={searchTerms}">
+</os:Url>
+</SearchPlugin>

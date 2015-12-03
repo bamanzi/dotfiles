@@ -1,0 +1,7 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>Python 3.x Doc</os:ShortName>
+<os:Description>Python 3.x Documentation</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16" type="image/x-icon">https://docs.python.org/favicon.ico</os:Image>
+<os:Url type="text/html" method="GET" template="https://docs.python.org/3/search.html?q={searchTerms}"></os:Url>
+</SearchPlugin>
