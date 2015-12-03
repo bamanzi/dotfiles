@@ -1,0 +1,9 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>FreeBSD Man Pages</os:ShortName>
+<os:Description>FreeBSD Man Pages</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16" type="image/x-icon">http://www.freebsd.org/favicon.ico</os:Image>
+<SearchForm>http://www.freebsd.org/cgi/man.cgi</SearchForm>
+<os:Url type="text/html" method="GET" template="http://www.freebsd.org/cgi/man.cgi?query={searchTerms}">
+</os:Url>
+</SearchPlugin>

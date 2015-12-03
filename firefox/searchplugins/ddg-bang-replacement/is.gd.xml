@@ -1,0 +1,9 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>is.gd</os:ShortName>
+<os:Description>is.gd URL shortener service</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16" type="image/x-icon">http://is.gd/isgd_favicon.ico</os:Image>
+<SearchForm>http://is.gd</SearchForm>
+<os:Url type="text/html" method="GET" template="http://is.gd/create.php?url={searchTerms}">
+</os:Url>
+</SearchPlugin>

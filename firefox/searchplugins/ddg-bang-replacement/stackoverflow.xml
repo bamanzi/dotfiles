@@ -1,0 +1,9 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>StackOverflow</os:ShortName>
+<os:Description>StackOverflow - Q&amp;A for professional and enthusiast programmers</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16" type="image/x-icon">http://cdn.sstatic.net/stackoverflow/img/favicon.ico?v=4f32ecc8f43d</os:Image>
+<SearchForm>http://stackoverflow.com</SearchForm>
+<os:Url type="text/html" method="GET" template="http://stackoverflow.com/search?q={searchTerms}">
+</os:Url>
+</SearchPlugin>

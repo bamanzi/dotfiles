@@ -1,0 +1,7 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>Wiktionary</os:ShortName>
+<os:Description>Wiktionary</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16" type="image/x-icon">http://en.wiktionary.org/static/favicon/wiktionary/en.ico</os:Image>
+<os:Url type="text/html" method="GET" template="https://en.wiktionary.org/wiki/{searchTerms}"></os:Url>
+</SearchPlugin>

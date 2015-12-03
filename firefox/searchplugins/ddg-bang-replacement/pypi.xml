@@ -1,0 +1,9 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>PyPI</os:ShortName>
+<os:Description>Python Package Index</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16" type="image/x-icon">http://pypi.python.org/favicon.ico</os:Image>
+<SearchForm>http://pypi.python.org/</SearchForm>
+<os:Url type="text/html" method="GET" template="http://pypi.python.org/pypi?:action=search&amp;term=ter{searchTerms}">
+</os:Url>
+</SearchPlugin>
