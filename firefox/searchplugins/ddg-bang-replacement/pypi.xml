@@ -1,9 +1,12 @@
 <SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
-<os:ShortName>PyPI</os:ShortName>
+<os:ShortName>Python Package Index</os:ShortName>
 <os:Description>Python Package Index</os:Description>
 <os:InputEncoding>UTF-8</os:InputEncoding>
-<os:Image width="16" height="16" type="image/x-icon">http://pypi.python.org/favicon.ico</os:Image>
-<SearchForm>http://pypi.python.org/</SearchForm>
-<os:Url type="text/html" method="GET" template="http://pypi.python.org/pypi?:action=search&amp;term=ter{searchTerms}">
+<os:Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACjElEQVQ4jX2TW0jTcRzFT0XQ5UkjTFplZFKQl6jNOTfbTd2a03qIgoKoB83SNGaheckyUbuKmGFZaJK2lVimhuY98yEWikozJZWEjIVBEfwpGKcH919eqgO/px+f8/2dL+cHLJD5Wme9Mb9lxpDXSH1OHdXptVSeuS/IEkpLAKwGsGwhM08xV9pIkpEX6qnJeMSItAdUpNylLLGUALa5Tf4tY/4LRuU+ozbTxoiz1QxPvcfQk2WigQbA2kWQ+UZPjqmoozI6r6lKm/WkWmmprA1LKrPJ4ott8qTblCWWigYGAOvmwfuLX7fHXe+mqfAlDXmN1GfXUZ1eQ5WlkmHJ5R5YNODHA3R9MArCsOoSgFXYd/MVY4raaLjc5MmtSqvy5BbPzqMFzQB0HDeRoxq6hmUzAPxhvtrB2dxP5+Su8OSWJpQIbjjOadcXclRLvgslhwIJQIW9BS2MvthAXdZj7jn3kNITJc2+wbojAGLcmaMBaCa7dadc79UCHXJyKJDs30IAUYjMbRDE3LL4YhuA2G+TyTWuz4kCPx0jpw6SE2ZyTMtZOIjs96frzXoBQDS02XUOMbdviPHwj6nTz/kliZyeC+tIR5gHpl3C712+PQA0iLBUpagsVYIitYIATLPwcXLqEDkROwcO9sC0S9hV7nUewG4AWAFgMwAlAOlceLpPaXP27rI6u7dbne1+Vmerj9XZ6mPtveOV4S6VHwAsBbASwBoA3n8m60mHghwKIQe2knaJ2EQpgB0ANv611q5xs8AxPTmiIIdDyIEAkhSXpgYgcQ9cDmDJIoOvb5UxvwbldtdgkMCBANIu4c8+35HOW16ZAMIBeP/vL4k72eB+qtbdg0gAcgCb3Pce/QYGiKQuAk9x1QAAAABJRU5ErkJggg==</os:Image>
+<SearchForm>https://pypi.python.org/pypi</SearchForm>
+<os:Url type="text/html" method="GET" template="https://pypi.python.org/pypi">
+  <os:Param name="%3Aaction" value="search"/>
+  <os:Param name="term" value="{searchTerms}"/>
+  <os:Param name="submit" value="search"/>
 </os:Url>
 </SearchPlugin>

@@ -2,6 +2,9 @@
 <os:ShortName>Wiktionary 中文</os:ShortName>
 <os:Description>Wiktionary 中文</os:Description>
 <os:InputEncoding>UTF-8</os:InputEncoding>
-<os:Image width="16" height="16" type="image/x-icon">http://zh.wiktionary.org/static/favicon/piece.ico</os:Image>
-<os:Url type="text/html" method="GET" template="https://zh.wiktionary.org/wiki/{searchTerms}"></os:Url>
+<SearchForm>https://zh.wiktionary.org/wiki/Special:%E6%90%9C%E7%B4%A2</SearchForm>
+<os:Url type="text/html" method="GET" template="https://zh.wiktionary.org/w/index.php?title=Special:%E6%90%9C%E7%B4%A2&amp;search={searchTerms}">
+</os:Url><os:Url type="application/x-suggestions+json" method="GET" template="https://zh.wiktionary.org/w/api.php?action=opensearch&amp;search={searchTerms}&amp;namespace=0">
+</os:Url><os:Url type="application/x-suggestions+xml" method="GET" template="https://zh.wiktionary.org/w/api.php?action=opensearch&amp;format=xml&amp;search={searchTerms}&amp;namespace=0">
+</os:Url>
 </SearchPlugin>

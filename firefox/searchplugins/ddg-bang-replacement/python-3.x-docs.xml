@@ -1,7 +1,10 @@
 <SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
-<os:ShortName>Python 3.x Doc</os:ShortName>
-<os:Description>Python 3.x Documentation</os:Description>
+<os:ShortName>Python 3.x documentation</os:ShortName>
+<os:Description>Python 3.x documentation</os:Description>
 <os:InputEncoding>UTF-8</os:InputEncoding>
-<os:Image width="16" height="16" type="image/x-icon">https://docs.python.org/favicon.ico</os:Image>
-<os:Url type="text/html" method="GET" template="https://docs.python.org/3/search.html?q={searchTerms}"></os:Url>
+<os:Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACTUlEQVQ4jX2TXUiTYRiGr4qgnzMjKOjHSLADD5OMCrRYW7qm5nRtczrDmGg4SjQs6KCjOk3KjEjDn9yktKwxKUmMiiDoIDBBagSKhs2c7+BTSp4O9n3Dn+yG9+jluu/3fnheWKHyhje9bv9g1FkbluLqPimsDIq1rE2z2O/eArYCG1Yyy+SpHxIRkZLqZ3LmfI/kezslr/SBmB3NAhzQTdaWy/9SHDUvpMj3WPIrusTqaROLo8UwyAG2r4LKL7+7Vlo33Ob0Dzws8vW227ztjyyulqDJ3hQ85bonZkezYWABdiyDKxs/DHob3orn0mtx1oaluKpPCisDYvO2S67rfhI2DNSfnRLT0KajXAe2UNH4Xjx1Q+L0DyR72yo6kr2Nk11wMwScUPOIUsjsDFEgjbL6YUn07l/SuzXZ21RyW9Ph/MgEN5RC1C9E/USAY7gvDsrZCyGxVz2RgnPdYnLcCaVlmEoBq97ZDOSMjFATm0NTswk4PokAJ3HUhDSjt8neFARsEwuFXTExa0qyRC2milpAVBxZCs99RwPM2H1Pvxi909Ot7qnfRf1KckXJoTXh+DgyOcIwkIPN2+k/Xd6h5XlaBchLwIdFLe5fE46PI+EAV4CDAJuAfcBRIHMpPPaVYGSMQGSUQOQzgcinxHnVQ6O+VKkA64HNwDYgZVXyNKKmEqk6lAlkAHv+udaxeTQVR1QMUdEELCLG0LKBXXrgRmDdKoPxKawz03yM/UAzkme+Mfq8m6vAESDlf3/JmMlu/anH9T0wAVnAXv0+qb8coZmrIwj3QgAAAABJRU5ErkJggg==</os:Image>
+<SearchForm>https://docs.python.org/3/search.html?q=base64</SearchForm>
+<os:Url type="text/html" method="GET" template="https://docs.python.org/3/search.html?q=base64&amp;">
+  <os:Param name="q" value="{searchTerms}"/>
+</os:Url>
 </SearchPlugin>

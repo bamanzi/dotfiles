@@ -1,7 +1,11 @@
 <SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
-<os:ShortName>Wiktionary</os:ShortName>
-<os:Description>Wiktionary</os:Description>
+<os:ShortName>Wiktionary (en)</os:ShortName>
+<os:Description>Wiktionary (en)</os:Description>
 <os:InputEncoding>UTF-8</os:InputEncoding>
-<os:Image width="16" height="16" type="image/x-icon">http://en.wiktionary.org/static/favicon/wiktionary/en.ico</os:Image>
-<os:Url type="text/html" method="GET" template="https://en.wiktionary.org/wiki/{searchTerms}"></os:Url>
+<os:Image width="16" height="16" type="image/x-icon">https://en.wiktionary.org/static/favicon/wiktionary/en.ico</os:Image>
+<SearchForm>https://en.wiktionary.org/wiki/Special:Search</SearchForm>
+<os:Url type="text/html" method="GET" template="https://en.wiktionary.org/w/index.php?title=Special:Search&amp;search={searchTerms}">
+</os:Url><os:Url type="application/x-suggestions+json" method="GET" template="https://en.wiktionary.org/w/api.php?action=opensearch&amp;search={searchTerms}&amp;namespace=0">
+</os:Url><os:Url type="application/x-suggestions+xml" method="GET" template="https://en.wiktionary.org/w/api.php?action=opensearch&amp;format=xml&amp;search={searchTerms}&amp;namespace=0">
+</os:Url>
 </SearchPlugin>
