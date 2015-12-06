@@ -1,0 +1,12 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>Search DOM API | MDN</os:ShortName>
+<os:Description>Search DOM API | MDN</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACzklEQVQ4ja2TW0hTARyHfzvHnMcy6PIgIfRSL/XQQ29BjxUFGeZmakst7CKVRRoWgpYb5iUU52XazDZbK7PLQmunFPM4L6Sg5aURQkHRS4K5s6VTq18PXkLSt37wPX38v7c/8D8Xkf9mg3jLGwtQs5zXmnsPwjoa9Y8IK2rfLRV76lcXdwTEmiHC6h1FzftsVI5Eri3pXi8Ve9LDb3a+lUq6idoPQVi9T2AZ3gf9QxFSgdIgFSqUChVKN9oplg8QVcOEeZAoHwqsLlB84fM+rMhDWEaIyqF5Bl8gLK/FLRlbKRlbKeW1UCjuZVRJP6+1f6HJ85W7Sj3cU9VDKbeFWmMbUTZAlPYvoECbK7u1OTLDcmSGZDbx1L1hqpOzXNhUcIozM0FmPxuhePk5cbOPKHozR2GvAu2VZnfo1WaGX27i1YZ+BoJ/j0lyQlU5oaocV/0saPZya34Xcb2TMHURpi4FoZku96oMF9ddcrHs2RCnZ/4N+FQ/J1SVPyYn+XP2F/dW9BI5CpHboSA0vdEdmv6IkRce0+ToYyA4s2zAp/qp+v0kyTTnIJHVQmS1KghJu+8OSXtA8aSTcSaZn8f8SwKqX6Ua+MEJn5/T09N893GcmzJkIlMmMmQFYqrDLaY6KKY6GHHsDl8OfFkSGPn0jZuT7FyTZOfOi0+IlMfE+aY5zjUrEJNtbiHZRiHZRsFQx8N5rzjum1oMnK16Tc3ROgrJNoopduKMizj9dI4zLgWaBKssJNRSSKilEG+lJuk+NxqcvFDVw9uto9x+ykEhcd4n1hEnGonjD+dIaVCg0VfLGl01BZ2FmlhLDxLrLTA4x5DgIGJs1MRaKOiqKeiqv0NXcxsG52scdf6GwUkYnAoQbXYhuqIUMeYdi8+hL5FwpP4w4uxtOFTejZjKJEQXRiz62DtbEV9vhN7WBOw3b1vxPWPsG3CgMnJFr7+75Q8nNQo5gtY/4wAAAABJRU5ErkJggg==</os:Image>
+<SearchForm>https://developer.mozilla.org/en-US/search?q=window.location&amp;topic=api&amp;topic=js</SearchForm>
+<os:Url type="text/html" method="GET" template="https://developer.mozilla.org/en-US/search">
+  <os:Param name="q" value="{searchTerms}"/>
+  <os:Param name="topic" value="api"/>
+  <os:Param name="topic" value="js"/>
+</os:Url>
+</SearchPlugin>

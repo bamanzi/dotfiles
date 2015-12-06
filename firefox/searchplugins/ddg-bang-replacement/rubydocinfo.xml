@@ -1,0 +1,10 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>RubyDoc.info</os:ShortName>
+<os:Description>RubyDoc.info</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACB0lEQVQ4jd3RT0hTARwH8BcdPKhImXkLD9Gl8OAlEIRCykSoMJJRhg6SPGlBRRiSBCH+oRjowKkrNLYmvlT2J92cL9e2GsM397bn9M35ntven73t3CyQb4egSAStY9/7hx/f748g/u+UafQ1p7pmmh7PeYv/Gp9o1N0q65z+XmcJoZ/LfJuMK+5ZTn5IbSrnDsSl1wY6SjvI3RvWKAZTWRgFBWZOgokVMcEqMK2raZ1rRbsvLql99uL4vXdot65hIp0FKaqwCwo+bMiYiUp4HZYxvMQgFIn17KE3jxZVdxqONRtxfyoKksvAkczAJahwr6twMipIWoFhMYwtIYllVrD/tqfrCwqqtGRJow5t4wzeBGTMbUiYTyhYiGVhp3N4H8jB6GSQEiXQCelr86j30s+lz14oKqxschU39OL6UBhdNhF6vwhTJI1pVoYlpOLt5xwMjjBESUYkqeZbxn2Xfx0/c/Vpi8frx4jZhgcjC2ifXMVzKg1dIAV9UMLwlwyGbDSE7SRWElJea/TX/dH85Pm75f1Ga5JhY+B5HkE6jNFZCk/MHnS7EnhpDWKL5+Fb4/OtY5+u7Lt8eeWdwuq2V609Yw5qyhnY5bg4OI6DbdEDXhCwzMR3bhs+1h/4f4IgiApNb4Wmj+wetLg3HZQP1Cq3o9EvNRwK78mRqkfmmtq++Yv/gg+dHxQ6PzRanMShAAAAAElFTkSuQmCC</os:Image>
+<SearchForm>http://www.rubydoc.info/</SearchForm>
+<os:Url type="text/html" method="GET" template="http://www.rubydoc.info/find/github">
+  <os:Param name="q" value="{searchTerms}"/>
+</os:Url>
+</SearchPlugin>
