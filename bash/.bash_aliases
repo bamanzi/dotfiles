@@ -5,7 +5,7 @@ alias l='ls -CF'
 
 alias rm="rm -i"
 alias cp="cp -i"
-alias mv="mv pi"
+alias mv="mv -i"
 
 alias e=emacsclient
 
