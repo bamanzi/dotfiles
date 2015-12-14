@@ -1,5 +1,8 @@
 [ui]
 username = Ba Manzi <bamanzi@gmail.com>
+#merge = internal:merge
+#merge = vimdiff
+#merge = ediff
 
 [auth]
 # search "auth" in `hg help config`
@@ -19,7 +22,7 @@ pager =
 color = 
 graphlog =
 extdiff = 
-
+mq = 
 
 [pager]
 pager=LESS=FRX less
@@ -36,3 +39,26 @@ cmd.diffuse = diffuse
 
 cmd.ediff = sh
 opts.ediff = -c 'if [ -d $0 ]; then emacsclient --eval "(ediff-directories \"$0\" \"$1\" \"\")"; else emacsclient --eval "(ediff-files \"$0\" \"$1\")"; fi' 
+
+[merge-tools]
+# you can use `HGMERGE=vimdiff hg merge` to switch merge tool
+
+# https://www.mercurial-scm.org/wiki/MergingWithVim
+vimdiff.executable = vim
+vimdiff.args = -d $base $local $output $other +close +close
+
+# https://www.mercurial-scm.org/wiki/MergingWithEmacs
+ediff.executable = emacs
+ediff.args = -q --eval "(ediff-merge-with-ancestor \""$local"\" \""$other"\" \""$base"\" nil \""$output"\")"
+
+emerge.executable = emacs
+emerge.args = -q --eval "(emerge-files-with-ancestor nil \""$local"\" \""$other"\" \""$base"\" \"$output\" nil 'kill-emacs)"
+
+# https://www.mercurial-scm.org/wiki/MergingWithEmacs#All_Mercurial_versions:_using_emacsclient
+# note: not work on emacs <= 23, as emacsclient did not relay errors
+# from the server process properly (it always exited with status 0)
+ediffc.executable = emacsclient
+ediffc.args = --eval "(ediff-merge-with-ancestor \""$local"\" \""$other"\" \""$base"\" nil \""$output"\")"
+
+emergec.executable = emacsclient
+emergec.args = --eval "(emerge-files-with-ancestor nil \""$local"\" \""$other"\" \""$base"\" \"$output\" nil 'kill-emacs)"
