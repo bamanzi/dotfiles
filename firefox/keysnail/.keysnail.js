@@ -1131,6 +1131,11 @@ key.setViewKey('M-n', function (ev) {
     command.walkInputElement(command.elementsRetrieverButton, false, true);
 }, 'Focus to the previous button');
 
+key.setViewKey('M-<down>', function (ev, arg) {
+    var backForwardMenu = document.getElementById("backForwardMenu");
+    backForwardMenu.openPopupAtScreen(document.width / 2, document.height / 2, true);
+}, 'Show page history menu');
+
 key.setViewKey('<backspace>', function (ev) {
     BrowserBack();
 }, 'Back to last page in history.');
