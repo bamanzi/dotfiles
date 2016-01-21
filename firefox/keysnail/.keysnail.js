@@ -4,9 +4,9 @@
 // Put all your code except special key, set*key, hook, blacklist.
 // ========================================================================= //
 //{{%PRESERVE%
-//* PRESERVE
+// * PRESERVE
 
-//** Use Fox Splitter addon to mimic C-x 1/2/3 stuff
+// ** Use Fox Splitter addon to mimic C-x 1/2/3 stuff
 ext.add("other-window", function() {
     function focusSubBrowserById(aId) {
         SplitBrowser.getSubBrowserById(aId).browser.contentWindow.focus();
@@ -83,22 +83,18 @@ ext.add("split-window-horizontally", function() {
     }
 }, 'split-window-horizontally (Fox Splitter or Split Pannel required');
 
-//** split panel
-ext.add("view-in-split-panel", function () {
-    splitpannel.toggle(window._content.document.location, true, 'right');
+// ** split panel
+ext.add("view-in-split-panel", function (ev, arg) {
+    splitpannel.toggle(window._content.document.location, true, arg ? 'bottom' : 'right');
 }, 'Open Split Panel and load current URL in it .');
 
-ext.add("bookmarks-sidebar-in-split-panel", function() {
-    splitpannel.toggle("chrome://browser/content/bookmarks/bookmarksPanel.xul", true, 'right');
+ext.add("bookmarks-sidebar-in-split-panel", function(ev ,arg) {
+    splitpannel.toggle("chrome://browser/content/bookmarks/bookmarksPanel.xul", true, arg ? 'bottom' : 'right');
 }, 'Open Bookmarks Sidebar in Split Panel');
 
-ext.add("cnblogs-ing-in-split-panel", function () {
-    splitpannel.toggle('http://space.cnblogs.com/mi/', true, 'right');
+ext.add("cnblogs-ing-in-split-panel", function (ev, arg) {
+    splitpannel.toggle('http://space.cnblogs.com/mi/', true, arg ? 'bottom' : 'right');
 }, 'Open Split Panel and load http://space.cnblogs.com/mi/ in it .');
-
-ext.add("google-reader-i-in-split-panel", function() {
-    splitpannel.toggle('https://www.google.com/reader/i/#stream/user%2F02753487812100788291%2Fstate%2Fcom.google%2Fread', true, 'right');
-}, 'Open Split Panel and load Google Reader in it .');
 
 ext.add("google-translate-in-split-panel", function () {
     splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=en&ie=UTF-8", true, 'right');
@@ -108,12 +104,12 @@ ext.add("google-translate-cn-in-split-panel", function () {
     splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=zh-CN&ie=UTF-8", true, 'right');
 }, 'Open Split Panel and load Google Translate (any->zh-CN) in it .');
 
-ext.add("read-it-later-list-in-split-panel", function() {
-    splitpannel.toggle("http://readitlaterlist.com/unread", true, 'right');
+ext.add("read-it-later-list-in-split-panel", function(ev, arg) {
+    splitpannel.toggle("http://readitlaterlist.com/unread", true, arg ? 'buttom' : 'right');
 }, 'Show Read It Later list Split Panel');
 
-ext.add("read-it-later-sidebar-in-split-panel", function() {
-    splitpannel.toggle('chrome://isreaditlater/content/list.xul', true, 'right');
+ext.add("read-it-later-sidebar-in-split-panel", function(ev, arg) {
+    splitpannel.toggle('chrome://isreaditlater/content/list.xul', true, arg ? 'button' : 'right');
 }, 'Show ReadItLater sidebar in Split Panel. (readitlater extension)');
 
 ext.add("save-to-read-sidebar-in-split-panel", function() {
@@ -130,7 +126,7 @@ ext.add("headings-map-in-split-panel", function() {
     splitpannel.toggle('chrome://headings/content/headings.xul', 'true', 'right');
 }, 'Show Headings Map sidebar in Split Panel.');
 
-//** sidebar
+// ** sidebar
 ext.add("scrapbook-sidebar-in-split-panel", function () {
     splitpannel.toggle('chrome://scrapbook/content/scrapbook.xul', true, 'right');
 }, 'Toggle Scrapbook sidebar (extension Scrapbook or Scrapbook Plus)');
@@ -169,7 +165,6 @@ ext.add("scrapbook-sidebar", function () {
     toggleSidebar("viewScrapBookSidebar");
 }, 'Toggle Scrapbook sidebar (extension Scrapbook or Scrapbook Plus)');
 
-//** sidebar
 //FIXME: not work on Firefox > 24?
 toggleToolbar = function(aEvent, toolbar_id, force) {
     if(toolbar_id != aEvent.originalTarget.parentNode.id) {
@@ -211,7 +206,7 @@ ext.add("toggle-tgm-bar", function(ev, arg) {
     toggleToolbar(ev, "TabGroupsManagerToolbar");
 }, "Toggle TabGroups Manager toolbar.");
 
-//** Scrapbook (Plus)
+// ** Scrapbook (Plus)
 //make some ScrapBook (Plus)'s command could be manipulated with keyboard     
 ext.add("scrapbook-highlight", function(ev, arg) {
     //if ARG given, switch to correspding highligher and use it
@@ -227,7 +222,7 @@ ext.add("scrapbook-save", function() {
 }, "Capture current page to Scrapbook, or save modification.");
 
 
-//** some online services
+// ** some online services
 //is.gd service
 ext.add("is.gd", function () {
     let endpoint = "http://is.gd/api.php?longurl=" + encodeURIComponent(window._content.document.location);
@@ -320,7 +315,7 @@ ext.add("gwt", function() {
     content.location.href = newurl;
 }, "Use GWT to view current url.");
 
-//** selection
+// ** selection
 ext.add("go-to-selected-url", function() {
     if(!getBrowserSelection()) return;
     gBrowser.loadOneTab(getBrowserSelection(), null, null, null, true);
@@ -352,7 +347,7 @@ ext.add("previous-occur", function() {
     gFindBar.onFindAgainCommand(true);
 }, "highlight previouse occurence of current selected word");
 
-//*** translation
+// ** translation
 //{{{ inline translate:
 // based on code stolen from Mar Mod extension
 function google_translate (whatToTranslate, lang, callback) {
@@ -471,7 +466,7 @@ ext.add("wiktionary-lookup-selection", function() {
     dictDefineSelection();
 }, 'Looks up the definition of selected words using Dict protocol (requires Dict extension).');
 
-//*** web search
+// ** web search
 ext.add("search-selection", function() {
     if(!getBrowserSelection()) return;
     BrowserSearch.loadSearch(getBrowserSelection(), true);
@@ -535,7 +530,7 @@ ext.add("yahoo-site-search-selection", function() {
 }, "Use Yahoo search engine to search the phrase currently selected on current site"); 
 
 
-//** navigration
+// ** navigration
 //jump to previous page or next page
 ext.add("previous-page", function () {
     var document = window._content.document;
@@ -613,7 +608,7 @@ ext.add("decrease-digit-in-url", function() {
     }
 }, 'Decrement last digit in the URL');
 
-//** misc
+// ** misc
 ext.add("count-region", function(ev, arg) {
     var aInput = ev.originalTarget;
     var value = aInput.value;
@@ -736,7 +731,7 @@ ext.add("reload-pac", function(ev, arg) {
     Components.classes["@mozilla.org/network/protocol-proxy-service;1"].getService().reloadPAC();
 }, "Reload proxy PAC script.");
 
-//** some utiltity functions
+// ** some utiltity functions
 function inputChars(ev, chars) {
     var aInput = ev.originalTarget;
     var value = aInput.value;
@@ -850,7 +845,7 @@ hook.addToHook('Unload', function () {
 
 // ============================= Key bindings ============================== //
 
-//* global mode
+// * global mode
 key.setGlobalKey('C-M-r', function (ev) {
     userscript.reload();
 }, 'Reload the initialization file', true);
@@ -1059,7 +1054,7 @@ key.setGlobalKey(['C-o', 'k'], function (ev, arg) {
     ext.exec("bmany-list-all-bookmarks-with-keyword", arg, ev);
 }, 'bmany - List bookmarks with keyword', true);
 
-//* view mode
+// * view mode
 key.setViewKey([['C-n'], ['C-c', 'j']], function (ev) {
     key.generateKey(ev.originalTarget, KeyEvent.DOM_VK_DOWN, true);
 }, 'Scroll line down');
@@ -1136,16 +1131,11 @@ key.setViewKey('M-n', function (ev) {
     command.walkInputElement(command.elementsRetrieverButton, false, true);
 }, 'Focus to the previous button');
 
-key.setViewKey('M-<down>', function (ev, arg) {
-    var backForwardMenu = document.getElementById("backForwardMenu");
-    backForwardMenu.openPopupAtScreen(document.width / 2, document.height / 2, true);
-}, 'Show page history menu');
-
 key.setViewKey('<backspace>', function (ev) {
     BrowserBack();
 }, 'Back to last page in history.');
 
-//** f3: related to selection
+// ** f3: related to selection
 key.setViewKey(['<f3>', 'j'], function (ev, arg) {
     ext.exec("highlight-all", arg, ev);
 }, 'highlight all occurences of current selected word');
@@ -1188,7 +1178,7 @@ key.setViewKey(['<f3>', 'C-t'], function(ev, arg) {
     }
 }, 'Translate selection to Chinese and show result in Split Panel.');
 
-//** misc user commands
+// ** misc user commands
 key.setViewKey(['C-c', 'i'], function (ev, arg) {
     //stolen from keysnail's vi-style configuration
     children = document.getElementById("nav-bar").children;
@@ -1218,8 +1208,13 @@ key.setViewKey([']', ']'], function (ev, arg) {
     ext.exec("next-page", arg, ev);
 }, 'Next page');
 
+key.setViewKey('M-<down>', function(ev, arg) {
+    var backForwardMenu = document.getElementById("backForwardMenu");
+    backForwardMenu.openPopupAtScreen(document.width / 2, document.height / 2, true);
+}, 'Show page history menu');
 
-//* caret mode
+
+// * caret mode
 key.setCaretKey([['C-c', 'i'], ['ESC']], function (ev, arg) {
     children = document.getElementById("nav-bar").children;
     for (i = 0; i < children.length; i++) {
@@ -1338,7 +1333,7 @@ key.setCaretKey('M-n', function (ev) {
     command.walkInputElement(command.elementsRetrieverButton, false, true);
 }, 'Focus to the previous button');
 
-//* edit mode
+// * edit mode
 key.setEditKey(['C-x', 'h'], function (ev) {
     command.selectAll(ev);
 }, 'Select whole text', true);
@@ -1490,7 +1485,7 @@ key.setEditKey('M-p', function (ev) {
     command.walkInputElement(command.elementsRetrieverTextarea, false, true);
 }, 'Focus to the previous text area');
 
-//** misc
+// ** misc
 key.setEditKey(["C-x", '8', "'"], function(ev, arg) {
     inputChars(ev, "「");
 }, "Input 「");
@@ -1519,8 +1514,8 @@ key.setEditKey('M-=', function(ev, arg) {
     ext.exec("count-region", arg, ev);
 }, "Count selected or all chars in current editbox.");
 
-//* Global (additional)
-//** C-f10: toggle options
+// * Global (additional)
+// ** C-f10: toggle options
 key.setGlobalKey(["C-<f10>", 'p'], function(ev, arg) {
     toggleproxy.toggleProxy();
 }, "Toggle proxy.");
@@ -1561,7 +1556,7 @@ key.setGlobalKey(['C-<f10>', 'D'], function (ev, arg) {
 }, 'Toggle \'double-click-to-translate\' of Wiktionary & Google Translate extension.');
 
 
-//** f5 (anything-like)
+// ** f5 (anything-like)
 key.setGlobalKey(['<f5>', 't'], function (ev, arg) {
     if (typeof(listAllTabsMenu) != "undefined")
         listAllTabsMenu.onCtrlTabKeycommand();  //List All Tabs Menu extension
@@ -1589,7 +1584,7 @@ key.setGlobalKey(['<f5>', ':'], function(ev, arg) {
     ext.exec('list-command', arg, ev);
 }, 'vimperator-like commands');
 
-//** f11: window, ui-parts
+// ** f11: window, ui-parts
 key.setGlobalKey(['C-<f11>', 'm'], function(ev, arg) {
     ext.exec('toggle-menu-bar', arg, ev);
 }, "Show/hide menu bar");
@@ -1599,7 +1594,7 @@ key.setGlobalKey(['C-<f11>', 'b'], function(ev, arg) {
 }, "Show/hide bookmark bar");
 
 
-//** misc
+// ** misc
 key.setGlobalKey(['<f12>', 'i'], function(ev, arg) {
     ext.exec("cnblogs-ing-in-split-panel", arg, ev);
 }, "Open Split Panel and navigate to http://space.cnblogs.com/mi/");
