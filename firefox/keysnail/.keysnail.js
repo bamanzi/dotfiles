@@ -646,7 +646,12 @@ ext.add("open-extension-dialog", function(ev, arg) {
 }, "Open the Addons Manager.");
 
 ext.add("evernote-clearly", function() {
-   readable_by_evernote__menu__call();
+    if (typeof(__readable_by_evernote) != "undefined") {
+        //newer version
+        __readable_by_evernote.launch();
+    } else {
+        readable_by_evernote__menu__call();
+    }
 }, "Read current page in Evernote Clearly (call again to quit)."); 
 
 ext.add("tabundle-group", function(ev, arg) {
