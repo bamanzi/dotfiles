@@ -84,13 +84,23 @@ ext.add("split-window-horizontally", function() {
 }, 'split-window-horizontally (Fox Splitter or Split Pannel required');
 
 // ** split panel
+function showURLinSplitPanel(url, arg) {
+    splitpannel.toggle(url, true, arg ? 'bottom' : 'right');    
+}
+ext.add("toggle-split-panel", function (ev, arg) {
+    var splitpannelBox = document.getElementById("splitpannel-box");
+    
+    if (splitpannelBox.hidden) {
+        splitpannel.toggle(window._content.document.location, true, arg ? 'right' : 'bottom');
+    } else {
+        splitpannel.toggle(window._content.document.location, false, null);
+    }
+}, 'Toggle Split Panel and when showing it, load current URL in it .');
+
 ext.add("view-in-split-panel", function (ev, arg) {
     splitpannel.toggle(window._content.document.location, true, arg ? 'bottom' : 'right');
 }, 'Open Split Panel and load current URL in it .');
 
-ext.add("bookmarks-sidebar-in-split-panel", function(ev ,arg) {
-    splitpannel.toggle("chrome://browser/content/bookmarks/bookmarksPanel.xul", true, arg ? 'bottom' : 'right');
-}, 'Open Bookmarks Sidebar in Split Panel');
 
 ext.add("cnblogs-ing-in-split-panel", function (ev, arg) {
     splitpannel.toggle('http://space.cnblogs.com/mi/', true, arg ? 'bottom' : 'right');
@@ -106,7 +116,12 @@ ext.add("google-translate-cn-in-split-panel", function () {
 
 ext.add("read-it-later-list-in-split-panel", function(ev, arg) {
     splitpannel.toggle("http://readitlaterlist.com/unread", true, arg ? 'buttom' : 'right');
-}, 'Show Read It Later list Split Panel');
+}, 'Show Read It Later list in Split Panel');
+
+// *** show sidebar in split panel
+ext.add("bookmarks-sidebar-in-split-panel", function(ev ,arg) {
+    splitpannel.toggle("chrome://browser/content/bookmarks/bookmarksPanel.xul", true, arg ? 'bottom' : 'right');
+}, 'Open Bookmarks Sidebar in Split Panel');
 
 ext.add("read-it-later-sidebar-in-split-panel", function(ev, arg) {
     splitpannel.toggle('chrome://isreaditlater/content/list.xul', true, arg ? 'button' : 'right');
@@ -126,12 +141,12 @@ ext.add("headings-map-in-split-panel", function() {
     splitpannel.toggle('chrome://headings/content/headings.xul', 'true', 'right');
 }, 'Show Headings Map sidebar in Split Panel.');
 
-// ** sidebar
 ext.add("scrapbook-sidebar-in-split-panel", function () {
     splitpannel.toggle('chrome://scrapbook/content/scrapbook.xul', true, 'right');
 }, 'Toggle Scrapbook sidebar (extension Scrapbook or Scrapbook Plus)');
 
-ext.add("view-in-sidebar", function() {
+// ** sidebar
+function showURLinSideBar (url, title) {
     toggleSidebar('', false);
 
     var sidebarcmd = document.getElementById('viewURISidebar');
@@ -139,9 +154,12 @@ ext.add("view-in-sidebar", function() {
     //print(sidebarcmd.getAttribute("checked"))
     sidebarcmd.removeAttribute("checked");
     sidebarcmd.setAttribute("sidebarurl",   content.location.href);
-    sidebarcmd.setAttribute("sidebartitle", content.document.title);
+    sidebarcmd.setAttribute("sidebartitle", title ? title : "SideBar");
 
-    toggleSidebar('viewURISidebar', true);
+    toggleSidebar('viewURISidebar', true);    
+}
+ext.add("view-in-sidebar", function() {
+    showURLinSideBar(content.location.href, content.document.title);
 }, "Load current URL in sidebar");
 
 //toggle sidebar
@@ -165,6 +183,7 @@ ext.add("scrapbook-sidebar", function () {
     toggleSidebar("viewScrapBookSidebar");
 }, 'Toggle Scrapbook sidebar (extension Scrapbook or Scrapbook Plus)');
 
+// ** toolbar
 //FIXME: not work on Firefox > 24?
 toggleToolbar = function(aEvent, toolbar_id, force) {
     if(toolbar_id != aEvent.originalTarget.parentNode.id) {
@@ -219,11 +238,11 @@ ext.add("scrapbook-undo", function() {
 
 ext.add("scrapbook-save", function() {
     sbPageEditor.saveOrCapture();
-}, "Capture current page to Scrapbook, or save modification.");
+    }, "Capture current page to Scrapbook, or save modification.");
 
 
-// ** some online services
-//is.gd service
+    // ** some online services
+    //is.gd service
 ext.add("is.gd", function () {
     let endpoint = "http://is.gd/api.php?longurl=" + encodeURIComponent(window._content.document.location);
     let result = util.httpGet(endpoint, true);
