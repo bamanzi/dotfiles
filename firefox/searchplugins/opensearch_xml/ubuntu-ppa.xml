@@ -1,0 +1,10 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>Personal Package Archives : Ubuntu</os:ShortName>
+<os:Description>Personal Package Archives : Ubuntu</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAw0lEQVQ4jbXSIQ6DMBiG4R4BuSvsCNjJyV0BuSPMLRyBTO0aM0uqSECQFEECoglmcgKBqEC8E4UEBmJ025c07d+kT9o/FXwZMdvp+uEClFVJeA6pde0GqFz9GDA1tIldNxJMuRKoDhALyDZ2jgUUO8CsBJobtAp0YOvHaSUwpGv6W/iOAEDqQb51BIyydbVfBoZ/kKTJFNAB6CNkXt8TuQwYY4guEfIup0Dh28OFbxs6yvwrj7PUg7f8GXhe7fudgQ/yAlcyuXuF2kBlAAAAAElFTkSuQmCC</os:Image>
+<SearchForm>https://launchpad.net/ubuntu/+ppas</SearchForm>
+<os:Url type="text/html" method="GET" template="https://launchpad.net/ubuntu/+ppas">
+  <os:Param name="name_filter" value="{searchTerms}"/>
+</os:Url>
+</SearchPlugin>

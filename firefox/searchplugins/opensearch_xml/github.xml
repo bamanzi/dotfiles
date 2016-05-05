@@ -1,0 +1,11 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>GitHub</os:ShortName>
+<os:Description>GitHub</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABrElEQVQ4jY2Sv2pUURDGv7vZ4p77J2dmvnO42ihaK1gEXSKEPIDgC/gC9mJvYW1noliF9OIjbGGeISsSSGUhkRhw12Dg2Oxd7l5114Fpzpnv45sfA/SqqqodVd0jOaHZBc0uSE5Uda+qqp3+fLc2KHLQxJhWNUUOAGz8ITazo3Xits3saMmEIodNjMlExs65+wBe1HX9mWbHNDsO5AzAMwAPTGQ8T3IIAHDOjVpnVd1vUQAoumgAZACgqvvtvHNuhO7eRVFsrYI0h7y7xCOYnTQxJppd5nl+a51Bnuc3A/mziTEFsxMEctbEmEierhMvmJGnTYwpkDMEcjo3OAcw+A/9gGbf5wZTkJy0O4nI43Xquq4fLRiQnxDN3sUQEoAr2dz8VTv38J9i57YD+aVzD29RluU9X/sE4BLA2WAwSFmWTZ1zo1Y4HA53syz72j8oVb0LAAghvGliTBVwpyzLJ76ux977261BURRbItK/xldL8UxkTLNvqnoDgPTTB/LHYnfV93/dkeRrml3R7AzA9c7XtUVs71+upKzePzezjwCsffPeK0U+qOrT/vxvewCKQLKaviEAAAAASUVORK5CYII=</os:Image>
+<SearchForm>https://github.com/</SearchForm>
+<os:Url type="text/html" method="GET" template="https://github.com/search">
+  <os:Param name="utf8" value="%E2%9C%93"/>
+  <os:Param name="q" value="{searchTerms}"/>
+</os:Url>
+</SearchPlugin>

@@ -1,0 +1,14 @@
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/">
+<os:ShortName>software.opensuse.org:</os:ShortName>
+<os:Description>software.opensuse.org:</os:Description>
+<os:InputEncoding>UTF-8</os:InputEncoding>
+<os:Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABlklEQVQ4ja1SwUrjUBQ9TfNulvmEfkI/IZ/QT+hC06WF1iIdB+MqE2hNXkDKZJVNhcq0hKqDoGCgzMgIJbd/4CfkE56LEi2a6gzjhbO4i3M499wDfPZIpjhkcvxMt7wlzH8WCFeG2oRk41EyxT5TY6ugt4QpmeLX5DJIpvgkE/Vn8jBDTTLl75HchVC9aSVpjxEcXVcfw5WhfKbGy83vkAcPpDoT1EMmRzIl7p1uff2psWTKS29+jW+/ROxnuhWuDHV4VVWSKenOUAtXhgpZND8UkCyC/gWsYvfu9XSYrQUkU1Iq4C9Jeb9FEVp+kol6Z6LF3R+V1B7B2jx7q4PuOZr9ucaDB1KSKZcsgnUORroZLgZ/ROkHJFMyzFBrRWgeJJX0+FZX7kIodyHU8a2uCjf4cqk5H/w98ZkarQimPYJlj2DtnKIWsmh693qKVgSzP9f4LwqUSzbSNSh3F0Ltz+AAAFoRzPYYgXNTzYvwthXq6LqqOhMttkew3lS6sLkbwdk7g9ObVpKDuRbsRnDs72iXkv53ngCsco8aZvNXjAAAAABJRU5ErkJggg==</os:Image>
+<SearchForm>http://software.opensuse.org/421/en</SearchForm>
+<os:Url type="text/html" method="GET" template="http://software.opensuse.org/search">
+  <os:Param name="utf8" value="%E2%9C%93"/>
+  <os:Param name="q" value="{searchTerms}"/>
+  <os:Param name="search_devel" value="false"/>
+  <os:Param name="search_unsupported" value="false"/>
+  <os:Param name="baseproject" value="ALL"/>
+</os:Url>
+</SearchPlugin>
