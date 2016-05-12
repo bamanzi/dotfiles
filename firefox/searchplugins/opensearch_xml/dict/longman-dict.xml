@@ -1,0 +1,12 @@
+ <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+			xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+   <ShortName>Longman English Dictionary</ShortName>
+   <Description>Search a definition in Longman Dictionary of Contemporary English</Description>
+   <InputEncoding>ISO-8859-1</InputEncoding>
+   <Image width="16" height="16" type="image/x-icon">/favicon.ico</Image>
+   <Tags>english dictionary longman</Tags>
+   <Contact>admin@idm.fr</Contact>
+   <Url type="text/html" method="get" template="http://www.ldoceonline.com/search/?q={searchTerms}"/>
+   <moz:SearchForm>http://www.ldoceonline.com</moz:SearchForm>
+ </OpenSearchDescription>
+
