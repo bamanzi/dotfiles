@@ -660,7 +660,7 @@ cd::cd()
     cd::add
 }
 
-eval "alias ${ENHANCD_COMMAND:="cd"}=cd::cd"
+eval "alias ${ENHANCD_COMMAND:="fcd"}=cd::cd"
 export ENHANCD_COMMAND
 if [ "$ENHANCD_COMMAND" != "cd" ]; then
     unalias cd 2>/dev/null
