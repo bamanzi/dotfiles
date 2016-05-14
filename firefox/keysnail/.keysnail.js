@@ -225,114 +225,6 @@ ext.add("toggle-tgm-bar", function(ev, arg) {
     toggleToolbar(ev, "TabGroupsManagerToolbar");
 }, "Toggle TabGroups Manager toolbar.");
 
-// ** Scrapbook (Plus)
-//make some ScrapBook (Plus)'s command could be manipulated with keyboard     
-ext.add("scrapbook-highlight", function(ev, arg) {
-    //if ARG given, switch to correspding highligher and use it
-    sbPageEditor.highlight(arg);
-}, "Highlight selection with scrapbook's highlighter");
-
-ext.add("scrapbook-undo", function() {
-    sbPageEditor.undo();
-}, "Scrapbook Editor's undo.");
-
-ext.add("scrapbook-save", function() {
-    sbPageEditor.saveOrCapture();
-    }, "Capture current page to Scrapbook, or save modification.");
-
-
-    // ** some online services
-    //is.gd service
-ext.add("is.gd", function () {
-    let endpoint = "http://is.gd/api.php?longurl=" + encodeURIComponent(window._content.document.location);
-    let result = util.httpGet(endpoint, true);
-    if (result.status == 200) {
-        command.setClipboardText(result.responseText);
-        display.echoStatusBar("Short URL copied into clipboard: " + result.responseText, 3000);
-    }
-    else
-        display.echoStatusBar("is.gd service failed: " + result.statusText, 3000);
-}, "Shorten current page's URL with http://is.gd service");
-
-// goo.gl
-ext.add("goo.gl", function () {
-    let endpoint = "https://www.googleapis.com/urlshortener/v1/url";
-    let params = { "longUrl": window._content.document.location.href };
-    let result = util.httpPostJSON(endpoint, params, function (xhr) {
-        if (xhr.status == 200) {
-            var ret = JSON.parse(xhr.responseText);
-            command.setClipboardText(ret.id);
-            display.echoStatusBar("Short URL copied into clipboard: " + ret.id, 3000);
-        } else {
-            display.echoStatusBar("goo.gl service failed: " + xhr.statusText, 3000);
-        }
-    });
-}, "Shorten URL with http://goo.gl service");
- 
-// goo.gl only accepts content-type as 'application/json',
-// but keysnail's httpGet/httpPost doesn't support it
-util.httpPostJSON= function (url, params, callback) {
-            let xhr = new XMLHttpRequest();
- 
-            switch (typeof params)
-            {
-            case "string":
-                // nothing
-                break;
-            case "object":
-                params = JSON.stringify(params);
-                break;
-            default:
-                params = "";
-                break;
-            }
- 
-            let async = typeof callback === "function";
- 
-            if (async)
-            {
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4)
-                        callback(xhr);
-                };
-            }
- 
-            xhr.open("POST", url, async);
- 
-            xhr.setRequestHeader("Content-type", "application/json");
-            xhr.setRequestHeader("Content-length", params.length);
-            xhr.setRequestHeader("Connection", "close");
- 
-            xhr.send(params);
- 
-            return xhr;
-};
-
-ext.add("bookmark-on-delicious", function(ev, arg) {
-    var f='http://www.delicious.com/save?url='+encodeURIComponent(content.location.href)+
-        '&title='+encodeURIComponent(content.title)+
-        '&notes='+encodeURIComponent(''+(content.getSelection?
-                                         content.getSelection():
-                                         content.getSelection?
-                                         content.getSelection():
-                                         content.selection.createRange().text))+
-        '&v=6&';
-    var a=function(){
-        if(!window.open(f+'noui=1&jump=doclose','deliciousuiv6',
-                        'location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550'))
-            location.href=f+'jump=yes';
-    };
-    if(/Firefox/.test(navigator.userAgent)) {
-        setTimeout(a,0);
-    } else {
-        a();
-    }
-}, "bookmark current page on delicious.");
-
-ext.add("gwt", function() {
-    var newurl = "http://gxc.google.com/gwt/x?u=" + window.content.location.href;
-    content.location.href = newurl;
-}, "Use GWT to view current url.");
 
 // ** selection
 ext.add("go-to-selected-url", function() {
@@ -366,7 +258,8 @@ ext.add("previous-occur", function() {
     gFindBar.onFindAgainCommand(true);
 }, "highlight previouse occurence of current selected word");
 
-// ** translation
+// ** some online services
+// *** translation
 //{{{ inline translate:
 // based on code stolen from Mar Mod extension
 function google_translate (whatToTranslate, lang, callback) {
@@ -484,6 +377,101 @@ ext.add("wiktionary-lookup-selection", function() {
  ext.add("dict", function () {
     dictDefineSelection();
 }, 'Looks up the definition of selected words using Dict protocol (requires Dict extension).');
+
+
+// *** url shortener
+//is.gd service
+ext.add("is.gd", function () {
+    let endpoint = "http://is.gd/api.php?longurl=" + encodeURIComponent(window._content.document.location);
+    let result = util.httpGet(endpoint, true);
+    if (result.status == 200) {
+        command.setClipboardText(result.responseText);
+        display.echoStatusBar("Short URL copied into clipboard: " + result.responseText, 3000);
+    }
+    else
+        display.echoStatusBar("is.gd service failed: " + result.statusText, 3000);
+}, "Shorten current page's URL with http://is.gd service");
+
+// goo.gl
+ext.add("goo.gl", function () {
+    let endpoint = "https://www.googleapis.com/urlshortener/v1/url";
+    let params = { "longUrl": window._content.document.location.href };
+    let result = util.httpPostJSON(endpoint, params, function (xhr) {
+        if (xhr.status == 200) {
+            var ret = JSON.parse(xhr.responseText);
+            command.setClipboardText(ret.id);
+            display.echoStatusBar("Short URL copied into clipboard: " + ret.id, 3000);
+        } else {
+            display.echoStatusBar("goo.gl service failed: " + xhr.statusText, 3000);
+        }
+    });
+}, "Shorten URL with http://goo.gl service");
+ 
+// goo.gl only accepts content-type as 'application/json',
+// but keysnail's httpGet/httpPost doesn't support it
+util.httpPostJSON= function (url, params, callback) {
+            let xhr = new XMLHttpRequest();
+ 
+            switch (typeof params)
+            {
+            case "string":
+                // nothing
+                break;
+            case "object":
+                params = JSON.stringify(params);
+                break;
+            default:
+                params = "";
+                break;
+            }
+ 
+            let async = typeof callback === "function";
+ 
+            if (async)
+            {
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4)
+                        callback(xhr);
+                };
+            }
+ 
+            xhr.open("POST", url, async);
+ 
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.setRequestHeader("Content-length", params.length);
+            xhr.setRequestHeader("Connection", "close");
+ 
+            xhr.send(params);
+ 
+            return xhr;
+};
+
+// *** misc
+ext.add("bookmark-on-delicious", function(ev, arg) {
+    var f='http://www.delicious.com/save?url='+encodeURIComponent(content.location.href)+
+        '&title='+encodeURIComponent(content.title)+
+        '&notes='+encodeURIComponent(''+(content.getSelection?
+                                         content.getSelection():
+                                         content.getSelection?
+                                         content.getSelection():
+                                         content.selection.createRange().text))+
+        '&v=6&';
+    var a=function(){
+        if(!window.open(f+'noui=1&jump=doclose','deliciousuiv6',
+                        'location=yes,links=no,scrollbars=no,toolbar=no,width=550,height=550'))
+            location.href=f+'jump=yes';
+    };
+    if(/Firefox/.test(navigator.userAgent)) {
+        setTimeout(a,0);
+    } else {
+        a();
+    }
+}, "bookmark current page on delicious.");
+
+ext.add("gwt", function() {
+    var newurl = "http://gxc.google.com/gwt/x?u=" + window.content.location.href;
+    content.location.href = newurl;
+}, "Use GWT to view current url.");
 
 // ** web search
 ext.add("search-selection", function() {
@@ -627,43 +615,23 @@ ext.add("decrease-digit-in-url", function() {
     }
 }, 'Decrement last digit in the URL');
 
-// ** misc
-ext.add("count-region", function(ev, arg) {
-    var aInput = ev.originalTarget;
-    var value = aInput.value;
- 
-    var selcount = aInput.selectionEnd - aInput.selectionStart;
- 
-    display.echoStatusBar("Total:" + value.length + " Selected:" + selcount, 3000);
-}, "Count chars.");
+// ** misc extension
+// *** scrapbook
+//make some ScrapBook (Plus)'s command could be manipulated with keyboard     
+ext.add("scrapbook-highlight", function(ev, arg) {
+    //if ARG given, switch to correspding highligher and use it
+    sbPageEditor.highlight(arg);
+}, "Highlight selection with scrapbook's highlighter");
 
-ext.add("open-extension-dialog", function(ev, arg) {
-    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+ext.add("scrapbook-undo", function() {
+    sbPageEditor.undo();
+}, "Scrapbook Editor's undo.");
 
-    OpenAddonsMgr = function(type, typeUrl) {
-        var extensionManager = wm.getMostRecentWindow("Extension:Manager");
-        if (extensionManager) {
-            extensionManager.focus();
-            extensionManager.showView(type);
-        } else {
-            var addonManager = wm.getMostRecentWindow("Addons:Manager");
-            if (addonManager) {
-                addonManager.focus();
-                addonManager.gViewController.loadView(typeUrl);
-            } else {
-                //var contents = toolbar_buttons.getUrlContents("chrome://mozapps/content/extensions/extensions.xul");
-                window.openDialog(
-                    "chrome://mozapps/content/extensions/extensions.xul",
-                    "",
-                    "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable,width=1024,height=768,centerscreen",
-                    //contents.match("Addons:Manager") ? {"view" :typeUrl} : type);
-                    {"view" :typeUrl});
-            }
-        }
-    };
-    OpenAddonsMgr('extensions', 'addons://list/extension');
-}, "Open the Addons Manager.");
+ext.add("scrapbook-save", function() {
+    sbPageEditor.saveOrCapture();
+}, "Capture current page to Scrapbook, or save modification.");
 
+// *** evernote clearly
 ext.add("evernote-clearly", function() {
     if (typeof(__readable_by_evernote) != "undefined") {
         //newer version
@@ -673,6 +641,7 @@ ext.add("evernote-clearly", function() {
     }
 }, "Read current page in Evernote Clearly (call again to quit)."); 
 
+// *** tabundle
 ext.add("tabundle-group", function(ev, arg) {
     Tabundle.createGroupListHtml = function() {
         //....https://gist.github.com/1851778
@@ -685,6 +654,8 @@ ext.add("tabundle-group", function(ev, arg) {
     }
 }, "Use tabundle extension to capture info of all tabs of current group."); 
 
+
+// *** toomanytabs
 ext.add("tab-send-to-tmt", function(ev, arg) {
         var panoGroup = TabView._window.GroupItems.getActiveGroupItem();
         var groupName = panoGroup.getTitle();
@@ -750,6 +721,45 @@ ext.add("tabgroup-send-to-tmt", function(ev, arg) {
             gBrowser.removeTab(groupTabs[i]);
         }
 }, "Send all tabs of current group (FF4+ TabCandy group) to TooManyTabs and then close them.");
+
+// ** misc
+
+ext.add("count-region", function(ev, arg) {
+    var aInput = ev.originalTarget;
+    var value = aInput.value;
+ 
+    var selcount = aInput.selectionEnd - aInput.selectionStart;
+ 
+    display.echoStatusBar("Total:" + value.length + " Selected:" + selcount, 3000);
+}, "Count chars.");
+
+ext.add("open-extension-dialog", function(ev, arg) {
+    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService(Components.interfaces.nsIWindowMediator);
+
+    OpenAddonsMgr = function(type, typeUrl) {
+        var extensionManager = wm.getMostRecentWindow("Extension:Manager");
+        if (extensionManager) {
+            extensionManager.focus();
+            extensionManager.showView(type);
+        } else {
+            var addonManager = wm.getMostRecentWindow("Addons:Manager");
+            if (addonManager) {
+                addonManager.focus();
+                addonManager.gViewController.loadView(typeUrl);
+            } else {
+                //var contents = toolbar_buttons.getUrlContents("chrome://mozapps/content/extensions/extensions.xul");
+                window.openDialog(
+                    "chrome://mozapps/content/extensions/extensions.xul",
+                    "",
+                    "chrome,menubar,extra-chrome,toolbar,dialog=no,resizable,width=1024,height=768,centerscreen",
+                    //contents.match("Addons:Manager") ? {"view" :typeUrl} : type);
+                    {"view" :typeUrl});
+            }
+        }
+    };
+    OpenAddonsMgr('extensions', 'addons://list/extension');
+}, "Open the Addons Manager.");
+
 
 ext.add("reload-pac", function(ev, arg) {
     Components.classes["@mozilla.org/network/protocol-proxy-service;1"].getService().reloadPAC();
