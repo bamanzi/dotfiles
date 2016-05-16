@@ -722,19 +722,23 @@ ext.add("tabgroup-send-to-tmt", function(ev, arg) {
         }
 }, "Send all tabs of current group (FF4+ TabCandy group) to TooManyTabs and then close them.");
 
-// ** misc
+// *** tab utilities
+//faviconizeTab(tab, force, restoring)
 ext.add("faviconize-tab", function(ev, arg) {
     gBrowser.faviconizeTab(gBrowser.mCurrentTab);
-}, "Faviconize current tab.");
+}, "Faviconize current tab (Tab Utilities extension).");
 
 ext.add("faviconize-all-tabs", function(ev, arg) {
     gBrowser.faviconizeTab(gBrowser.allTabs);
-}, "Faviconize all tabs (in current window).");
+}, "Faviconize all tabs (in current window) (Tab Utilities extension).");
 
 ext.add("faviconize-other-tabs", function(ev, arg) {
-    gBrowser.faviconizeTab(gBrowser.allTabs);
+    gBrowser.faviconizeTab(gBrowser.allTabs, true);
     gBrowser.faviconizeTab(gBrowser.mCurrentTab);
-}, "Faviconize all tabs (in current window) but current one.");
+}, "Faviconize all tabs (in current window) but current one. (Tab Utilities extension)");
+
+
+// ** misc
 
 ext.add("count-region", function(ev, arg) {
     var aInput = ev.originalTarget;
