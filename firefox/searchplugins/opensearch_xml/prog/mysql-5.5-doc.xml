@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <!-- Created on Fri, 25 Mar 2011 19:46:59 GMT -->
+  <ShortName>MySQL 5.5 Doc</ShortName>
+  <Description>dbi services MySQL 5.5 documentation plugin</Description>
+  <Url type="text/html" method="get" template="http://www.google.com/cse?num=10&amp;hl=en&amp;ie=UTF-8&amp;q={searchTerms}&amp;cx=008755211453747877615:sxrgcxmbfpa"/>
+  <Image width="16" height="16">http://mycroft.mozdev.org/updateos.php/id0/dbimysql5.5doc.gif</Image>
+  <Developer>Gregory Steulet</Developer>
+  <InputEncoding>UTF-8</InputEncoding>
+  <moz:SearchForm>http://www.google.com/cse?num=10&amp;hl=en&amp;ie=UTF-8&amp;q=mysql&amp;cx=008755211453747877615:sxrgcxmbfpa</moz:SearchForm>
+   <moz:UpdateUrl>http://mycroft.mozdev.org/updateos.php/id0/dbimysql5.5doc.xml</moz:UpdateUrl>
+</OpenSearchDescription>

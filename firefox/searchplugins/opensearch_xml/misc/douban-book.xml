@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+  <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"  
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">    
+  <ShortName>Douban book</ShortName>
+  <Description>Douban book search</Description>
+  <InputEncoding>gb2312</InputEncoding>
+  <Image width="16" height="16" type="image/x-icon">http://www.douban.com/favicon.ico</Image>
+  <Url type="text/html" method="GET" template="http://book.douban.com/subject_search">
+    <Param name="search_text" value="{searchTerms}" />
+    <Param name="cat" value="1001" />
+  </Url>
+ 
+  <SearchForm>http://book.douban.com</SearchForm>
+</OpenSearchDescription>
