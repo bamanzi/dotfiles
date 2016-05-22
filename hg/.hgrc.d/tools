@@ -1,31 +1,10 @@
-[ui]
-username = Ba Manzi <bamanzi@gmail.com>
-#merge = internal:merge
-#merge = vimdiff
-#merge = ediff
-
-[auth]
-# search "auth" in `hg help config`
-bb.prefix = bitbucket.org
-bb.username = bamanzi
-bb.password = FOOBAR
-bb.schemes = http https
-
-gh.prefix = github.com
-bb.username = bamanzi
-bb.password = FOOBAR
-bb.schemes = http https
 
 [extensions]
-convert =
 pager =
-color = 
-graphlog =
 extdiff = 
-mq = 
 
 [pager]
-pager=LESS=FRX less
+pager=LESS=FRX less -d
 attend = annotate, cat, diff, export, glog, log, qdiff, help
 
 [extdiff]
