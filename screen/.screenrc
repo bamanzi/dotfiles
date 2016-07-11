@@ -23,25 +23,37 @@ bind o focus    # C-a TAB
 layout new left-big
 only
 split -v
-resize +20
+resize 62%
 
 layout new left-big2
 only
 split -v
-resize +20
+resize 62%
 focus right
 split
 
 layout new right-big
 only
 split -v
-resize -20
+resize 38%
 
 layout new right-big2
 only
 split -v
-resize -20
+resize 38%
 focus right
+split
+
+layout new top-big
+only
+split
+resize 38%
+
+layout new top-big2
+only
+split
+resize 38%
+focus down
 split
 
 layout attach left-big
