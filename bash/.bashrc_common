@@ -1,0 +1,8 @@
+echo $PATH | grep -q "~/bin" && export PATH=~/bin:$PATH
+echo $PATH | grep -q "~/.local/bin" && export PATH=~/.local/bin:$PATH
+
+export HISTCONTROL=ignoreboth
+
+for f in ~/.bash/plugins/*.sh; do
+  . $f
+done

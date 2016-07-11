@@ -1,0 +1,33 @@
+# * prompt 
+autoload -Uz promptinit
+promptinit
+prompt adam2
+
+# * history
+HISTSIZE=200
+SAVEHIST=2000
+HISTFILE=~/.zsh_history
+setopt hist_ignore_space
+
+# * globbing
+setopt no_nomatch
+
+# * completion
+autoload -Uz compinit
+compinit
+
+# * command-line editing
+# make <M-backspace> acts like bash
+autoload -Uz select-word-style
+select-word-style bash
+
+# some keybindings
+## CSI sequences (putty default)
+bindkey '\e[1~' beginning-of-line
+bindkey '\e[2~' overwrite-mode
+bindkey '\e[3~' delete-char
+bindkey '\e[4~' end-of-line
+
+## xterm sequences
+bindkey '\e[H' beginning-of-line
+bindkey '\e[F' end-of-line
