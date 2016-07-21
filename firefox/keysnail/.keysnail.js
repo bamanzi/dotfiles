@@ -273,7 +273,7 @@ function google_translate (whatToTranslate, lang, callback) {
     //e.g http://translate.google.com/m?hl=zh-CN&sl=auto&tl=en&ie=UTF-8&prev=_m&q=dictionary
     // var fullUrl = "http://translate.google.com/m?hl=" + lang + "&sl=auto&tl=" + lang + "&ie=UTF-8" +
     //    "&q=" + whatToTranslate;
-    var fullUrl = "http://translate.google.hu/translate_t?text=" + whatToTranslate +
+    var fullUrl = "http://translate.google.cn/translate_t?text=" + whatToTranslate +
         "&hl=" + lang + "&langpair=auto|" + lang + "&tbb=1" ;
 
     function removeHTMLTags(mitkell) {  //clean up a string from html tags
@@ -303,7 +303,7 @@ function google_translate (whatToTranslate, lang, callback) {
             else {
                 tempResz = fieldArray[1].split('<span id=result_box class="long_text">');
             }
-            //alert(tempResz[1]);
+            console.log("****" + tempResz[1]);
             var kimenet = tempResz[1].split('</span></div>');
             if (callback) {
                 callback(kimenet[0]);
@@ -316,6 +316,12 @@ function google_translate (whatToTranslate, lang, callback) {
     httpRequest = new XMLHttpRequest();
     httpRequest.open("GET", fullUrl, true);
     httpRequest.onload = infoReceived;
+    httpRequest.ontimeout = function () {
+        display.echoStatusBar("Timeout when tring to translate " + whatToTranslate + ": timeout");
+    }
+    httpRequest.onerror = function () {
+        display.echoStatusBar("Error when tring to translate " + whatToTranslate + ": " + httpRequest.statusText);
+    }
     httpRequest.send(null);
 }
 
@@ -330,15 +336,15 @@ function inline_translate_selection(lang) {
     google_translate(content.getSelection(), lang, callback);
 }
 
-ext.add("google-translate-selection-inline", function() {
+ext.add("google-translate-selection-inline-to-en", function() {
     inline_translate_selection("en");
 }, "Translate the selection and replace it with result.");
 
-ext.add("google-translate-selection-inline-to-cn", function() {
+ext.add("google-translate-selection-inline", function() {
     inline_translate_selection("zh-CN");
 }, "Translate the selection and replace it with result.");
 
-ext.add("google-translate-selection", function() {
+ext.add("google-translate-selection-to-en", function() {
     var selection = content.getSelection();
     var callback = function(result) {
         //alert(result);
@@ -350,7 +356,7 @@ ext.add("google-translate-selection", function() {
     google_translate(selection, "en", callback);
 }, "Translate the selection to English and show result in status bar.");
 
-ext.add("google-translate-selection-to-cn", function() {
+ext.add("google-translate-selection", function() {
     var selection = content.getSelection();
     var callback = function(result) {
         //alert(result);
@@ -511,7 +517,7 @@ ext.add("yahoo-search-selection", function() {
 ext.add("google-site-search-selection", function() {
     if(!getBrowserSelection()) return;
     //https://www.google.com.hk/s?q=ctags%20site%3Akomodoide.com
-    var url = "http://www.jwss.cc/?q=" + getBrowserSelection() +" site%3A" + content.location.hostname;
+    var url = "http://www.google.com.hk/?q=" + getBrowserSelection() +" site%3A" + content.location.hostname;
     gBrowser.loadOneTab(url, null, null, null, false);
 }, "Use Google search engine to search the phrase currently selected on current site");
  
@@ -682,7 +688,7 @@ ext.add("tab-send-to-tmt", function(ev, arg) {
             Visibo.TMT.API.addTabToRow(tabdata, tmtGroupId);
             //gBrowser.removeTab(tab); 
         }
-}, "Send current tab to TooManyTabs (the row of TabCandy group name) and then close it.");
+}, "Send current tab to TooManyTabs (the row of same name as TabCandy group) and then close it.");
 
 ext.add("tabgroup-send-to-tmt", function(ev, arg) {
         var panoGroup = TabView._window.GroupItems.getActiveGroupItem();
