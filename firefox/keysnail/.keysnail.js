@@ -743,6 +743,27 @@ ext.add("faviconize-other-tabs", function(ev, arg) {
     gBrowser.faviconizeTab(gBrowser.mCurrentTab);
 }, "Faviconize all tabs (in current window) but current one. (Tab Utilities extension)");
 
+// *** CoLT
+ext.add("colt-org-mode-link", function(ev, arg) {
+    var result = objColT.FormatString('[[%U][%T]]', 'page');
+    objCoLT.PlaceOnClipboard(result)
+}, "Copy current page's title & URL as Org-mode link (CoLT extension required).");
+
+ext.add("colt-org-table-row", function(ev, arg) {
+    var result = objColT.FormatString('| %T | %U |', 'page');
+    objCoLT.PlaceOnClipboard(result)
+}, "Copy current page's title & URL as Org-mode table row (CoLT extension required).");
+
+ext.add("colt-markdown-link", function(ev, arg) {
+    var result = objColT.FormatString('[%T](%U )', 'page');
+    objCoLT.PlaceOnClipboard(result)
+}, "Copy current page's title & URL as Markdown link (CoLT extension required).");
+
+ext.add("colt-zim-link", function(ev, arg) {
+    var result = objColT.FormatString('[[%U|%T]]', 'page');
+    objCoLT.PlaceOnClipboard(result)
+}, "Copy current page's title & URL as Zim/dokuwiki link (CoLT extension required).");
+
 
 // ** misc
 
