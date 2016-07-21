@@ -114,18 +114,18 @@ ext.add("google-translate-cn-in-split-panel", function () {
     splitpannel.toggle("http://translate.google.com/m?hl=zh-CN&sl=auto&tl=zh-CN&ie=UTF-8", true, 'right');
 }, 'Open Split Panel and load Google Translate (any->zh-CN) in it .');
 
-ext.add("read-it-later-list-in-split-panel", function(ev, arg) {
-    splitpannel.toggle("http://readitlaterlist.com/unread", true, arg ? 'buttom' : 'right');
-}, 'Show Read It Later list in Split Panel');
+ext.add("pocket-list-in-split-panel", function(ev, arg) {
+    splitpannel.toggle("https://getpocket.com/a/queue/list/", true, arg ? 'buttom' : 'right');
+}, 'Show Pocket unread list in Split Panel');
 
 // *** show sidebar in split panel
 ext.add("bookmarks-sidebar-in-split-panel", function(ev ,arg) {
     splitpannel.toggle("chrome://browser/content/bookmarks/bookmarksPanel.xul", true, arg ? 'bottom' : 'right');
 }, 'Open Bookmarks Sidebar in Split Panel');
 
-ext.add("read-it-later-sidebar-in-split-panel", function(ev, arg) {
+ext.add("pocket-sidebar-in-split-panel", function(ev, arg) {
     splitpannel.toggle('chrome://isreaditlater/content/list.xul', true, arg ? 'button' : 'right');
-}, 'Show ReadItLater sidebar in Split Panel. (readitlater extension)');
+}, 'Show Pocket sidebar in Split Panel. (Pocket extension)');
 
 ext.add("save-to-read-sidebar-in-split-panel", function() {
     splitpannel.toggle("chrome://save2read/content/ff-sidebar.xul", true, 'right');
@@ -167,9 +167,9 @@ ext.add("toggle-sidebar", function () {
     toggleSidebar("");
 }, 'toggle sidebar');
  
-ext.add("read-it-later-sidebar", function () {
+ext.add("pocket-sidebar", function () {
     toggleSidebar("RIL_sidebarlist");
-}, 'Toggle ReadItLater sidebar. (readitlater extension)');
+}, 'Toggle Pocket sidebar. (pocket extension)');
  
 ext.add("save-to-read-sidebar", function () {
     toggleSidebar("viewSidebar_save2read");
@@ -258,8 +258,7 @@ ext.add("previous-occur", function() {
     gFindBar.onFindAgainCommand(true);
 }, "highlight previouse occurence of current selected word");
 
-// ** some online services
-// *** translation
+// *** translation for selection
 //{{{ inline translate:
 // based on code stolen from Mar Mod extension
 function google_translate (whatToTranslate, lang, callback) {
@@ -385,6 +384,7 @@ ext.add("wiktionary-lookup-selection", function() {
 }, 'Looks up the definition of selected words using Dict protocol (requires Dict extension).');
 
 
+// ** some online services
 // *** url shortener
 //is.gd service
 ext.add("is.gd", function () {
@@ -543,7 +543,7 @@ ext.add("yahoo-site-search-selection", function() {
 }, "Use Yahoo search engine to search the phrase currently selected on current site"); 
 
 
-// ** navigration
+// ** navigation
 //jump to previous page or next page
 ext.add("previous-page", function () {
     var document = window._content.document;
@@ -1659,6 +1659,14 @@ key.setGlobalKey(['C-<f11>', 'b'], function(ev, arg) {
 key.setGlobalKey(['<f12>', 'i'], function(ev, arg) {
     ext.exec("cnblogs-ing-in-split-panel", arg, ev);
 }, "Open Split Panel and navigate to http://space.cnblogs.com/mi/");
+
+key.setGlobalKey(['<f12>', 'I'], function(ev, arg) {
+    splitpannel.toggle('chrome://isreaditlater/content/list.xul', true, arg ? 'button' : 'right');
+}, 'Show Pocket sidebar in Split Panel. (Pocket extension)');
+
+key.setGlobalKey(['<f12>', 'M-i'], function(ev, arg) {
+    splitpannel.toggle('http://iriguti.ongaeshi.me/', true, arg ? 'bottom' : 'right');
+}, "Open Split Panel and navigate to http://iriguti.ongaeshi.me/");
 
 key.setGlobalKey(['<f12>', 't'], function(ev, arg) {
     ext.exec("tab-send-to-tmt", arg, ev);
