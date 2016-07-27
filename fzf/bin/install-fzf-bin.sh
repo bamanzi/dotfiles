@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VER=0.12.1
+VER=0.13.3
 arch=`uname -m`
 case $arch in
 #  armv7*) bin_arch=android_arm7;;

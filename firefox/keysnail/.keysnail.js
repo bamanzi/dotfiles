@@ -302,7 +302,7 @@ function google_translate (whatToTranslate, lang, callback) {
             else {
                 tempResz = fieldArray[1].split('<span id=result_box class="long_text">');
             }
-            console.log("****" + tempResz[1]);
+            //alert(tempResz[1]);
             var kimenet = tempResz[1].split('</span></div>');
             if (callback) {
                 callback(kimenet[0]);
@@ -512,7 +512,6 @@ ext.add("yahoo-search-selection", function() {
     var url = "https://search.yahoo.com/search?p=" + getBrowserSelection()
     gBrowser.loadOneTab(url, null, null, null, false);
 }, "Use Yahoo search engine to search the phrase currently selected");
-
 
 ext.add("google-site-search-selection", function() {
     if(!getBrowserSelection()) return;
@@ -1681,11 +1680,11 @@ key.setGlobalKey(['<f12>', 'i'], function(ev, arg) {
     ext.exec("cnblogs-ing-in-split-panel", arg, ev);
 }, "Open Split Panel and navigate to http://space.cnblogs.com/mi/");
 
-key.setGlobalKey(['<f12>', 'I'], function(ev, arg) {
+key.setGlobalKey(['<f12>', 'M-i'], function(ev, arg) {
     splitpannel.toggle('chrome://isreaditlater/content/list.xul', true, arg ? 'button' : 'right');
 }, 'Show Pocket sidebar in Split Panel. (Pocket extension)');
 
-key.setGlobalKey(['<f12>', 'M-i'], function(ev, arg) {
+key.setGlobalKey(['<f12>', 'I'], function(ev, arg) {
     splitpannel.toggle('http://iriguti.ongaeshi.me/', true, arg ? 'bottom' : 'right');
 }, "Open Split Panel and navigate to http://iriguti.ongaeshi.me/");
 
