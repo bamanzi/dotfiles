@@ -1,13 +1,13 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 import os, re, string, sys, getopt, signal
 
 def version():
-    print ("Generic Colouriser 1.9")
+    print ("Generic Colouriser 1.9.1rc1")
     sys.exit()
 
 def help():
-    print("""Generic Colouriser 1.9
+    print("""Generic Colouriser 1.9.1rc1
 grc [options] command [args]
 Options:")
 -e --stderr    redirect stderr. If this option is selected,
@@ -102,7 +102,6 @@ if cfile != "" and colour:
         choo, chio = os.pipe()
     if stderrff:
         choe, chie = os.pipe()
-
 
     pidp = os.fork()
     if pidp == 0: # child
