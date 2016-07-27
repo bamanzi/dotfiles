@@ -1,0 +1,20 @@
+#!/bin/bash
+# Auto archive mounting | Spencer Tipping
+# Licensed under the terms of the MIT source code license
+
+if which archivemount > /dev/null; then
+  cd_on '\.(tar(|\.(gz|bz2|Z|z|xz|lzma))|tgz|tbz2?|[rj]ar|zip|ZIP|cpio|od.)' \
+    cd_archive_mount cd_archive_umount
+else
+  echo 'cd-archive: no archivemount binary found in $PATH'
+fi
+
+function cd_archive_mount {
+  # readonly disables auto-backup creation, and handles my most common use
+  # case. However, there is no other reason I've set it here.
+  cd_mount "archivemount -o readonly" "$@"
+}
+
+function cd_archive_umount {
+  cd_umount "fusermount -u" "$@"
+}

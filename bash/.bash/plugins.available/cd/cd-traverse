@@ -1,0 +1,56 @@
+#!/bin/bash
+# Ancestor/descendant traversal | Spencer Tipping
+# Licensed under the terms of the MIT source code license
+
+cd_on '^\.\.[^/]'    cd_traverse_ancestor
+cd_on '^\.\.[0-9]+$' cd_traverse_ancestor_n
+cd_on '^\*\*'        cd_traverse_descendant
+
+function cd_traverse_ancestor_n {
+  local n=${1#..}
+  local p=$(yes ../ | head -n $n | tr -d '\n')
+  test -n $p && cd_goto $p
+}
+
+function cd_traverse_ancestor {
+  local pattern="${1#..}[^/]*$"
+  local target=$PWD
+
+  while test "$PWD" != / ; do
+    builtin cd ..
+    if [[ "${PWD##*/}" =~ $pattern ]] ; then
+      target=$PWD
+      break
+    fi
+  done
+  cd_goto "$target"
+
+  if test $OLDPWD = / ; then
+    echo "cd: no ancestor matches '${1#..}'"
+    return 1
+  fi
+}
+
+function cd_traverse_descendant {
+  local pattern="${1#\*\*}"
+  local depth=1
+  local dirs dir
+
+  while : ; do
+    dirs="$(find -mindepth $depth -maxdepth $depth -type d 2>/dev/null)"
+
+    if test -z "$dirs" ; then
+      echo "cd: no descendant matches '${pattern}'"
+      return 1
+    fi
+
+    while read dir ; do
+      if [[ "$dir" =~ $pattern ]] ; then
+        cd_goto "$dir"
+        return
+      fi
+    done <<< "$dirs"
+
+    depth=$((depth + 1))
+  done
+}

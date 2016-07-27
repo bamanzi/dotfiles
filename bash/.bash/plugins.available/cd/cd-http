@@ -1,0 +1,25 @@
+#!/bin/bash
+# HTTPFS2 wrapper | Spencer Tipping
+# Licensed under the terms of the MIT source code license
+
+if which httpfs2 > /dev/null; then
+  cd_on '^(https?://)?[^/]+\.(com|net|org|io|ly).*' \
+    cd_http_mount cd_http_umount
+else
+  echo 'cd-http: no httpfs2 binary found in $PATH'
+fi
+
+function cd_http_mount {
+  local target=$1
+  shift
+
+  if [[ !($target =~ ^http) ]]; then
+    target="http://$target"
+  fi
+
+  cd_mount httpfs2 "$target" "$@"
+}
+
+function cd_http_umount {
+  cd_umount "fusermount -u" "$@"
+}

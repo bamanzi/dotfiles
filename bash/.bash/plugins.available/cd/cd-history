@@ -1,0 +1,42 @@
+#!/bin/bash
+# cd history extension | Spencer Tipping
+# Licensed under the terms of the MIT source code license
+
+cd_on '^\^.+$'     cd_history_back_pattern
+cd_on '^\^[0-9]+$' cd_history_back_n
+cd_on '^-[0-9]+$'  cd_history_back_n
+cd_on '^\^+$'      cd_history_back
+
+function cd_history_back {
+  local n=$((1 + ${#1}))
+  cd_goto "${cd_history[-$n]}"
+}
+
+function cd_history_back_n {
+  local n=$((1 + ${1:1}))
+  cd_goto "${cd_history[-$n]}"
+}
+
+function cd_history_back_pattern {
+  local pattern=${1#^}
+  for ((i = ${#cd_history[@]} - 1; i >= 0; --i)); do
+    if [[ "${cd_history[$i]}" =~ $pattern ]]; then
+      cd_goto "${cd_history[$i]}"
+      return $?
+    fi
+  done
+  echo "cd: no history matching the regexp '$pattern'"
+  return 1
+}
+
+# Recover existing history
+if [[ -e ~/.cd/history ]]; then
+  cd_old_ifs=$IFS
+  IFS=$'\n'
+  for line in $(tail -n100 ~/.cd/history | uniq); do
+    # -n is required so that we don't append these history entries to
+    # ~/.cd/history.
+    cd_push_history "$line" -n
+  done
+  IFS=$cd_old_ifs
+fi

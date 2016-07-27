@@ -1,0 +1,395 @@
+#!/bin/bash
+# Customizable cd | Spencer Tipping
+# Licensed under the terms of the MIT source code license
+
+declare cd_path=${BASH_SOURCE:-$_}
+cd_path=${cd_path%/cd}
+
+declare -a cd_patterns
+declare -a cd_fns               # functions to activate directories
+declare -a cd_unfns             # functions to deactivate directories
+
+declare -a cd_history
+declare -a cd_index_history
+
+mkdir -p ~/.cd/mountpoints      # directories for FUSE, etc
+mkdir -p ~/.cd/parents          # see cd_mount for details
+
+# Detect zsh vs bash
+declare -a cd_zero_canary
+cd_zero_canary=( 'a' )
+if [[ -z "${cd_zero_canary[0]}" ]]; then
+  declare cd_array_offset=1     # zsh arrays start at 1
+  set BASH_REMATCH
+
+  function zsh_exit {
+    CD_EXITING=yes cd "$HOME"
+  }
+else
+  declare cd_array_offset=0     # bash arrays start at 0
+fi
+unset cd_zero_canary            # extra vars cost performance in bash
+
+# This will trigger any auto-unmounting that needs to happen.
+trap "CD_EXITING=yes cd '$HOME'" EXIT TERM QUIT
+
+function cd_on {
+  # Usage: cd_on pattern fn [unfn]. This is how you add new handlers for cd.
+  # For example:
+  #
+  # $ function echo_fn { echo "$@"; cd_goto "$@"; }
+  # $ function echo_unfn { echo unfn "$@"; }
+  # $ cd_on "foo" echo_fn echo_unfn
+  # $ cd foo
+  # foo
+  # $ cd
+  # unfn --different foo        # see cd_goto for explanation here
+  # $
+  #
+  # If you're doing anything remotely like a mount-on-demand operation, you
+  # should use the cd_mount and cd_umount functions. These handle the
+  # --same/--different option and reuse mountpoints when cd'ing within a
+  # mounted tree.
+
+  cd_patterns+=( "$1" )
+  cd_fns+=( "${2:-:}" )
+  cd_unfns+=( "${3:-:}" )
+  :
+}
+
+function cd_missing_fn {
+  echo "cd: $target does not exist and matches no cd-pattern"
+  return 1
+}
+
+function cd_missing_unfn {
+  :
+}
+
+cd_on '.*' cd_missing_fn cd_missing_unfn
+
+function cd_push_history {
+  if [[ ${#cd_history[@]} == 0 || "$1" != "${cd_history[-1]}" ]]; then
+    cd_history+=( "$1" )
+    cd_index_history+=( "$(cd_index_for "$1")" )
+
+    if [[ "$2" != '-n' ]]; then
+      echo "$1" >> ~/.cd/history
+    fi
+  fi
+  :
+}
+
+function cd_index_for {
+  local target=$1
+  for (( i = ${#cd_patterns[@]} - 1; i >= 0; --i )); do
+    if [[ "$target" =~ ${cd_patterns[$((cd_array_offset + i))]} ]]; then
+      echo $i
+      return 0
+    fi
+  done
+  echo -1
+  return 1
+}
+
+function cd_goto {
+  # Navigates to a directory, taking care of all cd_unfn hooks. The assumption
+  # is that the resulting $PWD will trigger the correct cd_pattern.
+  local last=$PWD
+  local last_index=$(cd_index_for "$PWD")
+  local target=$1
+
+  # Some trickery to handle a strange case:
+  # $ cd /tmp                   # normal cd
+  # $ cd foo:/bar/bif           # sshfs mount
+  # $ cd ..                     # we should now be back in /tmp
+  if [[ "${PWD%/*}" == ~/.cd/mountpoints && "${target%%/*}" == .. ]]; then
+    local parentfile=~/.cd/parents/"$$-${PWD##*/}"
+    if [[ -e "$parentfile" ]] && cd_original_cd "$(<"$parentfile")"; then
+      rm -f "$parentfile"
+      target=${target#..}
+      cd_original_cd "${target#/}" || return $?
+    else
+      rm -f "$parentfile"
+      cd_original_cd "$target" || return $?
+    fi
+  else
+    cd_original_cd "$target" || return $?
+  fi
+
+  export OLDPWD=$last
+  local this=$PWD
+
+  if [[ $last_index != -1 ]]; then
+    local this_index=$(cd_index_for "$this")
+    local unfn=${cd_unfns[$((cd_array_offset + last_index))]}
+
+    if ((last_index == this_index)); then
+      # We still need to let the unfn know that a cd happened, since we may be
+      # changing out of a temp dir and into another temp dir, or some such. But
+      # we pass the --same flag to indicate to the unfn that it's the same type
+      # of directory.
+      ${unfn:-:} --same "$last" "$this" || return $?
+    else
+      # Just invoke the unfn, informing it that we are changing into a
+      # different type of directory.
+      ${unfn:-:} --different "$last" || return $?
+    fi
+  fi
+
+  cd_push_history "$this"
+}
+
+# Ok, we're about to redefine 'cd' and all will be good. However, scripts like
+# RVM have already customized 'cd', so if we redefine it blindly we'll nuke
+# their customizations. To get around this, we look for any custom 'cd'
+# definitions and rename them. This is a hack.
+#
+# Note that if we already have an original function, then we do nothing.
+# Otherwise we'll cause an infinite loop.
+
+if ! declare -f cd_original_cd > /dev/null; then
+  if cd_original_source=$(declare -f cd); then
+    eval "cd_original_cd ${cd_original_source#cd }"
+  else
+    function cd_original_cd { builtin cd -- "$@"; }
+  fi
+fi
+
+function cd {
+  local target=${1:-$HOME}
+
+  if [[ "$target" == '-' ]]; then
+    target=$OLDPWD
+  fi
+
+  # Always prefer real directories
+  if [[ -d "$target" ]]; then
+    cd_goto "$target"
+    return $?
+  fi
+
+  # Are we cd'ing into a symlink? If so, expand potential targets in the link
+  # target. (If the symlink pointed to an existing directory, then we would
+  # have taken it with the -d test above ... so this won't intercept valid
+  # symlink targets.)
+  if [[ -L "$target" ]]; then
+    cd "$(readlink "$target")"
+  else
+    # Otherwise, identify the pattern and invoke the corresponding fn. This fn
+    # should invoke cd_goto to do the directory change, which will in turn
+    # invoke the proper unfns. We don't need to check the index because we have
+    # a catch-all pattern that already invokes cd_missing_fn and
+    # cd_missing_unfn.
+    local index=$(cd_index_for "$target")
+    local fn=${cd_fns[$((cd_array_offset + index))]}
+    shift
+    ${fn:-:} "$target" "$@"
+  fi
+}
+
+# Mountpoint allocation
+function cd_as_root {
+  if which sudo >& /dev/null; then
+    sudo "$@"
+  else
+    su root -c "$(printf '%q ' "$@")"
+  fi
+}
+
+function cd_realpath {
+  while (( $# > 1 )); do shift; done
+  local original_oldpwd=$OLDPWD
+  local original_pwd=$PWD
+  local target=$1
+  local into=$target
+  local nonexistent=
+
+  until [[ -d "$into" ]]; do
+    nonexistent="$(basename "$into")/$nonexistent"
+    into=$(dirname "$into")
+  done
+
+  builtin cd -- "$into"
+  local resulting_pwd=$PWD
+  builtin cd -- "$original_pwd"
+
+  export OLDPWD=$original_oldpwd
+  local result="$resulting_pwd/${nonexistent%/}"
+  echo "${result%/}"
+}
+
+function cd_mount {
+  local mount_command="$1"
+  shift
+
+  local target="$1"
+  local markername="$(cd_realpath -s "$target")"
+        markername="${markername#$HOME}"
+        markername="${markername//\//-}"
+  local dirname=~/.cd/mountpoints/"$markername"
+
+  echo "$PWD" > ~/.cd/parents/"$$-$markername"          # see cd_goto
+
+  if [[ ! -e "$dirname" ]]; then
+    mkdir -p "$dirname"
+    echo 1>&2 "cd: running $mount_command '$target'"
+    if ! eval "$mount_command '$target' '$dirname'"; then
+      rmdir "$dirname"
+      return 1
+    fi
+  fi
+
+  cd_goto "$dirname"
+}
+
+function cd_umount {
+  local umount_command="$1"
+  shift
+
+  # For some reason, even BASH_REMATCH won't cause zsh to bind stuff the way
+  # bash does. So here we need to do real shell detection to smooth over the
+  # differences.
+  if [[ $2 =~ ^($HOME/.cd/mountpoints/[^/]+) ]]; then
+    if [[ -n $ZSH_VERSION ]]; then
+      local pwd_mount="${match[1]}"
+    else
+      local pwd_mount="${BASH_REMATCH[1]}"
+    fi
+  fi
+
+  if [[ $3 =~ ^($HOME/.cd/mountpoints/[^/]+) ]]; then
+    if [[ -n $ZSH_VERSION ]]; then
+      local new_mount="${match[1]}"
+    else
+      local new_mount="${BASH_REMATCH[1]}"
+    fi
+  fi
+
+  if [[ ($1 == --different && -d $pwd_mount) ||
+        ($1 == --same      &&    $pwd_mount != $new_mount) ]]; then
+    echo 1>&2 "cd: running $umount_command -- '$pwd_mount'"
+    if eval "$umount_command -- '$pwd_mount'"; then
+      rmdir -- "$pwd_mount"
+    else
+      echo "cd: ${pwd_mount#$HOME/.cd/mountpoints/} is still mounted" \
+           "(you should run cd --clean once it is no longer in use)"
+      [[ -z "$CD_EXITING" ]] || read -p "press ENTER to continue"
+    fi
+  fi
+}
+
+# cd state inspection
+function cd_list_history {
+  for ((i = 0; i < ${#cd_history[@]}; ++i)); do
+    echo "${cd_history[$((cd_array_offset + i))]}"
+  done
+}
+
+function cd_list_patterns {
+  for ((i = 0; i < ${#cd_patterns[@]}; ++i)); do
+    echo $i: \
+         ${cd_patterns[$((cd_array_offset + i))]} \
+         ${cd_fns[$((cd_array_offset + i))]} \
+         ${cd_unfns[$((cd_array_offset + i))]}
+  done
+}
+
+function cd_list_mountpoints {
+  ls ~/.cd/mountpoints
+}
+
+function cd_lsof_mountpoints {
+  lsof ~/.cd/mountpoints/*
+}
+
+function cd_show_handler {
+  local index=$(cd_index_for "$2")
+  echo "$2: index=$index"
+  echo "$2: fn=${cd_fns[$((cd_array_offset + index))]}"
+  echo "$2: unfn=${cd_unfns[$((cd_array_offset + index))]}"
+}
+
+function cd_clean_mountpoints {
+  local still_waiting=0
+  local prefix=~/.cd/mountpoints
+
+  for mountpoint in $(ls ~/.cd/mountpoints); do
+    # The ! -e check is for wonky FUSE mounts that have gotten into an
+    # inconsistent state.
+    mountpoint="$prefix/$mountpoint"
+    if [[ ! -e "$mountpoint" || -d "$mountpoint" ]]; then
+      echo -n "cd: unmounting ${mountpoint#$HOME/.cd/mountpoints/}... "
+      fusermount -u -- "$mountpoint" >& /dev/null
+
+      if grep -v '\<fuse\>' /etc/mtab \
+         | grep "$(cd_realpath "$mountpoint")" >& /dev/null; then
+        cd_as_root umount -- "$mountpoint"
+      fi
+
+      if rmdir -- "$mountpoint" >& /dev/null; then
+        echo "done"
+      else
+        echo "still in use; not unmounting"
+        let still_waiting=still_waiting+1
+      fi
+    fi
+  done
+
+  for parentfile in ~/.cd/parents/*; do
+    if [[ "$parentfile" =~ ^.*/[0-9]+-(.*)$
+       && ! -d ~/.cd/mountpoints/${BASH_REMATCH[$((cd_array_offset + 1))]} ]]
+    then
+      rm -f -- "$parentfile"
+    fi
+  done
+
+  return $still_waiting
+}
+
+function cd_cleanall_mountpoints {
+  until cd_clean_mountpoints; do
+    sleep 1
+  done
+}
+
+# usage
+function cd_help {
+  echo 'usage:'
+  echo '  cd path               normal "cd" behavior'
+  echo '  cd --mounts           list active mountpoints'
+  echo '  cd --patterns         list enabled patterns'
+  echo '  cd --history          show $PWD history'
+  echo '  cd --lsof             show open files in mountpoints'
+  echo '  cd --clean            unmounts stale mountpoints'
+  echo '  cd --cleanall         loops cd --clean until all unmounted'
+  echo '  cd --which <path>     indicates which backend handles <path>'
+  echo
+  echo 'depending on the extensions you have loaded, "cd" may support special'
+  echo 'behavior; see https://github.com/spencertipping/cd for details'
+  echo
+}
+
+cd_on '^--patterns$'       cd_list_patterns
+cd_on '^--history$'        cd_list_history
+cd_on '^--mount(point)?s$' cd_list_mountpoints
+cd_on '^--lsof$'           cd_lsof_mountpoints
+cd_on '^--clean$'          cd_clean_mountpoints
+cd_on '^--clean-?all$'     cd_cleanall_mountpoints
+cd_on '^--which$'          cd_show_handler
+
+cd_on '^-?-h(elp)?$' cd_help
+
+cd_push_history "$PWD"
+
+# process any args we have for this script
+if [[ $CD_EXTENSIONS = 'all' ]]; then
+  for extension in ssh aufs archive dev loop encfs git nfs history \
+                   missing-mkdir hdfs http postgresqlfs traverse; do
+    . $cd_path/cd-$extension
+  done
+else
+  for extension in ${CD_EXTENSIONS[@]}; do
+    . $cd_path/cd-$extension
+  done
+fi
