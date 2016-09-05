@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+	<moz:SearchForm>http://www.bing.com/?scope=images&amp;nr=1</moz:SearchForm>
+	<ShortName>Bing Images</ShortName>
+	<LongName>Bing Images Search</LongName>
+	<Description>An easy tool to help you find images in the web.</Description>
+	<Image width="16" height="16" type="image/x-icon">data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAQAQAAAAAAAAAAAAAAAAA
+AAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A
+////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/
+//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//
+/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////
+AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wAAAAAu
+AQEBqQICAvACAgL7AgIC8gEBAbYAAAA7////AP///wD///8A////AP///wD///8A////AP///wAA
+AAA/AQEB+G9vb//IyMj/7e3t/8zMzP98fHz/BQUF/QAAAF7///8A////AP///wD///8A////AP//
+/wD///8AAQEBzIGBgf//////z+L//0iR//+Etf///////6mpqf8BAQHl////AP///wD///8A////
+AP///wD///8A////AAAAAPGOjo7//////5zD//8AZv//IHn////////c3Nz/AgIC+f///wD///8A
+////AP///wD///8A////AP///wAAAADlKioq/9bW1v//////4+7///P4///i4uL/QEBA/wEBAa7/
+//8A////AP///wD///8A////AP///wD///8AAAAA6gAAAL8FBQX8MzMz/1VVVf88PDz/CQkJ+wEB
+Aa4AAAAQ////AP///wD///8A////AP///wD///8A////AAAAAPQAAAA2AAAAHwAAAGUAAAB1AAAA
+agAAACn///8A////AP///wD///8A////AP///wD///8A////AP///wAAAAD7AAAAHf///wD///8A
+////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8AAAAA+QAAAAT/
+//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//
+/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////
+AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A
+////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/
+//8A//8AAP//AAD//wAA//8AAPgPAADwBwAA8AcAAPAHAADwBwAA8AcAAPAfAADz/wAA8/8AAP//
+AAD//wAA//8AAA==</Image>
+	<Contact>koula.koula@gmail.com</Contact>
+	<Url type="text/html" template="http://www.bing.com/images/search?q={searchTerms}&amp;go=&amp;form=QBLH&amp;scope=images&amp;filt=all"/>
+	<Url type="application/opensearchdescription+xml" rel="self" template="http://www.google-my-yahoo.com/bing_images.xml"/>
+	<Developer>koula.koula</Developer>
+	<OutputEncoding>UTF-8</OutputEncoding>
+	<InputEncoding>UTF-8</InputEncoding>
+	<Language>en-us</Language>
+</OpenSearchDescription>
