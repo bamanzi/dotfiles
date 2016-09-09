@@ -1,5 +1,5 @@
-echo $PATH | grep -q "~/bin" && export PATH=~/bin:$PATH
-echo $PATH | grep -q "~/.local/bin" && export PATH=~/.local/bin:$PATH
+echo $PATH | grep -q "$HOME/bin" || export PATH=$HOME/bin:$PATH
+echo $PATH | grep -q "$HOME/.local/bin" || export PATH=$HOME/.local/bin:$PATH
 
 export HISTCONTROL=ignoreboth
 
