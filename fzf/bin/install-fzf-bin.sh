@@ -13,9 +13,17 @@ case $arch in
     ;;
 esac
 
-[ -d ~/temp ] || mkdir ~/temp
-(cd ~/temp && wget -c "https://github.com/junegunn/fzf-bin/releases/download/${VER}/fzf-${VER}-${bin_arch}.tgz" && tar zxvf fzf-${VER}-${bin_arch}.tgz )
+URL=https://github.com/junegunn/fzf-bin/releases
 
-cp -f ~/temp/fzf-${VER}-${bin_arch} fzf-${bin_arch}
+# find latest version number
+VER=$(wget $URL -O - | grep 'css-trucate-target">' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' | grep ^[0-9] | head -1 )
+
+
+[ -d ~/temp ] || mkdir ~/temp
+(cd ~/temp && wget -c "${URL}/download/${VER}/fzf-${VER}-${bin_arch}.tgz" && tar zxvf fzf-${VER}-${bin_arch}.tgz )
+
+[ -d ~/bin ] || mkdir ~/bin
+cp -f ~/temp/fzf-${VER}-${bin_arch} ~/bin/fzf-${bin_arch}
+cd ~/bin
 [ -f fzf ] && mv fzf fzf.bak
 ln -s fzf-${bin_arch} fzf
