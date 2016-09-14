@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 THIS_BASENAME=$(basename "$0")
-TMUX_SESSION_NAME=$THIS_BASENAME
+TMUX_SESSION_NAME="tmux-cssh"
 HOSTS=""
 USER=""
 IDENTITY=""
@@ -9,6 +9,7 @@ FILENAME=""
 SSH_COMMAND="ssh"
 SSH_ARGS=""
 SYNCHRONIZE_PANES="true"
+TMUX_LAYOUT="tiled"
 
 # Config-file in home directory
 CONFIG_FILENAME=".tmux-cssh"
@@ -17,7 +18,7 @@ CONFIG_SETTING_NAME=""
 
 # Outputs script syntax and help
 syntax() {
-	echo "Syntax: ${THIS_BASENAME} [-h|-u [user]|-c|--certificate|-i|--identity [path to certificate-/identity-file]|-sc [ssh-server-connect-string]|-sa [additional ssh arguments]|-ss,-csc [ssh-command]|-ts [session-name]|-ns|-set|-q|-f [filename]|-cs [name of config-parameters to use]|[-dc,-ds]]"
+	echo "Syntax: ${THIS_BASENAME} [-h|-u [user]|-c|--certificate|-i|--identity [path to certificate-/identity-file]|-sc [ssh-server-connect-string]|-sa [additional ssh arguments]|-ss,-csc [ssh-command]|-ts [session-name]|-ns|-tl [tmux-layout]|-set|-q|-f [filename]|-cs [name of config-parameters to use]|[-dc,-ds]]"
 	echo
 
 	echo "-h | --help                                This help."
@@ -43,13 +44,13 @@ syntax() {
 	echo "-ts | --tmux-session-name                  Alternative tmux-session-name, default: ${THIS_BASENAME}"
 	echo
 
+	echo "-tl | --tmuxlayout                         Use different layouts (tiled, even-vertical... ) see in man tmux for more information"
+	echo
+
 	echo "-set | --set-epoch-time                    Like -ts, but quickly set the current epoch time, overwrites -ts"
 	echo
 
 	echo "-ns | --new-session                        Initializes a new session, like -ts [name]."
-	echo
-
-	echo "-uc | --current-session                    Use the current tmux session."
 	echo
 
 	echo "-q | --quiet                               Quiet-mode."
@@ -82,14 +83,14 @@ output() {
 # Analyse given parameter into environment
 analyseParameters() {
 	# Walk through parameters
-	for param in "$@"; do
+	while [ $# -gt 0 ]; do
 		case "$1" in
 			-h|--help) syntax; exit;;
 			-u|--user) USER="$2"; shift;;
 			-c|--certificate|-i|--identity) IDENTITY="$2"; shift;;
 			-sc|--ssh-server-connect-string)
 				if [ "$2" != "" ]; then
-					if [ "$HOSTS" == "" ]; then
+					if [ -z $HOSTS ]; then
 						HOSTS="$2"
 					else
 						HOSTS="${HOSTS},$2"
@@ -97,11 +98,18 @@ analyseParameters() {
 				fi
 				shift;;
 			-sa|--ssh_args) SSH_ARGS="${SSH_ARGS} $2"; shift;;
-			-ss|-csc|--ssh_command,--custom-ssh-command) SSH_COMMAND="$2"; shift;;
+			-ss|-csc|--ssh_command|--custom-ssh-command) SSH_COMMAND="$2"; shift;;
 			-ts|--tmux-session-name) TMUX_SESSION_NAME="$2"; shift;;
+			-tl|--tmuxlayout)
+				case "$2" in
+					h|h) TMUX_LAYOUT="even-horizontal";;
+					v|V) TMUX_LAYOUT="even-vertical";;
+					t|T) TMUX_LAYOUT="tiled";;
+					*) TMUX_LAYOUT="$2";;
+				esac
+			shift;;
 			-set|--set-epoch-time) TMUX_SESSION_NAME="$(date +"%s")";;
 			-ns|--new-session) TMUX_SESSION_NAME="${TMUX_SESSION_NAME}_$(date +%s)";;
-			-uc|--current-session) TMUX_CURRENT_SESSION="true";;
 			-q|-quiet) QUIET="true";;
 			-f|--filename) FILENAME="${FILENAME} $2"; shift;;
 			-cs|--config-setting)
@@ -110,7 +118,7 @@ analyseParameters() {
 			-dc|--dont-clusterize|-ds|--dont-synchronize) SYNCHRONIZE_PANES="false";;
 			*)
 				if [ "$1" != "" ]; then
-					if [ "$HOSTS" == "" ]; then
+					if [ -z "$HOSTS" ]; then
 						HOSTS="$1"
 					else
 						HOSTS="${HOSTS},$1"
@@ -165,34 +173,17 @@ get_parameters_from_config_settings_name() {
 #            $2 = TMUX-Session-Name
 synchronizePanes() {
 	# Set pane synchronisation
-	if [ "$1" == "true" ]; then
+	if [ "$1" = "true" ]; then
 		syncValue='on'
 	else
 		syncValue='off'
 	fi
 
-	tmuxCmd set-window-option synchronize-panes ${syncValue}
-}
-
-# Run tmux commands
-tmuxCmd() {
-	if [ "${TMUX_CURRENT_SESSION}" == "true" ]; then
-		# Current session
-        tmux $@
-	else
-		# New session
-		if [ "$1" == "new-session" ]; then
-			tmux $1 -d -s "${TMUX_SESSION_NAME}" "$2"
-		elif [ "$1" == "attach-session" ]; then
-			tmux $1 -t "${TMUX_SESSION_NAME}"
-		else
-			tmux $1 -t "${TMUX_SESSION_NAME}" "$2"
-		fi
-	fi
+	tmux set-window-option -t "$2" synchronize-panes ${syncValue}
 }
 
 # Check if tmux is available
-if [ "$(which tmux)" == "" ]; then
+if [ -z "$(which tmux)" ]; then
 	echo "${THIS_BASENAME}"
 	echo
 
@@ -206,7 +197,7 @@ fi
 analyseParameters "$@"
 
 # Check if SSH-Command is available
-if [ "$(which ${SSH_COMMAND})" == "" ]; then
+if [ -z "$(which ${SSH_COMMAND})" ]; then
 	echo "SSH-Command '${SSH_COMMAND}' not found via 'which'."
 
 	exit
@@ -228,20 +219,18 @@ if [ "$FILENAME" != "" ]; then
 	done
 fi
 
-if [ "${TMUX_CURRENT_SESSION}" != "true" ]; then
-	# Check if tmux-session is available
-	if (( $(tmux ls 2> /dev/null | grep "${TMUX_SESSION_NAME}" | wc -l) > 0 )) ; then
-		# Setup synchronizing panes
-		synchronizePanes ${SYNCHRONIZE_PANES} ${TMUX_SESSION_NAME}
+# Check if tmux-session is available
+if tmux ls 2> /dev/null | grep -q "${TMUX_SESSION_NAME}"; then
+	# Setup synchronizing panes
+	synchronizePanes ${SYNCHRONIZE_PANES} ${TMUX_SESSION_NAME}
 
-		# Attach to available tmux-session
-		tmuxCmd attach-session
-		exit
-	fi
+	# Attach to available tmux-session
+	tmux attach -t "${TMUX_SESSION_NAME}"
+	exit
 fi
 
 # Hosts available ?
-if [ "${HOSTS}" == "" ]; then
+if [ -z "${HOSTS}" ]; then
 	output "* Hosts not given."
 
 	syntax
@@ -252,9 +241,9 @@ fi
 initTmuxCall="true"
 
 # Walk through hosts
-IFS=","
+HOSTS=$(echo $HOSTS | tr , ' ')
 
-for host in ${HOSTS[@]}; do
+for host in ${HOSTS}; do
 	connectString=""
 	hostname=""
 	port=""
@@ -262,11 +251,11 @@ for host in ${HOSTS[@]}; do
 	# Separate host and port, if given
 	if echo ${host} | grep -q ':'; then
 		# Remove port from string
-		hostname=${host/:*}
+		hostname=$(echo $host | cut -d: -f1)
 		connectString=${hostname}
 
 		# Remove host from string
-		port=${host/*:}
+		port=$(echo $host | cut -d: -f2)
 	else
 		connectString=${host}
 	fi
@@ -286,7 +275,7 @@ for host in ${HOSTS[@]}; do
 		connectString="-i ${IDENTITY} ${connectString}"
 	fi
 
-	# Add ssh_args-part
+    # Add ssh_args-part
 	if [ "${SSH_ARGS}" != "" ]; then
 		connectString="${SSH_ARGS} ${connectString}"
 	fi
@@ -298,39 +287,28 @@ for host in ${HOSTS[@]}; do
 	output "* Connecting '${connectString}'"
 
 	# First Call, inits the tmux-session
-	if [ "${initTmuxCall}" == "true" ]; then
-		if [ "${TMUX_CURRENT_SESSION}" == "true" ]; then
-			tmuxCmd new-window "${connectString}"
-			initTmuxCall="false"
-		else
-			tmuxCmd new-session "${connectString}"
-			# If our initial ssh connection has failed, do not mark initTmuxCall as false since tmux will have aborted.
-			# We'll need to try to start a new tmux session for the next host.
-			if (( $(tmux ls 2> /dev/null | grep "${TMUX_SESSION_NAME}" | wc -l) > 0 )) ; then
-				initTmuxCall="false"
-			fi
-		fi
-	else
-		tmuxCmd split-window "${connectString}" && \
-		tmuxCmd select-layout tiled
+	if [ "${initTmuxCall}" = "true" ]; then
+		tmux new-session -d -s "${TMUX_SESSION_NAME}" "${connectString}"
 
+    # If our initial ssh connection has failed, do not mark initTmuxCall as false since tmux will have aborted.
+    # We'll need to try to start a new tmux session for the next host.
+    if tmux ls 2> /dev/null | grep -q "${TMUX_SESSION_NAME}"; then
+		  initTmuxCall="false"
+    fi
+	else
+    tmux split-window -t "${TMUX_SESSION_NAME}" "${connectString}" && \
+    tmux select-layout -t "${TMUX_SESSION_NAME}" "${TMUX_LAYOUT}"
 	fi
 done
 
-unset IFS
-
-if [ "${TMUX_CURRENT_SESSION}" != "true" ]; then
-	# If no session was able to start, say so and just exit.
-	if (( $(tmux ls 2> /dev/null | grep "${TMUX_SESSION_NAME}" | wc -l) == 0 )) ; then
-		echo "All connections have failed."
-		exit 1
-	fi
+# If no session was able to start, say so and just exit.
+if ! tmux ls 2> /dev/null | grep -q "${TMUX_SESSION_NAME}"; then
+  echo "All connections have failed."
+  exit 1
 fi
 
 # Setup synchronizing panes
 synchronizePanes ${SYNCHRONIZE_PANES} ${TMUX_SESSION_NAME}
 
 # Attach to tmux session
-if [ "${TMUX_CURRENT_SESSION}" != "true" ]; then
-	tmuxCmd attach-session
-fi
+tmux attach-session -t "${TMUX_SESSION_NAME}"
