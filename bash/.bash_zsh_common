@@ -15,8 +15,8 @@ alias ...="cd ../.."
 alias e=emacsclient
 alias vi=vim
 
-export GREP_OPTIONS="--binary-files=without-match --directories=skip"
-alias grep='grep --color=auto'
+#export GREP_OPTIONS="--binary-files=without-match --directories=skip"
+alias grep='grep --color=auto --binary-files=without-match --directories=skip'
 
 export LESS=FRXd
 # make less more friendly for non-text input files, see lesspipe(1)

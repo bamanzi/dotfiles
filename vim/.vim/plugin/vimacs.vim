@@ -284,7 +284,7 @@ inoremap <C-x><C-c> <C-o>:confirm qall<CR>
 " Files & Buffers
 "
 
-inoremap <C-x><C-f> <C-o>:hide edit<Space>
+"inoremap <C-x><C-f> <C-o>:hide edit<Space>
 inoremap <C-x><C-s> <C-o>:update<CR>
 inoremap <C-x>s <C-o>:wall<CR>
 inoremap <C-x>i <C-o>:read<Space>

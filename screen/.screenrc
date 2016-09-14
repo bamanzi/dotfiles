@@ -8,6 +8,8 @@ termcapinfo screen*|term* ti@:te@
 
 vbell off
 
+altscreen on
+
 hardstatus alwayslastline
 # show window name list on status line
 hardstatus string '%{= kG}[%{G}%H%? %1`%?%{g}][%= %{= kw}%-w%{ b yk} %n*%t%?(%u)%? %{-}% w %=%{g}][%{B}%m/%d %{W}%C%A%{g}]'
@@ -57,6 +59,8 @@ focus down
 split
 
 layout attach left-big
+focus right
+screen 
 layout autosave on
 
 bindkey "^[0" layout select 0
