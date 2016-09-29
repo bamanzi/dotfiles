@@ -137,17 +137,17 @@ function _bookmark_name_valid {
 }
 
 # completion command
-function _comp {
+function _bashmarks_comp {
     local curw
     COMPREPLY=()
     curw=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=($(compgen -W '`_l`' -- $curw))
+    COMPREPLY=($(compgen -W '`bashmarks__l`' -- $curw))
     return 0
 }
 
 # ZSH completion command
-function _compzsh {
-    reply=($(_l))
+function _bashmarks_compzsh {
+    reply=($(bashmarks__l))
 }
 
 # safe delete line from sdirs
@@ -169,12 +169,12 @@ function _purge_line {
 
 # bind completion command for g,p,d to _comp
 if [ $ZSH_VERSION ]; then
-    compctl -K _compzsh bashmarks_g
-    compctl -K _compzsh bashmarks_p
-    compctl -K _compzsh bashmarks_d
+    compctl -K _bashmarks_compzsh ${BASHMARKS_PREFIX}g
+    compctl -K _bashmarks_compzsh ${BASHMARKS_PREFIX}p
+    compctl -K _bashmarks_compzsh ${BASHMARKS_PREFIX}d
 else
     shopt -s progcomp
-    complete -F _comp bashmarks_g
-    complete -F _comp bashmarks_p
-    complete -F _comp bashmarks_d
+    complete -F _bashmarks_comp ${BASHMARKS_PREFIX}g
+    complete -F _bashmarks_comp ${BASHMARKS_PREFIX}p
+    complete -F _bashmarks_comp ${BASHMARKS_PREFIX}d
 fi
