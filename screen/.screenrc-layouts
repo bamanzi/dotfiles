@@ -1,0 +1,52 @@
+# layouts
+layout new left-big
+only
+split -v
+resize 62%
+
+layout new left-big2
+only
+split -v
+resize 62%
+focus right
+split
+
+layout new right-big
+only
+split -v
+resize 38%
+
+layout new right-big2
+only
+split -v
+resize 38%
+focus right
+split
+
+layout new top-big
+only
+split
+resize 38%
+
+layout new top-big2
+only
+split
+resize 38%
+focus down
+split
+
+layout attach left-big
+focus right
+screen 
+layout autosave on
+
+bindkey "^[0" layout select 0
+bindkey "^[1" layout select 1
+bindkey "^[2" layout select 2
+bindkey "^[3" layout select 3
+bindkey "^[4" layout select 4
+bindkey "^[5" layout select 5
+
+bindkey "^[n" layout next
+bindkey "^[p" layout prev
+bindkey "^[c" layout new

@@ -8,60 +8,32 @@ termcapinfo screen*|term* ti@:te@
 
 vbell off
 
+# wait up to three seconds before hiding last message (default is 5 seconds)
+msgwait 3
+
 altscreen on
 
 hardstatus alwayslastline
 # show window name list on status line
-hardstatus string '%{= kG}[%{G}%H%? %1`%?%{g}][%= %{= kw}%-w%{ b yk} %n*%t%?(%u)%? %{-}% w %=%{g}][%{B}%m/%d %{W}%C%A%{g}]'
+hardstatus string '%{= kG}[%{G}%H%? %1`%?%{g}][%= %{= kw}%-w%{+b yk} %n*%t%?(%u)%? %{-}%+w %=%{g}][%{B}%m/%d %{W}%C%A%{g}]'
+#hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %m-%d %{W} %c %{g}]'
+
+
+#### keybindigns
 
 # some emacs-window-like keybindings for regions
-bind 0 remove   # C-a X
-bind 1 only     # C-a Q
-bind 2 split    # C-a S
-bind 3 split -v # C-a |
+bind ^x command -c emacs
+bind -c emacs 0 remove   # C-a X
+bind -c emacs 1 only     # C-a Q
+bind -c emacs 2 split    # C-a S
+bind -c emacs 3 split -v # C-a |
+bind -c emacs o focus
+
+# some tmux-like keybindings
+bind % split -v
+bind \" split
 bind o focus    # C-a TAB
 
-# layouts
-layout new left-big
-only
-split -v
-resize 62%
-
-layout new left-big2
-only
-split -v
-resize 62%
-focus right
-split
-
-layout new right-big
-only
-split -v
-resize 38%
-
-layout new right-big2
-only
-split -v
-resize 38%
-focus right
-split
-
-layout new top-big
-only
-split
-resize 38%
-
-layout new top-big2
-only
-split
-resize 38%
-focus down
-split
-
-layout attach left-big
-focus right
-screen 
-layout autosave on
 
 bindkey "^[0" layout select 0
 bindkey "^[1" layout select 1
