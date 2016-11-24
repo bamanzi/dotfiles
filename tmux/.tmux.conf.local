@@ -240,3 +240,13 @@ tmux_conf_theme_clock_style='24'
 
 # move status line to top
 #set -g status-position top
+
+
+# ------- user settings --------------------------------------------------------
+
+# join last active pane to current window
+# http://unix.stackexchange.com/a/46356
+bind j join-pane -s !
+
+# let other pane jump to the same directory
+bind C-o send-key -t :.+ "cd $PWD" C-m
