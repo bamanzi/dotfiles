@@ -14,24 +14,52 @@ With most subfolders, you can use [GNU stow](https://www.gnu.org/software/stow )
  
 ## bash
  
-- [bashmarks](https://github.com/huyng/bashmarks ) Directory bookmarks for the shell
+- [bashmarks](https://github.com/huyng/bashmarks ): Directory bookmarks for the shell
  
 But what I'm using is [this fork](https://github.com/bachya/bashmarks ) which supports command_prefixes (e.g. use `bmg` rather than `g` to go to a bookmarked folder)
- 
+
+    bml                 - Lists all available bookmarks
+    bms <bookmark_name> - Saves the current directory as "bookmark_name"
+    bmg <bookmark_name> - Goes (cd) to the directory associated with "bookmark_name"
+    bmp <bookmark_name> - Prints the directory associated with "bookmark_name"
+    bmd <bookmark_name> - Deletes the bookmark
+
 - [commacd](https://github.com/shyiko/commacd ).
  
 Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost` to change current directory from `~/github/jekyll/test` to `~/github/ghost/test`
  
 - [cd](https://github.com/spencertipping/cd ): A better "cd" for bash
+
+    $ cd ..5                    # cd's up five directories
+    $ cd ..foo                  # cd's up to the nearest dir matching /foo/
  
+    $ cd ^                      # history: go back one directory
+    $ cd ^^                     # history: go back two directories
+    $ cd ^10                    # history: go back ten directories
+    $ cd -10                    # history: go back ten directories
+    $ cd ^foo                   # history: go back to last dir matching /foo/
+
+    $ cd x.tar                  # mounts x.tar with archivemount
+
 - [marker](https://github.com/pindexis/marker ): The terminal command palette
+
+(I changed the keybinding, as both `Ctrl-k` and `Ctrl+space` are commonly used for other purposes.)
+
+    - `Ctrl-o`: search for commands that match the current written string in the command-line.
+    - `Ctrl-@` (or `marker add`): Bookmark a command.
  
 - [hr](https://github.com/LuRsT/hr ): Print a horizontal ruler for your terminal
  
 - [hhighlighter](https://github.com/paoloantinori/hhighlighter ): A command line tool to highlight terms from input.
 
+	tail -F | h keyword1 keyword2
+
+	mvn clean install | h -i failure success
+
 
 ## zsh
+
+- [bashmarks](https://github.com/huyng/bashmarks ): Directory bookmarks for the shell
  
 - [k](https://github.com/supercrabtree/k )
  
@@ -44,7 +72,25 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 
 With some improvments from <https://github.com/iax71/grc/> .
 
+    grc netstat
+    grc ping hostname
+    grc tail /var/log/syslog
+    
+    # or
+    source ~/.bash/plugins/grc.sh
+    ping hostname  	# aliased `ping`
+    
+    # grcat
+    /usr/sbin/traceroute www.linux.org | grcat conf.traceroute
+
 - [colorex](https://github.com/Scopart/colorex/ ).
+
+- [hhighlighter](http://github.com/paoloantinori/
+
+    tail -F | h keyword1 keyword2
+    mvn clean install | h -i failure success
+
+- [highlighter]: see above.
 
 
 ## grep & similar tools
@@ -53,7 +99,7 @@ With some improvments from <https://github.com/iax71/grc/> .
  
 - [grin](https://pypi.python.org/pypi/grin/ )
  
-- [sack](https://github.com/sampson-chen/sack )
+- [sack](https://github.com/sampson-chen/sack ): sack, sgrep & sag
 
 
 ## fzf & peco
@@ -86,9 +132,14 @@ Note: I changed the trigger command to `fcd` (rather than default `cd`).
  
 - [tmux-cssh](https://github.com/dennishafemann/tmux-cssh )
  
-And a fork supporting using current tmux session: https://github.com/SaaldjorMike/tmux-cssh
- 
+And a fork supporting using current tmux session: <https://github.com/SaaldjorMike/tmux-cssh>
+
  
 ## command line translator
  
 - [ydcv](https://github.com/felixonmars/ydcv/ )
+
+
+## misc
+
+- [cdiff](
