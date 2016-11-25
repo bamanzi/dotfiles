@@ -134,12 +134,24 @@ Note: I changed the trigger command to `fcd` (rather than default `cd`).
  
 And a fork supporting using current tmux session: <https://github.com/SaaldjorMike/tmux-cssh>
 
- 
+
 ## command line translator
  
-- [ydcv](https://github.com/felixonmars/ydcv/ )
+- [ydcv](https://github.com/felixonmars/ydcv/ ): YouDao Console Version
 
+- [translate-shell](https://github.com/soimort/translate-shell/ )
+
+Translate Shell (formerly Google Translate CLI) is a command-line translator powered by /Google Translate (default), Bing Translator, Yandex.Translate/ and /Apertium/. It gives you easy access to one of these translation engines your terminal.
+
+    $ trans -brief 'Saluton, Mondo!'
+    Hello, World!
+    
+    $ trans zh: 瓷器
+    
+    $ trans -e bing :zh hello
+    
 
 ## misc
 
-- [cdiff](
+- [cdiff](https://github.com/ymattw/cdiff ): View colored, incremental diff in workspace or from stdin with side by side and auto pager support
+- [colordiff](http://www.colordiff.org/ ): A wrapper for 'diff' and produces the same output but with pretty 'syntax' highlighting. 
