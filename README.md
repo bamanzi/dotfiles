@@ -66,7 +66,7 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting )
 
 
-## highlighter
+## colorizer/highlighter
 
 - [grc](https://github.com/garabik/grc )
 
@@ -85,12 +85,11 @@ With some improvments from <https://github.com/iax71/grc/> .
 
 - [colorex](https://github.com/Scopart/colorex/ ).
 
-- [hhighlighter](http://github.com/paoloantinori/
+- [hhighlighter](http://github.com/paoloantinori/ ). bash function. see above
 
-    tail -F | h keyword1 keyword2
-    mvn clean install | h -i failure success
+- [cdiff](https://github.com/ymattw/cdiff ): View colored, incremental diff in workspace or from stdin with side by side and auto pager support
 
-- [highlighter]: see above.
+- [colordiff](http://www.colordiff.org/ ): A wrapper for 'diff' and produces the same output but with pretty 'syntax' highlighting. 
 
 
 ## grep & similar tools
@@ -153,5 +152,4 @@ Translate Shell (formerly Google Translate CLI) is a command-line translator pow
 
 ## misc
 
-- [cdiff](https://github.com/ymattw/cdiff ): View colored, incremental diff in workspace or from stdin with side by side and auto pager support
-- [colordiff](http://www.colordiff.org/ ): A wrapper for 'diff' and produces the same output but with pretty 'syntax' highlighting. 
+- [climate](https://github.com/adtac/climate ):  Provides a huge number of tools for developers to automate their system
