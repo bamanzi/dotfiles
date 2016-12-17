@@ -250,3 +250,6 @@ bind j join-pane -s !
 
 # let other pane jump to the same directory
 bind C-o send-key -t :.+ "cd $PWD" C-m
+
+bind -r n next-window
+bind -r p previous-window
