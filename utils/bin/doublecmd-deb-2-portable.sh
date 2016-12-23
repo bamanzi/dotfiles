@@ -24,19 +24,12 @@ case $arch in
 esac
 
 do_download() {
-  for pkg in doublecmd-gtk doublecmd-plugins; do
-    page=https://packages.debian.org/sid/${bin_arch}/${pkg}/download
+  for pkg in ${bin_arch}/doublecmd-gtk ${bin_arch}/doublecmd-plugins all/doublecmd-common; do
+    page=https://packages.debian.org/sid/${pkg}/download
     deb_url=$(wget $page -O - | grep 'ftp.cn' | cut -d'"' -f 2)
     
     wget -c $deb_url
   done
-  
-  for pkg in doublecmd-common; do
-    page=https://packages.debian.org/sid/all/${pkg}/download
-    deb_url=$(wget $page -O - | grep 'ftp.cn' | cut -d'"' -f 2)
-    
-    wget -c $deb_url
-  done  
 }
 
 do_unpack() {
