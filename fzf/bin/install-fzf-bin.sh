@@ -6,7 +6,8 @@ set -e
 
 arch=`uname -m`
 case $arch in
-#  armv7*) bin_arch=android_arm7;;
+  armv7*) bin_arch=linux_arm7;;
+  armv8*) bin_arch=linux_arm8;;
   x86_64) bin_arch=linux_amd64;;
   i386|i586|i686)  bin_arch=linux_386;;
   *)
