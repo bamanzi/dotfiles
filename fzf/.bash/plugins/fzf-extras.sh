@@ -2,35 +2,36 @@
 #   - Bypass fuzzy finder if there's only one match (--select-1)
 #   - Exit if there's no match (--exit-0)
 fe() {
-  IFS='
-'
-  local declare files=($(fzf-tmux --query="$1" --select-1 --exit-0))
+  local IFS=$'\n'
+  local files=($(fzf-tmux --query="$1" --multi --select-1 --exit-0))
   [[ -n "$files" ]] && ${EDITOR:-vim} "${files[@]}"
-  unset IFS
 }
 
 # Modified version of fe() where you can press
 #   - CTRL-O to open with `xdg-open` command,
 #   - CTRL-E or Enter key to open with the $EDITOR
 fo() {
-  local out file key
-  out=$(fzf-tmux --query="$1" --exit-0 --expect=ctrl-o,ctrl-e)
-  key=$(head -1 <<< "$out")
-  file=$(head -2 <<< "$out" | tail -1)
+  local IFS=$'\n'
+  local out=($(fzf-tmux --query="$1" --exit-0 --expect=ctrl-o,ctrl-e))
+  local key=$(head -1 <<< "$out")
+  local file=$(head -2 <<< "$out" | tail -1)
   if [ -n "$file" ]; then
-    [ "$key" = ctrl-o ] && xdg-open "$file" || ${EDITOR:-vim} "$file"
+    [ "$key" = ctrl-o ] && open "$file" || ${EDITOR:-vim} "$file"
   fi
 }
 
 # fd - cd to selected directory
 fd() {
-  DIR=`find ${1:-*} -path '*/\.*' -prune -o -type d -print 2> /dev/null | fzf-tmux` \
-    && cd "$DIR"
+  local dir
+  dir=$(find ${1:-.} -path '*/\.*' -prune \
+                  -o -type d -print 2> /dev/null | fzf +m) &&
+  cd "$dir"
 }
 
 # fda - including hidden directories
 fda() {
-  DIR=`find ${1:-.} -type d 2> /dev/null | fzf-tmux` && cd "$DIR"
+  local dir
+  dir=$(find ${1:-.} -type d 2> /dev/null | fzf +m) && cd "$dir"
 }
 
 # fdr - cd to selected parent directory
@@ -44,7 +45,7 @@ fdr() {
       get_parent_dirs $(dirname "$1")
     fi
   }
-  local DIR=$(get_parent_dirs $(realpath "${1:-$(pwd)}") | fzf-tmux --tac)
+  local DIR=$(get_parent_dirs $(realpath "${1:-$PWD}") | fzf-tmux --tac)
   cd "$DIR"
 }
 
@@ -55,14 +56,19 @@ cdf() {
    file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
 }
 
-# utility function used to write the command in the shell
-writecmd() {
-  perl -e '$TIOCSTI = 0x5412; $l = <STDIN>; $lc = $ARGV[0] eq "-run" ? "\n" : ""; $l =~ s/\s*$/$lc/; map { ioctl STDOUT, $TIOCSTI, $_; } split "", $l;' -- $1
+# utility function used to run the command in the shell
+runcmd () {
+  perl -e 'ioctl STDOUT, 0x5412, $_ for split //, <>'
 }
 
 # fh - repeat history
 fh() {
-  ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed -re 's/^\s*[0-9]+\s*//' | writecmd -run
+  ([ -n "$ZSH_NAME" ] && fc -l 1 || history) | fzf +s --tac | sed -re 's/^\s*[0-9]+\s*//' | runcmd
+}
+
+# utility function used to write the command in the shell
+writecmd () {
+  perl -e 'ioctl STDOUT, 0x5412, $_ for split //, do { chomp($_ = <>); $_ }'
 }
 
 # fhe - repeat history edit
@@ -168,8 +174,8 @@ ftags() {
   [ -e tags ] &&
   line=$(
     awk 'BEGIN { FS="\t" } !/^!/ {print toupper($4)"\t"$1"\t"$2"\t"$3}' tags |
-    cut -c1-80 | fzf --nth=1,2
-  ) && $EDITOR $(cut -f3 <<< "$line") -c "set nocst" \
+    cut -c1-$COLUMNS | fzf --nth=2 --tiebreak=begin
+  ) && ${EDITOR:-vim} $(cut -f3 <<< "$line") -c "set nocst" \
                                       -c "silent tag $(cut -f2 <<< "$line")"
 }
 
