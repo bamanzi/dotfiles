@@ -1,0 +1,41 @@
+ps -eo pmem,pcpu,comm,args | sort -rn | head   ##find processes takes up most memory
+rpm -qa --queryformat '%10{SIZE}\t%{NAME}\n' | sort -k1,1 -rn | head    # find 10 largest RPM packages
+dpkg-query -Wf '${Installed-Size}\t{Package}\n' | sort -rn | head       # find 10 largest DEB packages
+uptime                          # perf60s-1: load averages
+dmesg -T | tail                 # perf60s-2: kernel errors
+vmstat 1                        # perf60s-3: overall stats by time
+mpstat -P ALL 1                 # perf60s-4: CPU balance
+pidstat 1                       # perf60s-5: process usage
+iostat -xzdm 1                  # perf60s-6: disk I/O
+free -m                         # perf60s-7: memory usage
+sar -n DEV 1                    # perf60s-8: network I/O
+sar -n TCP,ETCP 1               # perf60s-9: TCP stats
+top                             # perf60s-10: check overview
+iostat -xnz 1                   # disk-chklist-1: any disk I/O? if not stop looking
+vmstat 1                        # disk-chklist-2: is this swapping? or high sys time?
+df -h                           # disk-chklist-3: are file systems nearly full?
+ext4slower 10                   # disk-chklist-4: (zfs*,xfs*,etc.) slow file system I/O? (bcc/BPF tools)
+bioslower 10                    # disk-chklist-5: if so, check disks  (bcc/BPF tools)
+ext4dist 1                      # disk-chklist-6: check distribution and rate (bcc/BPF tools)
+biolatency 1                    # disk-chklist-7: if interesting, check disks
+cat /sys/devices/.../ioerr_cnt  # disk-chklist-8: (if available) errors
+smartctl -l error /dev/sda1     # disk-chklist-9: (if available) errors
+sar -n DEV,EDEV 1               # network-chklist-1: at interface limits? or use nicstat
+sar -n TCP,ETCP 1               # network-chklist-2: active/passive load, retransmit rate
+cat /etc/resolv.conf            # network-chklist-3: it's always DNS
+mpstat -P ALL 1                 # network-chklist-4: high kernel time? single hot CPU? (bcc/BPF tools)
+tcpretrans                      # network-chklist-5: what are the retransmits? state?  (bcc/BPF tools)
+tcpconnect                      # network-chklist-6: connecting to anything unexpected?(bcc/BPF tools)
+tcpaccept                       # network-chklist-7: unexpected workload?
+netstat -rnv                    # network-chklist-8: any inefficient routes?
+check firewall config           # network-chklist-9: anything blocking/throttling?
+netstat -s                      # network-chklist-10: play 252 metric pickup
+uptime                          # cpu-chklist-1: load averages
+vmstat 1                        # cpu-chklist-2: system-wide utilization, run q length
+mpstat -P ALL 1                 # cpu-chklist-3: CPU balance
+pidstat 1                       # cpu-chklist-4: per-process CPU usage
+CPU flame graph                 # cpu-chklist-5: CPU profiling
+CPU subsecond offset heat map   # cpu-chklist-6: look for gaps
+perf stat -a -- sleep 10        # cpu-chklist-7: IPC, LLC hit ratio
+
+
