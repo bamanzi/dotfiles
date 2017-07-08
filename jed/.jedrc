@@ -1,0 +1,92 @@
+% ===== session
+require("history");
+
+
+% ===== keys
+
+% refer https://bamanzi.bitbucket.io/misc/xterm-ctrlseqs.html to xterm sequences
+
+% HOME & END
+local_setkey("bol",     "\e[1~");
+local_setkey("eol_cmd", "\e[4~");
+
+local_setkey("bol",     "\e[H");
+local_setkey("eol_cmd", "\e[F");
+
+local_setkey("bol",     "\eOH");
+local_setkey("eol_cmd",     "\eOF");
+
+% F1 ..
+local_setkey("help_prefix", "\eOP");
+local_setkey("help_prefix", "\e[11~");
+
+% Ctrl-arrow
+local_setkey("skip_word", "\eOc"); % C-Right
+local_setkey("bskip_word", "\eOd"); % C-Left
+
+local_setkey("skip_word",  "\e[C"); % C-Right
+local_setkey("bskip_word", "\e[D"); % C-Left
+
+% ===== files
+
+% WANT_RECENT_FILES_LIST = 1 % set this to 0 to disable
+% RECENT_FILES_LIST = ".jedrecent"; % uncomment to customise
+% MAX_RECENT_FILES  = 10;
+require("recent");
+
+
+autoload("ffap",  "ffap.sl");
+
+% ===== buffers
+
+setkey("menu_select_menu(\"Global.&Buffers.&Change Buffer\")", "\e[15~");    % F5 显示buffer切换菜单
+
+
+% ===== editing
+% disable autowrap
+WRAP=2000;
+ 
+% txtutils   http://jedmodes.sourceforge.net/mode/txtutils/
+"mark_word", "utils/txtutils.sl";
+"mark_line", "utils/txtutils.sl";
+_autoload(2);
+_add_completion("mark_word", "mark_line", 2);
+
+% ===== window
+autoload("select_next_window",  "utils/window.sl");
+autoload("select_window",       "utils/window.sl");
+autoload("save_windows_cmd",    "utils/window.sl");
+autoload("restore_windows_cmd", "utils/window.sl");
+add_completion("select_next_window");
+add_completion("select_window");
+
+% ===== major modes
+
+add_mode_for_extension ("docbook", "xml");
+
+autoload ("make_mode", "make");
+add_mode_for_extension ("make", "mk");
+
+autoload("ruby_mode", "ruby");
+add_mode_for_extension ("ruby", "rb");
+
+autoload("sql_mode", "sql");
+add_mode_for_extension ("sql", "sql");
+
+autoload("rst_mode", "rst");
+add_mode_for_extension ("rst", "rst");
+
+autoload ("css1_mode", "css1");
+add_mode_for_extension ("css1", "css");
+add_mode_for_extension ("css1", "css1");
+
+% ===== misc
+
+% view mode
+% http://jedmodes.sourceforge.net/mode/view/
+autoload("view_mode", "view");
+%definekey("close_and_insert_word", "i", "view"); 
+%definekey("skip_word",  "w", "view");
+%definekey("bskip_word", "b", "view");
+
+
