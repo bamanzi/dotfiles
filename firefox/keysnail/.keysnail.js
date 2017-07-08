@@ -103,7 +103,7 @@ ext.add("view-in-split-panel", function (ev, arg) {
 
 
 ext.add("cnblogs-ing-in-split-panel", function (ev, arg) {
-    splitpannel.toggle('http://space.cnblogs.com/mi/', true, arg ? 'bottom' : 'right');
+    splitpannel.toggle('http://ing.cnblogs.com/mobile/', true, arg ? 'bottom' : 'right');
 }, 'Open Split Panel and load http://space.cnblogs.com/mi/ in it .');
 
 ext.add("google-translate-in-split-panel", function () {
@@ -1675,13 +1675,17 @@ key.setGlobalKey(['<f12>', 'i'], function(ev, arg) {
     ext.exec("cnblogs-ing-in-split-panel", arg, ev);
 }, "Open Split Panel and navigate to http://space.cnblogs.com/mi/");
 
-key.setGlobalKey(['<f12>', 'M-i'], function(ev, arg) {
+key.setGlobalKey(['<f12>', 'I'], function(ev, arg) {
     splitpannel.toggle('chrome://isreaditlater/content/list.xul', true, arg ? 'button' : 'right');
 }, 'Show Pocket sidebar in Split Panel. (Pocket extension)');
 
-key.setGlobalKey(['<f12>', 'I'], function(ev, arg) {
+key.setGlobalKey(['<f12>', 'p'], function(ev, arg) {
     splitpannel.toggle('http://iriguti.ongaeshi.me/', true, arg ? 'bottom' : 'right');
 }, "Open Split Panel and navigate to http://iriguti.ongaeshi.me/");
+
+key.setGlobalKey(['<f12>', 'P'], function(ev, arg) {
+    splitpannel.toggle('http://getpocket.com/a/queue/list', true, arg ? 'bottom' : 'right');
+}, "Open Split Panel and navigate to http://getpocket.com/");
 
 key.setGlobalKey(['<f12>', 't'], function(ev, arg) {
     ext.exec("tab-send-to-tmt", arg, ev);
