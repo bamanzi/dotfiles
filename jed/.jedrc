@@ -20,12 +20,24 @@ local_setkey("eol_cmd",     "\eOF");
 local_setkey("help_prefix", "\eOP");
 local_setkey("help_prefix", "\e[11~");
 
+local_setkey("help_slang",  "\e[25~");  % Key_Shift_F1  (should it be '\e[23~'?)
+
+%  for word completion
+local_setkey("dabbrev(2)",  "\eOQ");     % use words from all buffers of same mode
+local_setkey("dabbrev(2)",  "\e[12~");
+
+local_setkey("dabbrev(3)",  "\e[26~");   % Shift_F2: use works from all buffers
+
+
 % Ctrl-arrow
 local_setkey("skip_word", "\eOc"); % C-Right
 local_setkey("bskip_word", "\eOd"); % C-Left
 
 local_setkey("skip_word",  "\e[C"); % C-Right
 local_setkey("bskip_word", "\e[D"); % C-Left
+
+local_setkey("backward_paragraph", "\e[A");;  % C-Up
+local_setkey("forward_paragraph",  "\e[B");;  % C-Down
 
 % ===== files
 
@@ -45,7 +57,12 @@ setkey("menu_select_menu(\"Global.&Buffers.&Change Buffer\")", "\e[15~");    % F
 % ===== editing
 % disable autowrap
 WRAP=2000;
- 
+
+() = evalfile("wmark");        % MS-Windows Shift-marking + cut/paste
+
+setkey("re_search_backward","\e^R");    % Emacs: C-M-r
+setkey("re_search_forward",        "\e^S");        % Emacs: C-M-s
+
 % txtutils   http://jedmodes.sourceforge.net/mode/txtutils/
 "mark_word", "utils/txtutils.sl";
 "mark_line", "utils/txtutils.sl";
