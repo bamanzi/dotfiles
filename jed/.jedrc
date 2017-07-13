@@ -1,4 +1,19 @@
+define try_evalfile (file)
+{
+   variable status;
+   try {
+	() = evalfile(file);
+	status = 0;
+   }
+   catch AnyError:
+	status = -1;
+   return status;
+}
+
+
+
 % ===== session
+% store/recall mini-buffer lines
 require("history");
 
 
@@ -16,13 +31,16 @@ local_setkey("eol_cmd", "\e[F");
 local_setkey("bol",     "\eOH");
 local_setkey("eol_cmd",     "\eOF");
 
+local_setkey("toggle_overwrite", "\e[2~");   %  insert
+local_setkey("delete_char_cmd",  "\e[3~");   %  delete
+
 % F1 ..
 local_setkey("help_prefix", "\eOP");
 local_setkey("help_prefix", "\e[11~");
 
 local_setkey("help_slang",  "\e[25~");  % Key_Shift_F1  (should it be '\e[23~'?)
 
-%  for word completion
+% F2 for word completion
 local_setkey("dabbrev(2)",  "\eOQ");     % use words from all buffers of same mode
 local_setkey("dabbrev(2)",  "\e[12~");
 
@@ -39,19 +57,26 @@ local_setkey("bskip_word", "\e[D"); % C-Left
 local_setkey("backward_paragraph", "\e[A");;  % C-Up
 local_setkey("forward_paragraph",  "\e[B");;  % C-Down
 
+
 % ===== files
 
 % WANT_RECENT_FILES_LIST = 1 % set this to 0 to disable
 % RECENT_FILES_LIST = ".jedrecent"; % uncomment to customise
 % MAX_RECENT_FILES  = 10;
+% add list of recently accessed files to the File menu
 require("recent");
 
+setkey("menu_select_menu(\"Global.&File.&Recent Files\")", "\e[17~");   %  F6
 
 autoload("ffap",  "ffap.sl");
+
 
 % ===== buffers
 
 setkey("menu_select_menu(\"Global.&Buffers.&Change Buffer\")", "\e[15~");    % F5 显示buffer切换菜单
+
+autoload("list_buffers", "bufed");
+add_completion("list_buffers");
 
 
 % ===== editing
@@ -60,14 +85,30 @@ WRAP=2000;
 
 () = evalfile("wmark");        % MS-Windows Shift-marking + cut/paste
 
-setkey("re_search_backward","\e^R");    % Emacs: C-M-r
-setkey("re_search_forward",        "\e^S");        % Emacs: C-M-s
+setkey("re_search_backward",   "\e^R");    % Emacs: C-M-r
+setkey("re_search_forward",    "\e^S");        % Emacs: C-M-s
 
 % txtutils   http://jedmodes.sourceforge.net/mode/txtutils/
 "mark_word", "utils/txtutils.sl";
 "mark_line", "utils/txtutils.sl";
 _autoload(2);
 _add_completion("mark_word", "mark_line", 2);
+
+
+% ===== search
+
+% tokenlist.sl: a better implementation of 'occur'
+try_evalfile("tokenlist");
+
+autoload("moccur", "tokenlist");
+
+autoload("list_routines", "tokenlist");
+public define imenu()
+{
+   list_routines();
+}
+_add_completion("moccur", "list_routines", "imenu", 3);
+
 
 % ===== window
 autoload("select_next_window",  "utils/window.sl");
@@ -76,6 +117,7 @@ autoload("save_windows_cmd",    "utils/window.sl");
 autoload("restore_windows_cmd", "utils/window.sl");
 add_completion("select_next_window");
 add_completion("select_window");
+
 
 % ===== major modes
 
@@ -97,6 +139,21 @@ autoload ("css1_mode", "css1");
 add_mode_for_extension ("css1", "css");
 add_mode_for_extension ("css1", "css1");
 
+% ===== document viewer
+
+% Info_Directory = "/usr/info,/usr/share/info,/usr/local/share/info";
+
+% hyperman.sl: a better implementation of 'unix_man'
+try_evalfile("hyperman");
+
+public define man()
+{
+   unix_man();
+}
+
+_add_completion("unix_man", "unix_apropos", "unix_whatis", 3);
+
+
 % ===== misc
 
 % view mode
@@ -106,4 +163,9 @@ autoload("view_mode", "view");
 %definekey("skip_word",  "w", "view");
 %definekey("bskip_word", "b", "view");
 
+% pwd
+public define pwd()
+{
+   message(getcwd());
+}
 
