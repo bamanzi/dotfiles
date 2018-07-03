@@ -47,6 +47,7 @@ do_move() {
   rm -f language
   rm -f pixmaps
   rm -f doc
+  rm -f highlighters
   
   mv usr/share/doublecmd/* .
   
