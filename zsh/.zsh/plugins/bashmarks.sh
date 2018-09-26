@@ -147,7 +147,7 @@ function _comp {
 
 # ZSH completion command
 function _compzsh {
-    reply=($(_l))
+    reply=($(bashmarks__l))
 }
 
 # safe delete line from sdirs
