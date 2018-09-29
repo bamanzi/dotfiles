@@ -31,3 +31,17 @@ bindkey '\e[4~' end-of-line
 ## xterm sequences
 bindkey '\e[H' beginning-of-line
 bindkey '\e[F' end-of-line
+
+
+## quickly jump to coresponding topic in zsh manual
+help() {
+  PAGER="less -g -s '+/^        "$1"'" man zshall
+}
+
+
+## plugins
+
+for f in ~/.zsh/plugins/{,*/}*.plugin.zsh; do
+  source $f
+done
+#
