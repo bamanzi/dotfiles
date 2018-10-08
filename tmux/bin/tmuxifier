@@ -23,7 +23,7 @@ abs_dirname() {
 if [ -z "${TMUXIFIER}" ]; then
   # Set TMUXIFIER relative to the "tmuxifier" executable.
   #export TMUXIFIER="$(dirname "$(abs_dirname "$0")")"
-  export TMUXIFIER="~/.tmuxifier"
+  export TMUXIFIER="~/.tmux/utils/tmuxifier"
 else
   # Strip any trailing slash (/) characters from TMUXIFIER variable.
   export TMUXIFIER="${TMUXIFIER%/}"
