@@ -41,6 +41,10 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 
     $ cd x.tar                  # mounts x.tar with archivemount
 
+- [enhancd](https://github.com/b4b4r07/enhancd ): A next-generation cd command with an interactive filter (requires [fzf])
+
+Note: I changed the trigger command to `fcd` (rather than default `cd`).
+
 - [marker](https://github.com/pindexis/marker ): The terminal command palette
 
 (I changed the keybinding, as both `Ctrl-k` and `Ctrl+space` are commonly used for other purposes.)
@@ -107,10 +111,6 @@ With some improvments from <https://github.com/iax71/grc/> .
 
 - [fzf-extras](https://github.com/atweiden/fzf-extras ): Additional key commands utilizing fzf, primarily for Bash.
 
-- [enhancd](https://github.com/b4b4r07/enhancd ): A next-generation cd command with an interactive filter
-
-Note: I changed the trigger command to `fcd` (rather than default `cd`).
-
 - [peco](https://github.com/peco/peco )
 
 
@@ -132,6 +132,8 @@ Note: I changed the trigger command to `fcd` (rather than default `cd`).
 - [tmux-cssh](https://github.com/dennishafemann/tmux-cssh )
  
 And a fork supporting using current tmux session: <https://github.com/SaaldjorMike/tmux-cssh>
+
+- [extrakto](https://github.com/laktak/extrakto): tmux plugin to extract strings from pane text for clipboard copy & output completions
 
 
 ## command line translator

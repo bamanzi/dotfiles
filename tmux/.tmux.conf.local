@@ -253,3 +253,19 @@ bind C-o send-key -t :.+ "cd $PWD" C-m
 
 bind -r n next-window
 bind -r p previous-window
+
+# if your terminal emulator doesn't support UTF-8 chars in title
+#set -g set-titles-string '#h - #S:#I.#P #W'
+
+# allow 'shared sessions' perform resizing seperately
+setw -g aggressive-resize on
+
+# clipboard integration & word completion
+# - press tmux `prefix + tab` to start
+# - then fuzzy find the text/path/url/line
+# - then press
+#    * `tab` to insert it to the current pane
+#    * `enter` to copy it to the clipboard
+#    * `ctrl-o` to open the path/url
+#    * `ctrl-e` to edit with $EDITOR
+run-shell ~/.tmux/plugins/extrakto/extrakto.tmux
