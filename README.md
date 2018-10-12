@@ -63,7 +63,9 @@ Note: I changed the trigger command to `fcd` (rather than default `cd`).
 
 ## zsh
 
-- [bashmarks](https://github.com/huyng/bashmarks ): Directory bookmarks for the shell
+- [bashmarks](https://github.com/huyng/bashmarks ): Directory bookmarks for the shell (zsh port)
+
+- [commacd](https://github.com/qfjp/tree/zsh ): zsh port of <https://github.com/shyiko/commacd>
  
 - [k](https://github.com/supercrabtree/k )
  
