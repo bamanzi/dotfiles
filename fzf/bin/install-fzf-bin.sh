@@ -1,5 +1,9 @@
 #!/bin/sh
 
+PRJNAME=fzf
+EXE=fzf
+URL=https://github.com/junegunn/fzf-bin/releases
+
 set -e
 
 [ -d ~/bin ] || mkdir ~/bin
@@ -17,16 +21,15 @@ case $arch in
     ;;
 esac
 
-URL=https://github.com/junegunn/fzf-bin/releases
 
 # find latest version number
 VER=$(wget $URL -O - | grep 'css-truncate-target">' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' | grep ^[0-9] | head -1 )
 [ -z "$VER" ] && VER=0.15.4
 
 [ -d ~/temp ] || mkdir ~/temp
-(cd ~/temp && wget -c "${URL}/download/${VER}/fzf-${VER}-${bin_arch}.tgz" && tar zxvf fzf-${VER}-${bin_arch}.tgz )
-cp -f ~/temp/fzf-${VER}-${bin_arch} ~/bin/fzf-${bin_arch}
+(cd ~/temp && wget -c "${URL}/download/${VER}/${PRJNAME}-${VER}-${bin_arch}.tgz" && tar zxvf ${PRJNAME}-${VER}-${bin_arch}.tgz )
+cp -f ~/temp/${PRJNAME}-${VER}-${bin_arch} ~/bin/${EXE}-${bin_arch}
 
 cd ~/bin
-[ -f fzf ] && mv fzf fzf.bak
-ln -s fzf-${bin_arch} fzf
+[ -f ${EXE} ] && mv ${EXE} ${EXE}.bak
+ln -s ${EXE}-${bin_arch} ${EXE}

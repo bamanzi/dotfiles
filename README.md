@@ -13,7 +13,9 @@ With most subfolders, you can use [GNU stow](https://www.gnu.org/software/stow )
 ```
  
 ## bash
- 
+
+### change directory
+
 - [bashmarks](https://github.com/huyng/bashmarks ): Directory bookmarks for the shell
  
 But what I'm using is [this fork](https://github.com/bachya/bashmarks ) which supports command_prefixes (e.g. use `bmg` rather than `g` to go to a bookmarked folder)
@@ -30,6 +32,7 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
  
 - [cd](https://github.com/spencertipping/cd ): A better "cd" for bash
 
+
     $ cd ..5                    # cd's up five directories
     $ cd ..foo                  # cd's up to the nearest dir matching /foo/
  
@@ -43,18 +46,27 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 
 - [enhancd](https://github.com/b4b4r07/enhancd ): A next-generation cd command with an interactive filter (requires [fzf])
 
-Note: I changed the trigger command to `fcd` (rather than default `cd`).
+  Note: I changed the trigger command to `fcd` (rather than default `cd`).
+
+- (link)[bd](https://github.com/vigneshwaranr/bd ): Quickly go back to a parent directory in linux instead of typing `cd ../../../` repeatedly
+
+  (No longer needed. `commacd` contains this feature (`,, par`).)
+
+### command palette
 
 - [marker](https://github.com/pindexis/marker ): The terminal command palette
 
-(I changed the keybinding, as both `Ctrl-k` and `Ctrl+space` are commonly used for other purposes.)
+  (I changed the keybinding, as both `Ctrl-k` and `Ctrl+space` are commonly used for other purposes.)
 
     - `Ctrl-o`: search for commands that match the current written string in the command-line.
     - `Ctrl-@` (or `marker add`): Bookmark a command.
  
+### misc
+
 - [hr](https://github.com/LuRsT/hr ): Print a horizontal ruler for your terminal
  
 - [hhighlighter](https://github.com/paoloantinori/hhighlighter ): A command line tool to highlight terms from input.
+
 
 	tail -F | h keyword1 keyword2
 
@@ -74,9 +86,9 @@ Note: I changed the trigger command to `fcd` (rather than default `cd`).
 
 ## colorizer/highlighter
 
-- [grc](https://github.com/garabik/grc )
+### colorize outputs of many programms
 
-With some improvments from <https://github.com/iax71/grc/> .
+- [grc](https://github.com/garabik/grc )
 
     grc netstat
     grc ping hostname
@@ -89,25 +101,75 @@ With some improvments from <https://github.com/iax71/grc/> .
     # grcat
     /usr/sbin/traceroute www.linux.org | grcat conf.traceroute
 
-- [colorex](https://github.com/Scopart/colorex/ ).
+ Note: I got some configuration improvments from <https://github.com/iax71/grc/> .
 
-- [hhighlighter](http://github.com/paoloantinori/ ). bash function. see above
+- (link)[colorwrapper](http://cwrapper.sf.net) could colorize the outputs of 90+ different programs.
+
+  Note: no document on its website. Visit https://bit.ly/2QKWfgO for an introduction.
+
+### colorize outputs of a specific program
+
 
 - [cdiff](https://github.com/ymattw/cdiff ): View colored, incremental diff in workspace or from stdin with side by side and auto pager support
 
 - [colordiff](http://www.colordiff.org/ ): A wrapper for 'diff' and produces the same output but with pretty 'syntax' highlighting. 
 
+- (link)[colorgcc](http://pkgs.org/download/colorgcc)
+
+- (link)[colormake](http://bre.klaki.net/programs/colormake)
+
+  And a python port: <https://github.com/dcjones/colormake>
+
+
+### highlight one (or multiple) phrase given by user (similar to `grep -color foobar`)
+
+- [colorex](https://github.com/Scopart/colorex/ ).
+
+- [hhighlighter](http://github.com/paoloantinori/ ). bash function. see above
+
+### View source code in color (syntax highlighting)
+
+- `/usr/share/vim/vimcurrent/macros/less.sh`
+
+- (link)[pygments](http://pygments.org )
+
 
 ## grep & similar tools
- 
+
+* [Feature comparison of ack, ag, git-grep GNU grep and ripgrep](https://beyondgrep.com/feature-comparison)
+
+* [Other grep-like tools](https://beyondgrep.com/more-tools): ag, pt, ripgrep, glark...
+
+
 - [ack 1.96](https://github.com/petdance/ack )
  
 - [grin](https://pypi.python.org/pypi/grin/ )
  
-- [sack](https://github.com/sampson-chen/sack ): sack, sgrep & sag
+- [sack](https://github.com/sampson-chen/sack ): a faster way to use ag, ack (or grep)
+
+- (link)[ag (the silver searcher)](https://github.com/ggree/the_silver_searcher)
+
+    # Debian/Ubuntu
+    apt install silversearcher-ag
+    # RedHat (Fedora/RHEL/CentOS)
+    yum install epel-release
+    yum install the_silver_searcher
+    # SuSE (openSuSE/SLE)
+    zypper install the_silver_searcher
+
+- (link)[ripgrep](https://github.com/BurnSushi/ripgrep)
+
+    # Debian (currently sid only)
+    apt install ripgrep
+    # Fedora
+    yum install ripgrep
+    # others
+    ./grep/bin/install-ripgrep-bin.sh
 
 
-## fzf & peco
+## fuzzy finder (fzf & peco ...)
+
+see also: <https://www.cnblogs.com/bamanzi/p/cli-narrowing-tools.html>
 
 - [fzf](https://github.com/junegunn/fzf ): A command-line fuzzy finder written in Go.
 
@@ -115,12 +177,16 @@ With some improvments from <https://github.com/iax71/grc/> .
 
 - [peco](https://github.com/peco/peco )
 
+- (link)[fzy](https://github.com/jhawthorn/fzy ): A better fuzzy finder (it has better match algorithm)
 
-## tlder & cheat
+
+## tlder & cheat (for cheatsheet looking-up)
  
 - [tldr.py](https://github.com/lord63/tldr.py ): A python client for [tldr](https://github.com/tldr-pages/tldr )
 
 - [cheat](https://github.com/jahendrie/cheat ): A Bash reimplementation of [Chris Lane's cheat sheet script](https://github.com/chrisallenlane/cheat )
+
+- (online)<http://cheat.sh>. For example: <http://cheat.sh/lsof>
 
 
 ## tmux & screen
@@ -133,7 +199,7 @@ With some improvments from <https://github.com/iax71/grc/> .
  
 - [tmux-cssh](https://github.com/dennishafemann/tmux-cssh )
  
-And a fork supporting using current tmux session: <https://github.com/SaaldjorMike/tmux-cssh>
+  And a fork supporting using current tmux session: <https://github.com/SaaldjorMike/tmux-cssh>
 
 - [extrakto](https://github.com/laktak/extrakto): tmux plugin to extract strings from pane text for clipboard copy & output completions
 
@@ -144,7 +210,7 @@ And a fork supporting using current tmux session: <https://github.com/SaaldjorMi
 
 - [translate-shell](https://github.com/soimort/translate-shell/ )
 
-Translate Shell (formerly Google Translate CLI) is a command-line translator powered by /Google Translate (default), Bing Translator, Yandex.Translate/ and /Apertium/. It gives you easy access to one of these translation engines your terminal.
+  Translate Shell (formerly Google Translate CLI) is a command-line translator powered by /Google Translate (default), Bing Translator, Yandex.Translate/ and /Apertium/. It gives you easy access to one of these translation engines your terminal.
 
     $ trans -brief 'Saluton, Mondo!'
     Hello, World!
