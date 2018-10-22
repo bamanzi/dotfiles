@@ -33,6 +33,7 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 - [cd](https://github.com/spencertipping/cd ): A better "cd" for bash
 
 
+```
     $ cd ..5                    # cd's up five directories
     $ cd ..foo                  # cd's up to the nearest dir matching /foo/
  
@@ -43,6 +44,7 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
     $ cd ^foo                   # history: go back to last dir matching /foo/
 
     $ cd x.tar                  # mounts x.tar with archivemount
+```
 
 - [enhancd](https://github.com/b4b4r07/enhancd ): A next-generation cd command with an interactive filter (requires [fzf])
 
@@ -52,6 +54,7 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 
   (No longer needed. `commacd` contains this feature (`,, par`).)
 
+
 ### command palette
 
 - [marker](https://github.com/pindexis/marker ): The terminal command palette
@@ -60,18 +63,20 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 
     - `Ctrl-o`: search for commands that match the current written string in the command-line.
     - `Ctrl-@` (or `marker add`): Bookmark a command.
- 
+
+- [keep](https://github.com/Orkohunter/keep ): Personal shell command keeper and snipper manager
+
 ### misc
 
 - [hr](https://github.com/LuRsT/hr ): Print a horizontal ruler for your terminal
  
 - [hhighlighter](https://github.com/paoloantinori/hhighlighter ): A command line tool to highlight terms from input.
 
-
+```
 	tail -F | h keyword1 keyword2
 
 	mvn clean install | h -i failure success
-
+```
 
 ## zsh
 
@@ -90,6 +95,7 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 
 - [grc](https://github.com/garabik/grc )
 
+```
     grc netstat
     grc ping hostname
     grc tail /var/log/syslog
@@ -100,15 +106,16 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
     
     # grcat
     /usr/sbin/traceroute www.linux.org | grcat conf.traceroute
+```
 
- Note: I got some configuration improvments from <https://github.com/iax71/grc/> .
+  Note: I got some configuration improvments from <https://github.com/iax71/grc/> .
 
 - (link)[colorwrapper](http://cwrapper.sf.net) could colorize the outputs of 90+ different programs.
 
   Note: no document on its website. Visit https://bit.ly/2QKWfgO for an introduction.
 
-### colorize outputs of a specific program
 
+### colorize outputs of a specific program
 
 - [cdiff](https://github.com/ymattw/cdiff ): View colored, incremental diff in workspace or from stdin with side by side and auto pager support
 
@@ -123,9 +130,16 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 
 ### highlight one (or multiple) phrase given by user (similar to `grep -color foobar`)
 
-- [colorex](https://github.com/Scopart/colorex/ ).
+- [colorex](https://github.com/Scopart/colorex/ )
 
-- [hhighlighter](http://github.com/paoloantinori/ ). bash function. see above
+```
+    # to display every word "ERROR" in red of foo.txt, type:
+    colorex --red ERROR foo.txt
+
+    # to watch logfile.txt displaying "WARNING" in yellow and "INFO" in green:
+    tail -f logfile.txt | colorex -y WARNING --green INFO
+    exit with CTRL c
+```
 
 ### View source code in color (syntax highlighting)
 
@@ -136,9 +150,11 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 
 ## grep & similar tools
 
-* [Feature comparison of ack, ag, git-grep GNU grep and ripgrep](https://beyondgrep.com/feature-comparison)
+- articles:
 
-* [Other grep-like tools](https://beyondgrep.com/more-tools): ag, pt, ripgrep, glark...
+    * [Feature comparison of ack, ag, git-grep GNU grep and ripgrep](https://beyondgrep.com/feature-comparison)
+
+    * [Other grep-like tools](https://beyondgrep.com/more-tools): ag, pt, ripgrep, glark...
 
 
 - [ack 1.96](https://github.com/petdance/ack )
@@ -149,6 +165,7 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
 
 - (link)[ag (the silver searcher)](https://github.com/ggree/the_silver_searcher)
 
+```
     # Debian/Ubuntu
     apt install silversearcher-ag
     # RedHat (Fedora/RHEL/CentOS)
@@ -156,16 +173,18 @@ Most often use case of mine is the one like zsh's `cd` command: `,, jekyll ghost
     yum install the_silver_searcher
     # SuSE (openSuSE/SLE)
     zypper install the_silver_searcher
+```
 
 - (link)[ripgrep](https://github.com/BurnSushi/ripgrep)
 
+```
     # Debian (currently sid only)
     apt install ripgrep
     # Fedora
     yum install ripgrep
     # others
     ./grep/bin/install-ripgrep-bin.sh
-
+```
 
 ## fuzzy finder (fzf & peco ...)
 
@@ -210,15 +229,16 @@ see also: <https://www.cnblogs.com/bamanzi/p/cli-narrowing-tools.html>
 
 - [translate-shell](https://github.com/soimort/translate-shell/ )
 
-  Translate Shell (formerly Google Translate CLI) is a command-line translator powered by /Google Translate (default), Bing Translator, Yandex.Translate/ and /Apertium/. It gives you easy access to one of these translation engines your terminal.
+  Translate Shell (formerly `Google Translate CLI`) is a command-line translator powered by /Google Translate (default), Bing Translator, Yandex.Translate/ and /Apertium/. It gives you easy access to one of these translation engines your terminal.
 
+```
     $ trans -brief 'Saluton, Mondo!'
     Hello, World!
     
     $ trans zh: 瓷器
     
     $ trans -e bing :zh hello
-    
+``` 
 
 ## misc
 
