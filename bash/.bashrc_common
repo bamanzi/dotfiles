@@ -1,8 +1,38 @@
+## -- mode:sh --
+
+## There are 3 different types of shells in bash: the login shell, normal shell
+## and interactive shell. Login shells read ~/.profile and interactive shells
+## read ~/.bashrc; in common setup, /etc/profile would source ~/.bashrc
+
 echo $PATH | grep -q "$HOME/bin" || export PATH=$HOME/bin:$PATH
 echo $PATH | grep -q "$HOME/.local/bin" || export PATH=$HOME/.local/bin:$PATH
 
-export HISTCONTROL=ignoreboth
 
-for f in ~/.bash/plugins/*.sh; do
-  . $f
-done
+# a colorful prompt with smiley
+# https://janveldeman.wordpress.com/2008/02/07/smiley-in-bash-prompt/
+smiley() {
+    ret_val=$?
+    if [ "$ret_val" = "0" ]
+    then
+        echo ":)"
+    else
+        echo ":( ($ret_val)"
+    fi
+}
+Green="\033[0;32m"
+Yellow="\033[1;33m"
+Normal="\033[0m"
+# export PS1="\[$Yellow\]\u@\h\[$Normal\]:\[$Green\]\w \$(smiley) \[$Normal\]"
+
+case "$-" in
+  *i*)
+     # interactive shell
+     export HISTCONTROL=ignoreboth
+
+     for f in ~/.bash/plugins/*.sh; do
+         . $f
+     done
+     ;;
+esac
+
+
