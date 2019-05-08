@@ -223,7 +223,7 @@ see also: <https://www.cnblogs.com/bamanzi/p/cli-narrowing-tools.html>
 - [extrakto](https://github.com/laktak/extrakto): tmux plugin to extract strings from pane text for clipboard copy & output completions
 
 
-## command line translator
+## command line translator / dictionary
  
 - [ydcv](https://github.com/felixonmars/ydcv/ ): YouDao Console Version
 
@@ -239,6 +239,12 @@ see also: <https://www.cnblogs.com/bamanzi/p/cli-narrowing-tools.html>
     
     $ trans -e bing :zh hello
 ``` 
+
+More similar tools:
+
+- [zdict](https://github.com/zdict/zdict ): a dictionary app for Yahoo Dictionary, Moe Dictionary, Wiktionary etc (`pip3 install zdict`)
+- [vocabs](https://github.com/Mckinsey666/vocabs ): a online dictionary CLI (`pip3 install vocabs`)
+- [define](https://github.com/Rican7/define ): a dictionary app supporting Merriam-Webster & Oxford Dictionary (API key required)
 
 ## misc
 
