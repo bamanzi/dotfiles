@@ -2,11 +2,9 @@
 
 PRJNAME=fzf
 EXE=fzf
-URL=https://github.com/junegunn/fzf-bin/releases
+BASEURL=https://github.com/junegunn/fzf-bin/releases
 
 set -e
-
-[ -d ~/bin ] || mkdir ~/bin
 
 arch=`uname -m`
 case $arch in
@@ -21,15 +19,26 @@ case $arch in
     ;;
 esac
 
+if which fzf; then
+  echo "Existing version: $(which fzf): $(fzf --version 2>&1)"
+  ( fzf --version | grep $VER ) && echo "You already have latest version." && exit 0
+fi  
 
-# find latest version number
-VER=$(wget $URL -O - | grep 'css-truncate-target">' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' | grep ^[0-9] | head -1 )
-[ -z "$VER" ] && VER=0.15.4
+#use `VER=0.15.4 install-fzf-bin.sh` to install specific version
+if [ -z "$VER" ]; then
+  # find latest version number
+  VER=$(wget $BASEURL -O - | grep 'css-truncate-target"' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' | grep ^[0-9] | head -1 )
+  [ -z "$VER" ] && VER=0.15.4
+fi
+
+URL="${BASEURL}/download/${VER}/${PRJNAME}-${VER}-${bin_arch}.tgz"
+echo "About to download & install $URL"  && echo "continue?" && read a
 
 [ -d ~/temp ] || mkdir ~/temp
-(cd ~/temp && wget -c "${URL}/download/${VER}/${PRJNAME}-${VER}-${bin_arch}.tgz" && tar zxvf ${PRJNAME}-${VER}-${bin_arch}.tgz )
+(cd ~/temp && wget -c "$URL" && tar zxvf ${PRJNAME}-${VER}-${bin_arch}.tgz )
 cp -f ~/temp/${PRJNAME}-${VER}-${bin_arch} ~/bin/${EXE}-${bin_arch}
 
+[ -d ~/bin ] || mkdir ~/bin
 cd ~/bin
 [ -f ${EXE} ] && mv ${EXE} ${EXE}.bak
 ln -s ${EXE}-${bin_arch} ${EXE}

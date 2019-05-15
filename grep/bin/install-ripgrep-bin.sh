@@ -11,18 +11,24 @@ case $os_n_arch in
   *) print "no binary for os/arch '$os_n_arch'."; exit -1;;
 esac
 
-URL=https://github.com/BurntSushi/ripgrep/releases
+BASEURL=https://github.com/BurntSushi/ripgrep/releases
 
-# find latest version number
-VER=$(wget $URL -O - | grep 'releases/tag/' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' | grep '^[0-9]' | head -1 )
-
-
-if [ -x ~/bin/rg ]; then
-  ( ~/bin/rg --version 2>&1 | grep $VER ) && echo "You already have latest version." && exit 0
+if which rg; then
+  echo "Existing version: $(which rg): $(rg --version 2>&1)"
+  ( rg --version 2>&1 | grep $VER ) && echo "You already have latest version." && exit 0
 fi
 
+#use `VER=0.10.0 install-ripgrep-bin.sh` to install specific version
+if [ -z "$VER" ]; then
+  # find latest version number
+  VER=$(wget "$BASEURL" -O - | grep 'releases/tag/' | awk -F '>' '{print $2}' | awk -F '<' '{print $1}' | grep '^[0-9]' | head -1 )
+fi
+
+URL="${BASEURL}/download/${VER}/${PRJNAME}-${VER}-${bin_arch}.${pack}"
+echo "About to download & install $URL"  && echo "continue?" && read a
+
 [ -d ~/temp ] || mkdir ~/temp
-(cd ~/temp && wget -c "${URL}/download/${VER}/${PRJNAME}-${VER}-${bin_arch}.${pack}" -O ${PRJNAME}-${VER}-${bin_arch}.${pack} &&
+(cd ~/temp && wget -c "$URL" -O ${PRJNAME}-${VER}-${bin_arch}.${pack} &&
      (tar xvf ${PRJNAME}-${VER}-${bin_arch}.tar.gz || unzip ${PRJNAME}-${VER}-${bin_arch}.zip))
 
 [ -d ~/bin ] || mkdir ~/bin
