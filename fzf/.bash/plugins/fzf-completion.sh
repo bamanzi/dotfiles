@@ -12,7 +12,7 @@
 
 _fzf_orig_completion_filter() {
   sed 's/^\(.*-F\) *\([^ ]*\).* \([^ ]*\)$/export _fzf_orig_completion_\3="\1 %s \3 #\2";/' |
-  awk -F= '{gsub(/[^a-z0-9_= ;]/, "_", $1); print $1"="$2}'
+  awk -F= '{gsub(/[^A-Za-z0-9_= ;]/, "_", $1); print $1"="$2}'
 }
 
 _fzf_opts_completion() {
@@ -97,7 +97,7 @@ _fzf_handle_dynamic_completion() {
 __fzf_generic_path_completion() {
   local cur base dir leftover matches trigger cmd fzf
   [ ${FZF_TMUX:-1} -eq 1 ] && fzf="fzf-tmux -d ${FZF_TMUX_HEIGHT:-40%}" || fzf="fzf"
-  cmd=$(echo ${COMP_WORDS[0]} | sed 's/[^a-z0-9_=]/_/g')
+  cmd="${COMP_WORDS[0]//[^A-Za-z0-9_=]/_}"
   COMPREPLY=()
   trigger=${FZF_COMPLETION_TRIGGER-'**'}
   cur="${COMP_WORDS[COMP_CWORD]}"
@@ -147,7 +147,7 @@ _fzf_complete() {
   fifo="${TMPDIR:-/tmp}/fzf-complete-fifo-$$"
   [ ${FZF_TMUX:-1} -eq 1 ] && fzf="fzf-tmux -d ${FZF_TMUX_HEIGHT:-40%}" || fzf="fzf"
 
-  cmd=$(echo ${COMP_WORDS[0]} | sed 's/[^a-z0-9_=]/_/g')
+  cmd="${COMP_WORDS[0]//[^A-Za-z0-9_=]/_}"
   trigger=${FZF_COMPLETION_TRIGGER-'**'}
   cur="${COMP_WORDS[COMP_CWORD]}"
   if [[ ${cur} == *"$trigger" ]]; then
@@ -269,7 +269,7 @@ _fzf_defc() {
   cmd="$1"
   func="$2"
   opts="$3"
-  orig_var="_fzf_orig_completion_$cmd"
+  orig_var="_fzf_orig_completion_${cmd//[^A-Za-z0-9_]/_}"
   orig="${!orig_var}"
   if [ -n "$orig" ]; then
     eval "$(printf "$orig" "$func")"
