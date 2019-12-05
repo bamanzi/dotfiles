@@ -7,6 +7,22 @@
 echo $PATH | grep -q "$HOME/bin" || export PATH=$HOME/bin:$PATH
 echo $PATH | grep -q "$HOME/.local/bin" || export PATH=$HOME/.local/bin:$PATH
 
+# print a horizontal line after the prompt
+_hr () {
+    if [ $? -eq 0 ]; then
+        tput setaf 2; builtin echo -n ":) "; tput sgr0
+    else
+        tput setaf 1; builtin echo -n ":( "; tput sgr0
+    fi
+
+    uid=`id -u`
+    [ $uid -eq 0 ] && tput setaf 1 || tput setaf 6
+    #printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
+    printf '=%.0s' $(seq $((${COLUMNS} - 20)))
+    tput sgr0
+    date '+ [%m-%d %H:%M]'
+}
+#PROMPT_COMMAND=_hr
 
 # a colorful prompt with smiley
 # https://janveldeman.wordpress.com/2008/02/07/smiley-in-bash-prompt/
