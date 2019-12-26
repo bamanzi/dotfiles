@@ -215,7 +215,9 @@ see also: <https://www.cnblogs.com/bamanzi/p/cli-narrowing-tools.html>
 - [tmuxifier](https://github.com/jimeh/tmuxifier ): Powerful session, window & pane management for Tmux.
  
 - [mucks](http://zserge.com/blog/mucks.html ): automating screen and tmux's session/window creation.
- 
+
+- [tmux-xpanes](https://github.com/greymd/tmux-xpanes ): Awesome tmux-based terminal divider
+
 - [tmux-cssh](https://github.com/dennishafemann/tmux-cssh )
  
   And a fork supporting using current tmux session: <https://github.com/SaaldjorMike/tmux-cssh>
